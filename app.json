@@ -1,15 +1,14 @@
 {
   "expo": {
     "name": "counter",
-    "assetBundlePatterns": [
-      "assets/*"
-    ],
+    "assetBundlePatterns": ["assets/*"],
     "slug": "counter",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "scheme": "counter",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -19,17 +18,17 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.codedegen.counter",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": ["audio"]
       }
     },
-    "plugins": [
-      "expo-dev-client"
-    ],
     "extra": {
       "router": {},
       "eas": {
         "projectId": "bbe4816c-87db-40fd-b4eb-cf7274e754fb"
       }
-    }
+    },
+    "plugins": ["expo-router"],
+    "updates": { "enabled": true }
   }
 }
