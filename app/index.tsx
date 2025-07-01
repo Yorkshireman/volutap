@@ -2,6 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { CountingModeContext } from '../contexts';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { onPressReset } from '../utils';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useContext } from 'react';
 import { useSetCountOnVolumeChange } from '../hooks';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -23,35 +24,44 @@ export default function Index() {
   };
 
   const onPressSwitchCountModeButton = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setCountingWithVolumeButtons(!countingWithVolumeButtons);
   };
 
   return (
-    <View style={styles.container}>
-      <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.count}>
-        {count}
-      </Text>
-      <TouchableOpacity onPress={() => onPressReset(count, setCount)} style={styles.refreshButton}>
-        <Ionicons color={'#fff'} name='refresh-outline' size={72} />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onPressSwitchCountModeButton} style={styles.switchCountModeButton}>
-        <Text style={styles.switchCountModeButtonText}>
-          {countingWithVolumeButtons
-            ? 'Switch to using screen buttons'
-            : 'Switch to using volume buttons'}
+    <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
+      <View style={styles.container}>
+        <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.count}>
+          {count}
         </Text>
-      </TouchableOpacity>
-      {!countingWithVolumeButtons && (
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          <TouchableOpacity onPress={onPressIncrementButton} style={styles.switchCountModeButton}>
-            <Text style={styles.switchCountModeButtonText}>+</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onPressDecrementButton} style={styles.switchCountModeButton}>
-            <Text style={styles.switchCountModeButtonText}>-</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
+        <TouchableOpacity
+          onPress={() => onPressReset(count, setCount)}
+          style={styles.refreshButton}
+        >
+          <Ionicons color={'#fff'} name='refresh-outline' size={72} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onPressSwitchCountModeButton}
+          style={styles.switchCountModeButton}
+        >
+          <Text style={styles.switchCountModeButtonText}>
+            {countingWithVolumeButtons
+              ? 'Switch to using screen buttons'
+              : 'Switch to using volume buttons'}
+          </Text>
+        </TouchableOpacity>
+        {!countingWithVolumeButtons && (
+          <View style={styles.countButtonsWrapper}>
+            <TouchableOpacity onPress={onPressIncrementButton} style={styles.countButton}>
+              <Text style={styles.countButtonText}>+</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onPressDecrementButton} style={styles.countButton}>
+              <Text style={styles.countButtonText}>-</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -60,8 +70,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#27187E',
     flex: 1,
-    gap: 20,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     maxWidth: 768,
     paddingHorizontal: 20
   },
@@ -69,13 +78,31 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 200
   },
+  countButton: {
+    alignItems: 'center',
+    borderColor: '#fff',
+    borderRadius: 20,
+    borderWidth: 3,
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20
+  },
+  countButtonText: {
+    color: '#fff',
+    fontSize: 36,
+    fontWeight: 'bold'
+  },
+  countButtonsWrapper: {
+    flexDirection: 'row',
+    gap: 10
+  },
   refreshButton: {
     padding: 5
   },
   switchCountModeButton: {
     borderColor: '#fff',
     borderRadius: 20,
-    borderWidth: 2,
+    borderWidth: 1,
     padding: 18
   },
   switchCountModeButtonText: {
