@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#27187E',
     flex: 1,
+    gap: 50,
     justifyContent: 'space-between',
     maxWidth: 768,
     paddingHorizontal: 20
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
   countButton: {
     alignItems: 'center',
     borderColor: '#fff',
-    borderRadius: 20,
+    borderRadius: 50,
     borderWidth: 3,
     flex: 1,
     justifyContent: 'center',
@@ -93,8 +94,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   countButtonsWrapper: {
+    flex: 1,
     flexDirection: 'row',
-    gap: 10
+    gap: 30
   },
   refreshButton: {
     padding: 5
