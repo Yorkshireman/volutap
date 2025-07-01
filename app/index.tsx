@@ -59,11 +59,11 @@ export default function Index() {
         </View>
         {!countingWithVolumeButtons && (
           <View style={styles.countButtonsWrapper}>
-            <TouchableOpacity onPress={onPressIncrementButton} style={styles.countButton}>
-              <Text style={styles.countButtonText}>+</Text>
-            </TouchableOpacity>
             <TouchableOpacity onPress={onPressDecrementButton} style={styles.countButton}>
-              <Text style={styles.countButtonText}>-</Text>
+              <Ionicons color={'#fff'} name='remove-outline' size={72} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onPressIncrementButton} style={styles.countButton}>
+              <Ionicons color={'#fff'} name='add-outline' size={72} />
             </TouchableOpacity>
           </View>
         )}
