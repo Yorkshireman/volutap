@@ -30,7 +30,12 @@ export default function Index() {
 
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
-      <View style={styles.container}>
+      <View
+        style={{
+          ...styles.container,
+          justifyContent: countingWithVolumeButtons ? 'center' : 'space-between'
+        }}
+      >
         <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.count}>
           {count}
         </Text>
@@ -40,16 +45,18 @@ export default function Index() {
         >
           <Ionicons color={'#fff'} name='refresh-outline' size={72} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onPressSwitchCountModeButton}
-          style={styles.switchCountModeButton}
-        >
-          <Text style={styles.switchCountModeButtonText}>
-            {countingWithVolumeButtons
-              ? 'Switch to using screen buttons'
-              : 'Switch to using volume buttons'}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.switchCountModeButtonWrapper}>
+          <TouchableOpacity
+            onPress={onPressSwitchCountModeButton}
+            style={styles.switchCountModeButton}
+          >
+            <Text style={styles.switchCountModeButtonText}>
+              {countingWithVolumeButtons
+                ? 'Switch to using screen buttons'
+                : 'Switch to using volume buttons'}
+            </Text>
+          </TouchableOpacity>
+        </View>
         {!countingWithVolumeButtons && (
           <View style={styles.countButtonsWrapper}>
             <TouchableOpacity onPress={onPressIncrementButton} style={styles.countButton}>
@@ -70,10 +77,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#27187E',
     flex: 1,
-    gap: 50,
+    gap: 20,
     justifyContent: 'space-between',
     maxWidth: 768,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
+    paddingTop: 20
   },
   count: {
     color: '#fff',
@@ -110,5 +118,9 @@ const styles = StyleSheet.create({
   switchCountModeButtonText: {
     color: '#fff',
     fontSize: 18
+  },
+  switchCountModeButtonWrapper: {
+    flex: 1,
+    justifyContent: 'flex-end'
   }
 });

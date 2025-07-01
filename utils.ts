@@ -17,7 +17,7 @@ export const onPressReset = (
       {
         onPress: async () => {
           setCount(0);
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
         text: 'OK'
       }

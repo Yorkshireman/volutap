@@ -7,13 +7,16 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
   const [count, setCount] = useState(0);
   const countRef = useRef(count);
   const didMount = useRef(false);
+  const justSwitchedMode = useRef(false);
   const programmaticVolumeChangeRef = useRef(false);
 
   useEffect(() => {
     let sub: { remove: () => void } | null = null;
     let soundObj: Audio.Sound | null = null;
 
-    countingWithVolumeButtons &&
+    if (countingWithVolumeButtons) {
+      justSwitchedMode.current = true;
+
       (async () => {
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: false,
@@ -53,6 +56,7 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
           }
         });
       })();
+    }
 
     return () => {
       sub?.remove();
@@ -67,6 +71,11 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
     }
 
     if (!countingWithVolumeButtons) return;
+
+    if (justSwitchedMode.current) {
+      justSwitchedMode.current = false;
+      return;
+    }
 
     countRef.current = count;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
