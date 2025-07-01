@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { CountingModeContext } from '../contexts';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { onPressReset } from '../utils';
@@ -6,9 +7,20 @@ import { useSetCountOnVolumeChange } from '../hooks';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function Index() {
-  const { count, setCount } = useSetCountOnVolumeChange();
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
+  const { count, setCount } = useSetCountOnVolumeChange(countingWithVolumeButtons);
+
+  const onPressDecrementButton = () => {
+    if (count === 0) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    setCount(prev => prev - 1);
+  };
+
+  const onPressIncrementButton = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    setCount(prev => prev + 1);
+  };
 
   const onPressSwitchCountModeButton = () => {
     setCountingWithVolumeButtons(!countingWithVolumeButtons);
@@ -29,20 +41,16 @@ export default function Index() {
             : 'Switch to using volume buttons'}
         </Text>
       </TouchableOpacity>
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <TouchableOpacity
-          onPress={() => setCount(prev => prev + 1)}
-          style={styles.switchCountModeButton}
-        >
-          <Text style={styles.switchCountModeButtonText}>+</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setCount(prev => (prev > 0 ? prev - 1 : 0))}
-          style={styles.switchCountModeButton}
-        >
-          <Text style={styles.switchCountModeButtonText}>-</Text>
-        </TouchableOpacity>
-      </View>
+      {!countingWithVolumeButtons && (
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <TouchableOpacity onPress={onPressIncrementButton} style={styles.switchCountModeButton}>
+            <Text style={styles.switchCountModeButtonText}>+</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onPressDecrementButton} style={styles.switchCountModeButton}>
+            <Text style={styles.switchCountModeButtonText}>-</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
