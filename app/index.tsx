@@ -29,6 +29,20 @@ export default function Index() {
             : 'Switch to using volume buttons'}
         </Text>
       </TouchableOpacity>
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <TouchableOpacity
+          onPress={() => setCount(prev => prev + 1)}
+          style={styles.switchCountModeButton}
+        >
+          <Text style={styles.switchCountModeButtonText}>+</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setCount(prev => (prev > 0 ? prev - 1 : 0))}
+          style={styles.switchCountModeButton}
+        >
+          <Text style={styles.switchCountModeButtonText}>-</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
