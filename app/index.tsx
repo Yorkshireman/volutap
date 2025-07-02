@@ -8,7 +8,7 @@ import uuid from 'react-native-uuid';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
-  useFetchAndSetCurrentCountOnMount,
+  useFetchAndSetCurrentCountAndIdOnMount,
   usePersistCurrentCountAndId,
   useSetCountOnVolumeChange
 } from '../hooks';
@@ -22,7 +22,7 @@ export default function Index() {
   const saveInputFieldRef = useRef<TextInput>(null);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, onChangeTitleToSave] = useState('');
-  useFetchAndSetCurrentCountOnMount(setCount, setCurrentCountId);
+  useFetchAndSetCurrentCountAndIdOnMount(setCount, setCurrentCountId);
   usePersistCurrentCountAndId(count, currentCountId);
 
   useEffect(() => {
