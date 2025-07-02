@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#27187E',
     flex: 1,
-    gap: 20,
+    gap: 25,
     justifyContent: 'space-between',
     maxWidth: 768,
     paddingHorizontal: 20,
@@ -117,10 +117,12 @@ const styles = StyleSheet.create({
   },
   switchCountModeButtonText: {
     color: '#fff',
-    fontSize: 18
+    fontSize: 18,
+    textAlign: 'center'
   },
   switchCountModeButtonWrapper: {
     flex: 1,
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
+    width: '100%'
   }
 });
