@@ -3,6 +3,8 @@ import { CountingModeContext } from '../contexts';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { onPressReset } from '../utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSQLiteContext } from 'expo-sqlite';
+import uuid from 'react-native-uuid';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
@@ -15,9 +17,10 @@ export default function Index() {
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
   const { count, setCount } = useSetCountOnVolumeChange(countingWithVolumeButtons);
+  const db = useSQLiteContext();
   const saveInputFieldRef = useRef<TextInput>(null);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
-  const [title, onChangeTitle] = useState('');
+  const [titleToSave, onChangeTitleToSave] = useState('');
   useFetchAndSetCurrentCountOnMount(setCount);
   usePersistCurrentCount(count);
 
@@ -46,6 +49,34 @@ export default function Index() {
     setCountingWithVolumeButtons(!countingWithVolumeButtons);
   };
 
+  const onSubmitEditing = async () => {
+    const trimmed = titleToSave.trim();
+    if (!trimmed) return;
+
+    const id = uuid.v4();
+    const now = new Date().toISOString();
+
+    try {
+      console.log(
+        `Adding a new Count to the database, createdAt: ${now}, title: ${trimmed}, id: ${id}.`
+      );
+
+      await db.runAsync(
+        'INSERT INTO savedCounts (count, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?)',
+        count,
+        now,
+        true,
+        id,
+        now,
+        trimmed
+      );
+
+      onChangeTitleToSave('');
+    } catch (e) {
+      console.error('DB error: ', e);
+    }
+  };
+
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
       <View
@@ -58,11 +89,11 @@ export default function Index() {
           ref={saveInputFieldRef}
           returnKeyType='done'
           style={{ ...styles.saveInputField, display: showSaveInputField ? 'flex' : 'none' }}
-          onBlur={() => !title && setShowSaveInputField(false)}
+          onBlur={() => !titleToSave && setShowSaveInputField(false)}
           placeholderTextColor={'#fff'}
-          onChangeText={onChangeTitle}
-          // onSubmitEditing={onSubmitEditing}
-          value={title}
+          onChangeText={onChangeTitleToSave}
+          onSubmitEditing={onSubmitEditing}
+          value={titleToSave}
           placeholder={'Name'}
         />
         <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.count}>
