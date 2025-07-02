@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import {
   useFetchAndSetCurrentCountAndIdOnMount,
   usePersistCurrentCountAndId,
@@ -18,7 +18,6 @@ export default function Index() {
   const [count, setCount] = useState<Count>({ value: 0 });
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
-  useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
   const [currentCountId, setCurrentCountId] = useState<string | null>(null);
   const db = useSQLiteContext();
   const saveInputFieldRef = useRef<TextInput>(null);
@@ -26,10 +25,7 @@ export default function Index() {
   const [titleToSave, onChangeTitleToSave] = useState('');
   useFetchAndSetCurrentCountAndIdOnMount(setCount, setCurrentCountId);
   usePersistCurrentCountAndId(count.value, currentCountId);
-
-  useEffect(() => {
-    showSaveInputField && saveInputFieldRef.current?.focus();
-  }, [showSaveInputField]);
+  useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
 
   const onPressDecrementButton = () => {
     if (count.value === 0) return;
@@ -45,6 +41,7 @@ export default function Index() {
   const onPressSaveButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowSaveInputField(true);
+    saveInputFieldRef.current?.focus();
   };
 
   const onPressSwitchCountModeButton = () => {
