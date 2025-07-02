@@ -3,8 +3,8 @@ import { CountingModeContext } from '../contexts';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { onPressReset } from '../utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useContext } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useContext, useEffect, useRef, useState } from 'react';
 import {
   useFetchAndSetCurrentCountOnMount,
   usePersistCurrentCount,
@@ -15,8 +15,15 @@ export default function Index() {
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
   const { count, setCount } = useSetCountOnVolumeChange(countingWithVolumeButtons);
+  const saveInputFieldRef = useRef<TextInput>(null);
+  const [showSaveInputField, setShowSaveInputField] = useState(false);
+  const [title, onChangeTitle] = useState('');
   useFetchAndSetCurrentCountOnMount(setCount);
   usePersistCurrentCount(count);
+
+  useEffect(() => {
+    showSaveInputField && saveInputFieldRef.current?.focus();
+  }, [showSaveInputField]);
 
   const onPressDecrementButton = () => {
     if (count === 0) return;
@@ -27,6 +34,11 @@ export default function Index() {
   const onPressIncrementButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     setCount(prev => prev + 1);
+  };
+
+  const onPressSaveButton = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setShowSaveInputField(true);
   };
 
   const onPressSwitchCountModeButton = () => {
@@ -42,6 +54,17 @@ export default function Index() {
           justifyContent: countingWithVolumeButtons ? 'center' : 'space-between'
         }}
       >
+        <TextInput
+          ref={saveInputFieldRef}
+          returnKeyType='done'
+          style={{ ...styles.saveInputField, display: showSaveInputField ? 'flex' : 'none' }}
+          onBlur={() => !title && setShowSaveInputField(false)}
+          placeholderTextColor={'#fff'}
+          onChangeText={onChangeTitle}
+          // onSubmitEditing={onSubmitEditing}
+          value={title}
+          placeholder={'Name'}
+        />
         <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.count}>
           {count}
         </Text>
@@ -52,7 +75,7 @@ export default function Index() {
           >
             <Ionicons color={'#fff'} name='refresh-outline' size={72} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => null} style={styles.saveButton}>
+          <TouchableOpacity onPress={onPressSaveButton} style={styles.saveButton}>
             <Ionicons color={'#fff'} name='save-outline' size={72} />
           </TouchableOpacity>
         </View>
@@ -122,6 +145,15 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     padding: 5
+  },
+  saveInputField: {
+    borderColor: '#fff',
+    borderRadius: 5,
+    borderWidth: 1,
+    color: '#fff',
+    fontSize: 18,
+    padding: 10,
+    width: '100%'
   },
   switchCountModeButton: {
     borderColor: '#fff',
