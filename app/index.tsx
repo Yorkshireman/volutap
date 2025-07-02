@@ -45,12 +45,17 @@ export default function Index() {
         <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.count}>
           {count}
         </Text>
-        <TouchableOpacity
-          onPress={() => onPressReset(count, setCount)}
-          style={styles.refreshButton}
-        >
-          <Ionicons color={'#fff'} name='refresh-outline' size={72} />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <TouchableOpacity
+            onPress={() => onPressReset(count, setCount)}
+            style={styles.refreshButton}
+          >
+            <Ionicons color={'#fff'} name='refresh-outline' size={72} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => null} style={styles.saveButton}>
+            <Ionicons color={'#fff'} name='save-outline' size={72} />
+          </TouchableOpacity>
+        </View>
         <View style={styles.switchCountModeButtonWrapper}>
           <TouchableOpacity
             onPress={onPressSwitchCountModeButton}
@@ -113,6 +118,9 @@ const styles = StyleSheet.create({
     gap: 30
   },
   refreshButton: {
+    padding: 5
+  },
+  saveButton: {
     padding: 5
   },
   switchCountModeButton: {
