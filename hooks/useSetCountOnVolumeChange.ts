@@ -1,11 +1,12 @@
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
+import type { Count } from '../types';
 import { VolumeManager } from 'react-native-volume-manager';
 import { useEffect, useRef, useState } from 'react';
 
 export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) => {
-  const [count, setCount] = useState(0);
-  const countRef = useRef(count);
+  const [count, setCount] = useState<Count>({ value: 0 });
+  const countValueRef = useRef<Count['value']>(count.value);
   const didMount = useRef(false);
   const justSwitchedMode = useRef(false);
   const programmaticVolumeChangeRef = useRef(false);
@@ -44,15 +45,15 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
           }
 
           if (volume > 0.5) {
-            setCount(c => c + 1);
+            setCount(c => ({ ...c, value: c.value + 1 }));
           } else if (volume < 0.5) {
-            if (countRef.current === 0) {
+            if (countValueRef.current === 0) {
               programmaticVolumeChangeRef.current = true;
               await VolumeManager.setVolume(0.5);
               return;
             }
 
-            setCount(c => c - 1);
+            setCount(c => ({ ...c, value: c.value - 1 }));
           }
         });
       })();
@@ -77,7 +78,7 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
       return;
     }
 
-    countRef.current = count;
+    countValueRef.current = count.value;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
     const resetVolume = async () => {

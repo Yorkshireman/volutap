@@ -1,11 +1,12 @@
 import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
+import type { Count } from './types';
 
 export const onPressReset = (
-  count: number,
-  setCount: React.Dispatch<React.SetStateAction<number>>
+  count: Count,
+  setCount: React.Dispatch<React.SetStateAction<Count>>
 ) => {
-  if (count === 0) return;
+  if (count.value === 0) return;
   Alert.alert(
     'Reset',
     'Are you sure you want to reset the counter to zero? This cannot be undone.',
@@ -16,7 +17,7 @@ export const onPressReset = (
       },
       {
         onPress: async () => {
-          setCount(0);
+          setCount({ value: 0 });
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
         text: 'OK'

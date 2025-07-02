@@ -23,21 +23,21 @@ export default function Index() {
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, onChangeTitleToSave] = useState('');
   useFetchAndSetCurrentCountAndIdOnMount(setCount, setCurrentCountId);
-  usePersistCurrentCountAndId(count, currentCountId);
+  usePersistCurrentCountAndId(count.value, currentCountId);
 
   useEffect(() => {
     showSaveInputField && saveInputFieldRef.current?.focus();
   }, [showSaveInputField]);
 
   const onPressDecrementButton = () => {
-    if (count === 0) return;
+    if (count.value === 0) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    setCount(prev => prev - 1);
+    setCount(prev => ({ ...prev, value: prev.value - 1 }));
   };
 
   const onPressIncrementButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    setCount(prev => prev + 1);
+    setCount(prev => ({ ...prev, value: prev.value + 1 }));
   };
 
   const onPressSaveButton = () => {
@@ -64,7 +64,7 @@ export default function Index() {
 
       await db.runAsync(
         'INSERT INTO savedCounts (count, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?, ?)',
-        count,
+        count.value,
         now,
         true,
         id,
@@ -99,7 +99,7 @@ export default function Index() {
           placeholder={'Name'}
         />
         <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.count}>
-          {count}
+          {count.value}
         </Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <TouchableOpacity
