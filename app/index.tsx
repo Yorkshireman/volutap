@@ -9,7 +9,7 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
   useFetchAndSetCurrentCountOnMount,
-  usePersistCurrentCount,
+  usePersistCurrentCountAndId,
   useSetCountOnVolumeChange
 } from '../hooks';
 
@@ -17,12 +17,13 @@ export default function Index() {
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
   const { count, setCount } = useSetCountOnVolumeChange(countingWithVolumeButtons);
+  const [currentCountId, setCurrentCountId] = useState<string | null>(null);
   const db = useSQLiteContext();
   const saveInputFieldRef = useRef<TextInput>(null);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, onChangeTitleToSave] = useState('');
-  useFetchAndSetCurrentCountOnMount(setCount);
-  usePersistCurrentCount(count);
+  useFetchAndSetCurrentCountOnMount(setCount, setCurrentCountId);
+  usePersistCurrentCountAndId(count, currentCountId);
 
   useEffect(() => {
     showSaveInputField && saveInputFieldRef.current?.focus();
@@ -62,7 +63,7 @@ export default function Index() {
       );
 
       await db.runAsync(
-        'INSERT INTO savedCounts (count, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO savedCounts (count, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?, ?)',
         count,
         now,
         true,
@@ -72,11 +73,12 @@ export default function Index() {
       );
 
       onChangeTitleToSave('');
+      setCurrentCountId(id);
     } catch (e) {
       console.error('DB error: ', e);
     }
   };
-
+  console.log({ currentCountId });
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
       <View
@@ -106,9 +108,11 @@ export default function Index() {
           >
             <Ionicons color={'#fff'} name='refresh-outline' size={72} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={onPressSaveButton} style={styles.saveButton}>
-            <Ionicons color={'#fff'} name='save-outline' size={72} />
-          </TouchableOpacity>
+          {!currentCountId && (
+            <TouchableOpacity onPress={onPressSaveButton} style={styles.saveButton}>
+              <Ionicons color={'#fff'} name='save-outline' size={72} />
+            </TouchableOpacity>
+          )}
         </View>
         <View style={styles.switchCountModeButtonWrapper}>
           <TouchableOpacity

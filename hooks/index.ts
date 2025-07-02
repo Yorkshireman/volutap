@@ -1,3 +1,3 @@
 export { useFetchAndSetCurrentCountOnMount } from './useFetchAndSetCurrentCountOnMount';
-export { usePersistCurrentCount } from './usePersistCurrentCount';
+export { usePersistCurrentCountAndId } from './usePersistCurrentCountAndId';
 export { useSetCountOnVolumeChange } from './useSetCountOnVolumeChange';
