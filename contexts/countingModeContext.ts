@@ -1,11 +1,11 @@
-import { createContext, Dispatch, SetStateAction } from 'react';
+import { createContext } from 'react';
 
 type CountingModeContextType = {
   countingWithVolumeButtons: boolean;
-  setCountingWithVolumeButtons: Dispatch<SetStateAction<boolean>>;
+  setCountingWithVolumeButtons: (value: boolean) => Promise<void>;
 };
 
 export const CountingModeContext = createContext<CountingModeContextType>({
   countingWithVolumeButtons: false,
-  setCountingWithVolumeButtons: () => null
+  setCountingWithVolumeButtons: async () => undefined
 });
