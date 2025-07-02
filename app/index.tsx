@@ -3,14 +3,20 @@ import { CountingModeContext } from '../contexts';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { onPressReset } from '../utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useContext } from 'react';
-import { useSetCountOnVolumeChange } from '../hooks';
+import React, { useContext } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  useFetchAndSetCurrentCountOnMount,
+  usePersistCurrentCount,
+  useSetCountOnVolumeChange
+} from '../hooks';
 
 export default function Index() {
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
   const { count, setCount } = useSetCountOnVolumeChange(countingWithVolumeButtons);
+  useFetchAndSetCurrentCountOnMount(setCount);
+  usePersistCurrentCount(count);
 
   const onPressDecrementButton = () => {
     if (count === 0) return;
