@@ -78,7 +78,7 @@ export default function Index() {
       console.error('DB error: ', e);
     }
   };
-  console.log({ currentCountId });
+
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
       <View
