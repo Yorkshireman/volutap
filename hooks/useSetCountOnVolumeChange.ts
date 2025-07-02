@@ -2,10 +2,13 @@ import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
 import type { Count } from '../types';
 import { VolumeManager } from 'react-native-volume-manager';
-import { useEffect, useRef, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useRef } from 'react';
 
-export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) => {
-  const [count, setCount] = useState<Count>({ value: 0 });
+export const useSetCountOnVolumeChange = (
+  countingWithVolumeButtons: boolean,
+  count: Count,
+  setCount: Dispatch<SetStateAction<Count>>
+) => {
   const countValueRef = useRef<Count['value']>(count.value);
   const didMount = useRef(false);
   const justSwitchedMode = useRef(false);

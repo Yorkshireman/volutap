@@ -1,4 +1,5 @@
 import * as Haptics from 'expo-haptics';
+import type { Count } from '../types';
 import { CountingModeContext } from '../contexts';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { onPressReset } from '../utils';
@@ -14,9 +15,10 @@ import {
 } from '../hooks';
 
 export default function Index() {
+  const [count, setCount] = useState<Count>({ value: 0 });
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
-  const { count, setCount } = useSetCountOnVolumeChange(countingWithVolumeButtons);
+  useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
   const [currentCountId, setCurrentCountId] = useState<string | null>(null);
   const db = useSQLiteContext();
   const saveInputFieldRef = useRef<TextInput>(null);
