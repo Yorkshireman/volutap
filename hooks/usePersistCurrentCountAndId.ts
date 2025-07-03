@@ -1,54 +1,67 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { Count } from '../types';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef } from 'react';
 
-export const usePersistCurrentCountAndId = (count: number, currentCountId: string | null) => {
+export const usePersistCurrentCountAndId = (count: Count, currentCountId?: string) => {
+  //rename
   const db = useSQLiteContext();
-  const currentCountRef = useRef<number | null>(null);
+  const currentCountValueRef = useRef<number | null>(null);
+  const didMount = useRef(false);
 
   useEffect(() => {
-    if (currentCountRef.current === count) {
-      console.log('Count has not changed, skipping persistence.');
+    if (!didMount.current) {
+      didMount.current = true;
+      return;
+    }
+
+    if (currentCountValueRef.current === count.value) {
+      console.log('usePersistCurrentCountAndId(): Count has not changed, skipping persistence.');
       return;
     }
 
     const saveCountToDB = async () => {
+      if (!currentCountId) return;
+
       try {
-        if (currentCountId) {
-          const result = await db.getFirstAsync<{ count: number }>(
-            'SELECT count FROM savedCounts WHERE id = ?',
-            [currentCountId]
+        const result = await db.getFirstAsync<{ count: number }>(
+          'SELECT count FROM savedCounts WHERE id = ?',
+          [currentCountId]
+        );
+
+        const currentCount = result?.count || 0;
+        if (currentCount === count.value) {
+          console.log(
+            'usePersistCurrentCountAndId(): Count in DB is already up to date, skipping update.'
           );
 
-          const currentCount = result?.count || 0;
-          if (currentCount === count) {
-            console.log('Count in DB is already up to date, skipping update.');
-            return;
-          }
-
-          console.log(`Updating savedCount in DB with id: ${currentCountId}, new count: ${count}.`);
-          const now = new Date().toISOString();
-
-          await db.runAsync('UPDATE savedCounts SET count = ?, lastModified = ? WHERE id = ?', [
-            count,
-            now,
-            currentCountId
-          ]);
-
-          currentCountRef.current = count;
+          return;
         }
+
+        console.log(
+          `usePersistCurrentCountAndId(): Updating savedCount in DB with id: ${currentCountId}, new count: ${JSON.stringify(
+            count
+          )}.`
+        );
+
+        await db.runAsync('UPDATE savedCounts SET count = ?, lastModified = ? WHERE id = ?', [
+          count.value,
+          new Date().toISOString(),
+          currentCountId
+        ]);
+
+        currentCountValueRef.current = count.value;
       } catch (error) {
-        console.error('Error updating count in database: ', error);
+        console.error('usePersistCurrentCountAndId(): Error updating count in database: ', error);
       }
     };
 
-    AsyncStorage.setItem('currentCount', count.toString());
+    console.log(
+      'usePersistCurrentCountAndId(): Persisting Count to AsyncStorage: ',
+      JSON.stringify(count)
+    );
+
+    AsyncStorage.setItem('currentCount', JSON.stringify(count));
     saveCountToDB();
   }, [count, currentCountId, db]);
-
-  useEffect(() => {
-    if (!currentCountId) return;
-    console.log('Persisting currentCountId: ', currentCountId);
-    AsyncStorage.setItem('currentCountId', currentCountId ?? '');
-  }, [currentCountId]);
 };

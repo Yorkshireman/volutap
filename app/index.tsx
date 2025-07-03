@@ -18,13 +18,12 @@ export default function Index() {
   const [count, setCount] = useState<Count>({ value: 0 });
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
-  const [currentCountId, setCurrentCountId] = useState<string | null>(null);
   const db = useSQLiteContext();
   const saveInputFieldRef = useRef<TextInput>(null);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, onChangeTitleToSave] = useState('');
-  useFetchAndSetCurrentCountAndIdOnMount(setCount, setCurrentCountId);
-  usePersistCurrentCountAndId(count.value, currentCountId);
+  useFetchAndSetCurrentCountAndIdOnMount(setCount);
+  usePersistCurrentCountAndId(count, count.id);
   useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
 
   const onPressDecrementButton = () => {
@@ -72,7 +71,14 @@ export default function Index() {
       );
 
       onChangeTitleToSave('');
-      setCurrentCountId(id);
+      setCount({
+        createdAt: now,
+        currentlyCounting: true,
+        id,
+        lastModified: now,
+        title: trimmed,
+        value: count.value
+      });
     } catch (e) {
       console.error('DB error: ', e);
     }
@@ -86,6 +92,7 @@ export default function Index() {
           justifyContent: countingWithVolumeButtons ? 'center' : 'space-between'
         }}
       >
+        <Text style={{ color: 'white' }}>{count.title}</Text>
         <TextInput
           ref={saveInputFieldRef}
           returnKeyType='done'
@@ -107,7 +114,7 @@ export default function Index() {
           >
             <Ionicons color={'#fff'} name='refresh-outline' size={72} />
           </TouchableOpacity>
-          {!currentCountId && (
+          {!count.id && (
             <TouchableOpacity onPress={onPressSaveButton} style={styles.saveButton}>
               <Ionicons color={'#fff'} name='save-outline' size={72} />
             </TouchableOpacity>

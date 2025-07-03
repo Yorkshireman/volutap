@@ -1,23 +1,60 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Count } from '../types';
 import { useEffect } from 'react';
+import { useSQLiteContext } from 'expo-sqlite';
+import type { Count, DbCount } from '../types';
 
 export const useFetchAndSetCurrentCountAndIdOnMount = (
-  setCount: React.Dispatch<React.SetStateAction<Count>>,
-  setCurrentCountId: React.Dispatch<React.SetStateAction<string | null>>
+  setCount: React.Dispatch<React.SetStateAction<Count>>
 ) => {
+  const db = useSQLiteContext();
   useEffect(() => {
     (async () => {
-      const currentCount = await AsyncStorage.getItem('currentCount');
-      if (currentCount !== null) {
-        setCount({ value: parseInt(currentCount) });
-      }
+      let currentCount: Count | DbCount | null;
+      try {
+        console.log(
+          'useFetchAndSetCurrentCountAndIdOnMount(): Querying DB for a Count that has currentlyCounting true.'
+        );
 
-      const currentCountId = await AsyncStorage.getItem('currentCountId');
+        currentCount = await db.getFirstAsync<DbCount>(
+          'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
+          [true]
+        );
 
-      if (currentCountId !== null) {
-        setCurrentCountId(currentCountId);
+        if (!currentCount) {
+          console.log(
+            'useFetchAndSetCurrentCountAndIdOnMount(): No current count found in database, building using AsyncStorage count value.'
+          );
+
+          const storedCount = await AsyncStorage.getItem('currentCount');
+          if (!storedCount) {
+            console.log(
+              'useFetchAndSetCurrentCountAndIdOnMount(): No stored count found in AsyncStorage.'
+            );
+
+            return;
+          }
+
+          console.log(
+            'useFetchAndSetCurrentCountAndIdOnMount(): Stored count from AsyncStorage: ',
+            storedCount
+          );
+
+          const parsedStoredCount: Count = storedCount ? JSON.parse(storedCount) : null;
+          setCount(parsedStoredCount);
+          return;
+        }
+
+        console.log(
+          'useFetchAndSetCurrentCountAndIdOnMount(): Current count found in database: ',
+          JSON.stringify(currentCount)
+        );
+
+        const { count, ...rest } = currentCount;
+        const countObj = { ...rest, value: count };
+        setCount(countObj);
+      } catch (e) {
+        console.error('Error fetching current Count from database: ', e);
       }
     })();
-  }, [setCount, setCurrentCountId]);
+  }, [db, setCount]);
 };
