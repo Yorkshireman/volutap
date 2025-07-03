@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import {
   useFetchAndSetCurrentCountAndIdOnMount,
   usePersistCurrentCountAndId,
@@ -26,6 +26,11 @@ export default function Index() {
   usePersistCurrentCountAndId(count, count.id);
   useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
 
+  useEffect(() => {
+    if (!showSaveInputField) return;
+    saveInputFieldRef.current?.focus();
+  }, [showSaveInputField]);
+
   const onPressDecrementButton = () => {
     if (count.value === 0) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -40,12 +45,28 @@ export default function Index() {
   const onPressSaveButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowSaveInputField(true);
-    saveInputFieldRef.current?.focus();
   };
 
   const onPressSwitchCountModeButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setCountingWithVolumeButtons(!countingWithVolumeButtons);
+  };
+
+  const startNewCount = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (!count.id) return;
+
+    try {
+      await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
+        false,
+        count.id
+      ]);
+
+      console.log(`Updated currentlyCounting to false for count with id: ${count.id}`);
+      setCount({ value: 0 });
+    } catch (e) {
+      console.error('Error updating currentlyCounting in database: ', e);
+    }
   };
 
   const onSubmitEditing = async () => {
@@ -114,6 +135,11 @@ export default function Index() {
           >
             <Ionicons color={'#fff'} name='refresh-outline' size={72} />
           </TouchableOpacity>
+          {count.id && (
+            <TouchableOpacity onPress={startNewCount} style={styles.refreshButton}>
+              <Ionicons color={'#fff'} name='create-outline' size={72} />
+            </TouchableOpacity>
+          )}
           {!count.id && (
             <TouchableOpacity onPress={onPressSaveButton} style={styles.saveButton}>
               <Ionicons color={'#fff'} name='save-outline' size={72} />

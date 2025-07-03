@@ -7,6 +7,7 @@ export const onPressReset = (
   setCount: React.Dispatch<React.SetStateAction<Count>>
 ) => {
   if (count.value === 0) return;
+
   Alert.alert(
     'Reset',
     'Are you sure you want to reset the counter to zero? This cannot be undone.',
@@ -17,7 +18,7 @@ export const onPressReset = (
       },
       {
         onPress: async () => {
-          setCount({ value: 0 });
+          setCount(prev => ({ ...prev, value: 0 }));
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
         text: 'OK'
