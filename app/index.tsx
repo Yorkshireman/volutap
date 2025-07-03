@@ -2,10 +2,10 @@ import * as Haptics from 'expo-haptics';
 import type { Count } from '../types';
 import { CountingModeContext } from '../contexts';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { onPressReset } from '../utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
+import { onPressReset, onPressStartNewCountButton } from '../utils';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
@@ -50,23 +50,6 @@ export default function Index() {
   const onPressSwitchCountModeButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setCountingWithVolumeButtons(!countingWithVolumeButtons);
-  };
-
-  const startNewCount = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (!count.id) return;
-
-    try {
-      await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
-        false,
-        count.id
-      ]);
-
-      console.log(`Updated currentlyCounting to false for count with id: ${count.id}`);
-      setCount({ value: 0 });
-    } catch (e) {
-      console.error('Error updating currentlyCounting in database: ', e);
-    }
   };
 
   const onSubmitEditing = async () => {
@@ -136,7 +119,10 @@ export default function Index() {
             <Ionicons color={'#fff'} name='refresh-outline' size={72} />
           </TouchableOpacity>
           {count.id && (
-            <TouchableOpacity onPress={startNewCount} style={styles.refreshButton}>
+            <TouchableOpacity
+              onPress={() => onPressStartNewCountButton(count, db, setCount)}
+              style={styles.refreshButton}
+            >
               <Ionicons color={'#fff'} name='create-outline' size={72} />
             </TouchableOpacity>
           )}
