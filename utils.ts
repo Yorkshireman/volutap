@@ -108,17 +108,13 @@ export const onSelectCount = async ({
 }: {
   count: Count;
   db: SQLiteDatabase;
-  id?: string;
+  id: Count['id'];
   selectedCount: Count | null;
   setCount: SetCount;
   setDropdownVisible: SetDropdownVisible;
   setShowSaveInputField: SetShowSaveInputField;
 }) => {
   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  if (!id) {
-    console.error('No count ID provided.');
-    return;
-  }
 
   if (!selectedCount && count.value) {
     Alert.alert(
@@ -127,6 +123,11 @@ export const onSelectCount = async ({
       [
         {
           onPress: async () => {
+            if (!id) {
+              console.error('No count ID provided.');
+              return;
+            }
+
             await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
               true,
               id
@@ -167,7 +168,11 @@ export const onSelectCount = async ({
       selectedCount?.id || ''
     ]);
 
-    await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [true, id]);
+    await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
+      true,
+      id || ''
+    ]);
+
     const newCount: Count | null = await db.getFirstAsync(
       'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
       [true]

@@ -84,13 +84,13 @@ export const CountSelector = ({
           <ScrollView indicatorStyle='white' style={styles.dropdown}>
             {counts
               .filter(({ id }) => id !== selectedCount?.id)
-              .map((count, i) => {
+              .map(({ createdAt, id, lastModified, title, value }, i) => {
                 const isLast = i === counts.length - 1;
                 const onPress = () =>
                   onSelectCount({
                     count,
                     db,
-                    id: count.id,
+                    id,
                     selectedCount,
                     setCount,
                     setDropdownVisible,
@@ -99,10 +99,13 @@ export const CountSelector = ({
 
                 return (
                   <CountSelectorDropdownItem
-                    count={count}
-                    key={count.id}
+                    createdAt={createdAt}
+                    key={id}
                     isLast={isLast}
+                    lastModified={lastModified}
                     onPress={onPress}
+                    title={title}
+                    value={value}
                   />
                 );
               })}

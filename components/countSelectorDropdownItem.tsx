@@ -2,13 +2,19 @@ import { Count } from '../types';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export const CountSelectorDropdownItem = ({
-  count,
+  createdAt,
+  lastModified,
   isLast,
-  onPress
+  onPress,
+  title,
+  value
 }: {
-  count: Count;
+  createdAt?: Count['createdAt'];
+  lastModified?: Count['lastModified'];
   isLast: boolean;
   onPress: () => void;
+  title: Count['title'];
+  value: Count['value'];
 }) => {
   return (
     <TouchableOpacity
@@ -19,15 +25,15 @@ export const CountSelectorDropdownItem = ({
       }}
     >
       <View style={styles.dropdownItemFirstRow}>
-        <Text style={styles.dropdownItemText}>{count.title}</Text>
-        <Text style={styles.dropdownItemText}>{count.value}</Text>
+        <Text style={styles.dropdownItemText}>{title}</Text>
+        <Text style={styles.dropdownItemText}>{value}</Text>
       </View>
       <Text style={styles.dropdownItemSecondRowText}>
         Created{'  '}
-        {new Date(count.createdAt || '').toLocaleString()}
+        {new Date(createdAt || '').toLocaleString()}
       </Text>
       <Text style={styles.dropdownItemSecondRowText}>
-        Updated {new Date(count.lastModified || '').toLocaleString()}
+        Updated {new Date(lastModified || '').toLocaleString()}
       </Text>
     </TouchableOpacity>
   );
