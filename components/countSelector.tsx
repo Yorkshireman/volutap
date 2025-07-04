@@ -1,3 +1,4 @@
+import { CountSelectorDropdownItem } from './countSelectorDropdownItem';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { onSelectCount } from '../utils';
 import { usePopulateCountSelector } from '../hooks';
@@ -86,27 +87,24 @@ export const CountSelector = ({
               .filter(({ id }) => id !== selectedCount?.id)
               .map(({ id, title }, i) => {
                 const isLast = i === counts.length - 1;
+                const onPress = () =>
+                  onSelectCount({
+                    count,
+                    db,
+                    id,
+                    selectedCount,
+                    setCount,
+                    setDropdownVisible,
+                    setShowSaveInputField
+                  });
+
                 return (
-                  <TouchableOpacity
+                  <CountSelectorDropdownItem
                     key={id}
-                    onPress={() =>
-                      onSelectCount({
-                        count,
-                        db,
-                        id,
-                        selectedCount,
-                        setCount,
-                        setDropdownVisible,
-                        setShowSaveInputField
-                      })
-                    }
-                    style={{
-                      ...styles.dropdownItem,
-                      borderBottomWidth: isLast ? 0 : 1
-                    }}
-                  >
-                    <Text style={styles.dropdownItemText}>{title}</Text>
-                  </TouchableOpacity>
+                    isLast={isLast}
+                    onPress={onPress}
+                    title={title}
+                  />
                 );
               })}
           </ScrollView>
@@ -146,15 +144,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     top: 10
-  },
-  dropdownItem: {
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    paddingVertical: 18
-  },
-  dropdownItemText: {
-    color: '#fff',
-    fontSize: 18
   },
   innerWrapper: {
     width: '100%'
