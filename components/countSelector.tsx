@@ -21,7 +21,7 @@ export const CountSelector = ({ count, setCount }: { count: Count; setCount: Set
   const db = useSQLiteContext();
   const dropdownIconRotationAnim = useAnimatedValue(0);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-  const [selectedCount, setSelectedCount] = useState<Count>();
+  const [selectedCount, setSelectedCount] = useState<Count | null>(null);
   usePopulateCountSelector(count, db, setCounts, setSelectedCount);
 
   const onSelectCount = async (id?: string) => {

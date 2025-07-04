@@ -7,7 +7,7 @@ export const usePopulateCountSelector = (
   count: Count,
   db: SQLiteDatabase,
   setCounts: React.Dispatch<React.SetStateAction<Count[] | undefined>>,
-  setSelectedCount: React.Dispatch<React.SetStateAction<Count | undefined>>
+  setSelectedCount: React.Dispatch<React.SetStateAction<Count | null>>
 ) => {
   useEffect(() => {
     const fetchCounts = async () => {
@@ -17,10 +17,9 @@ export const usePopulateCountSelector = (
         );
 
         const currentlyCounting = result.find(count => count.currentlyCounting);
-        if (!currentlyCounting) throw new Error('No currently counting count found');
-        setSelectedCount(transformDbCountToCount(currentlyCounting));
+        setSelectedCount(currentlyCounting ? transformDbCountToCount(currentlyCounting) : null);
         setCounts(
-          result.map(transformDbCountToCount).filter(({ id }) => id !== currentlyCounting.id)
+          result.map(transformDbCountToCount).filter(({ id }) => id !== currentlyCounting?.id)
         );
       } catch (error) {
         console.error('Error fetching counts:', error);
