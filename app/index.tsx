@@ -104,22 +104,22 @@ export default function Index() {
       backgroundColor: '#758BFD',
       duration: Snackbar.LENGTH_INDEFINITE,
       text:
-        `Created on ${new Date(dbCount.createdAt || '').toLocaleString(undefined, {
+        `Created  ${new Date(dbCount.createdAt || '').toLocaleString(undefined, {
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
-          month: 'long',
+          month: 'short',
           second: '2-digit',
-          weekday: 'long',
+          weekday: 'short',
           year: 'numeric'
         })}\n` +
-        `Count changed on ${new Date(dbCount.lastModified || '').toLocaleString(undefined, {
+        `Updated ${new Date(dbCount.lastModified || '').toLocaleString(undefined, {
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
-          month: 'long',
+          month: 'short',
           second: '2-digit',
-          weekday: 'long',
+          weekday: 'short',
           year: 'numeric'
         })}`,
       textColor: 'black'
