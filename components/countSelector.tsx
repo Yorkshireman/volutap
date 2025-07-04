@@ -1,9 +1,8 @@
-import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { onSelectCount } from '../utils';
 import { usePopulateCountSelector } from '../hooks';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
-  Alert,
   Animated,
   Pressable,
   ScrollView,
@@ -31,78 +30,6 @@ export const CountSelector = ({
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [selectedCount, setSelectedCount] = useState<Count | null>(null);
   usePopulateCountSelector(count, db, setCounts, setSelectedCount);
-
-  const onSelectCount = async (id?: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (!id) {
-      console.error('No count ID provided.');
-      return;
-    }
-
-    if (!selectedCount && count.value) {
-      Alert.alert(
-        'Save Current Count?',
-        'You have a count in progress. Do you want to save it before switching?',
-        [
-          {
-            onPress: async () => {
-              await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
-                true,
-                id
-              ]);
-
-              const newCount: Count | null = await db.getFirstAsync(
-                'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
-                [true]
-              );
-
-              if (!newCount) {
-                console.error('No new count with currentlyCounting true found after update.');
-                return;
-              }
-
-              setCount(newCount);
-              setDropdownVisible(false);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            },
-            text: 'Proceed Without Saving'
-          },
-          {
-            onPress: () => {
-              setShowSaveInputField(true);
-            },
-            style: 'cancel',
-            text: 'Save'
-          }
-        ]
-      );
-
-      return;
-    }
-
-    try {
-      await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
-        false,
-        selectedCount?.id || ''
-      ]);
-
-      await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [true, id]);
-      const newCount: Count | null = await db.getFirstAsync(
-        'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
-        [true]
-      );
-
-      if (!newCount) {
-        console.error('No new count with currentlyCounting true found after update.');
-        return;
-      }
-
-      setCount(newCount);
-      setDropdownVisible(false);
-    } catch (error) {
-      console.error('onSelectCount(): ', error);
-    }
-  };
 
   const rotate = dropdownIconRotationAnim.interpolate({
     inputRange: [0, 180],
@@ -162,7 +89,17 @@ export const CountSelector = ({
                 return (
                   <TouchableOpacity
                     key={id}
-                    onPress={() => onSelectCount(id)}
+                    onPress={() =>
+                      onSelectCount({
+                        count,
+                        db,
+                        id,
+                        selectedCount,
+                        setCount,
+                        setDropdownVisible,
+                        setShowSaveInputField
+                      })
+                    }
                     style={{
                       ...styles.dropdownItem,
                       borderBottomWidth: isLast ? 0 : 1

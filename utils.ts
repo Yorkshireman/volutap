@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
 import { SQLiteDatabase } from 'expo-sqlite';
-import type { Count, SetCount } from './types';
+import type { Count, SetCount, SetDropdownVisible, SetShowSaveInputField } from './types';
 
 export const onPressDelete = (count: Count, db: SQLiteDatabase, setCount: SetCount) => {
   Alert.alert(
@@ -95,4 +95,92 @@ export const onPressStartNewCountButton = async (
     ],
     { cancelable: true }
   );
+};
+
+export const onSelectCount = async ({
+  count,
+  db,
+  id,
+  selectedCount,
+  setCount,
+  setDropdownVisible,
+  setShowSaveInputField
+}: {
+  count: Count;
+  db: SQLiteDatabase;
+  id?: string;
+  selectedCount: Count | null;
+  setCount: SetCount;
+  setDropdownVisible: SetDropdownVisible;
+  setShowSaveInputField: SetShowSaveInputField;
+}) => {
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  if (!id) {
+    console.error('No count ID provided.');
+    return;
+  }
+
+  if (!selectedCount && count.value) {
+    Alert.alert(
+      'Save Current Count?',
+      'You have a count in progress. Do you want to save it before switching?',
+      [
+        {
+          onPress: async () => {
+            await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
+              true,
+              id
+            ]);
+
+            const newCount: Count | null = await db.getFirstAsync(
+              'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
+              [true]
+            );
+
+            if (!newCount) {
+              console.error('No new count with currentlyCounting true found after update.');
+              return;
+            }
+
+            setCount(newCount);
+            setDropdownVisible(false);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          },
+          text: 'Proceed Without Saving'
+        },
+        {
+          onPress: () => {
+            setShowSaveInputField(true);
+          },
+          style: 'cancel',
+          text: 'Save'
+        }
+      ]
+    );
+
+    return;
+  }
+
+  try {
+    await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
+      false,
+      selectedCount?.id || ''
+    ]);
+
+    await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [true, id]);
+    const newCount: Count | null = await db.getFirstAsync(
+      'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
+      [true]
+    );
+
+    if (!newCount) {
+      console.error('No new count with currentlyCounting true found after update.');
+      return;
+    }
+
+    setCount(newCount);
+    setDropdownVisible(false);
+  } catch (error) {
+    console.error('onSelectCount(): ', error);
+  }
 };
