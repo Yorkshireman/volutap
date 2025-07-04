@@ -69,7 +69,7 @@ export default function Index() {
       );
 
       await db.runAsync(
-        'INSERT INTO savedCounts (count, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO savedCounts (value, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?, ?)',
         count.value,
         now,
         true,
@@ -87,6 +87,7 @@ export default function Index() {
 
       onChangeTitleToSave('');
       setCount({
+        // dry up?
         createdAt: now,
         currentlyCounting: true,
         id,

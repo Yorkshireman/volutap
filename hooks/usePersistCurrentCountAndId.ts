@@ -24,13 +24,12 @@ export const usePersistCurrentCountAndId = (count: Count, currentCountId?: strin
       if (!currentCountId) return;
 
       try {
-        const result = await db.getFirstAsync<{ count: number }>(
-          'SELECT count FROM savedCounts WHERE id = ?',
-          [currentCountId]
-        );
+        const { value: currentCountDBvalue } =
+          (await db.getFirstAsync<Count>('SELECT value FROM savedCounts WHERE id = ?', [
+            currentCountId
+          ])) || {};
 
-        const currentCount = result?.count || 0;
-        if (currentCount === count.value) {
+        if (currentCountDBvalue === count.value) {
           console.log(
             'usePersistCurrentCountAndId(): Count in DB is already up to date, skipping update.'
           );
@@ -44,7 +43,7 @@ export const usePersistCurrentCountAndId = (count: Count, currentCountId?: strin
           )}.`
         );
 
-        await db.runAsync('UPDATE savedCounts SET count = ?, lastModified = ? WHERE id = ?', [
+        await db.runAsync('UPDATE savedCounts SET value = ?, lastModified = ? WHERE id = ?', [
           count.value,
           new Date().toISOString(),
           currentCountId

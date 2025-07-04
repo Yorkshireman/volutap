@@ -66,7 +66,7 @@ export const useSetCountOnVolumeChange = (
       sub?.remove();
       soundObj?.unloadAsync();
     };
-  }, [countingWithVolumeButtons]);
+  }, [countingWithVolumeButtons, setCount]);
 
   useEffect(() => {
     if (!didMount.current) {

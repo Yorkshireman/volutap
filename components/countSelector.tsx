@@ -1,6 +1,5 @@
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { transformDbCountToCount } from '../utils';
 import { usePopulateCountSelector } from '../hooks';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
@@ -14,13 +13,7 @@ import {
   useAnimatedValue,
   View
 } from 'react-native';
-import type {
-  Count,
-  DbCount,
-  SetCount,
-  SetShowCountSelector,
-  SetShowSaveInputField
-} from '../types';
+import type { Count, SetCount, SetShowCountSelector, SetShowSaveInputField } from '../types';
 import { useEffect, useState } from 'react';
 
 export const CountSelector = ({
@@ -60,7 +53,7 @@ export const CountSelector = ({
                 id
               ]);
 
-              const newCount: DbCount | null = await db.getFirstAsync(
+              const newCount: Count | null = await db.getFirstAsync(
                 'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
                 [true]
               );
@@ -70,7 +63,7 @@ export const CountSelector = ({
                 return;
               }
 
-              setCount(transformDbCountToCount(newCount));
+              setCount(newCount);
               setDropdownVisible(false);
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             },
@@ -97,7 +90,7 @@ export const CountSelector = ({
       ]);
 
       await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [true, id]);
-      const newCount: DbCount | null = await db.getFirstAsync(
+      const newCount: Count | null = await db.getFirstAsync(
         'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
         [true]
       );
@@ -107,7 +100,7 @@ export const CountSelector = ({
         return;
       }
 
-      setCount(transformDbCountToCount(newCount));
+      setCount(newCount);
       setDropdownVisible(false);
     } catch (error) {
       console.error('onSelectCount(): ', error);

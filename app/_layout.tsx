@@ -34,7 +34,7 @@ const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
       PRAGMA foreign_keys = ON;
 
       CREATE TABLE IF NOT EXISTS savedCounts (
-        count             INTEGER NOT NULL DEFAULT 0,
+        value             INTEGER NOT NULL DEFAULT 0,
         createdAt         TEXT    NOT NULL,
         currentlyCounting INTEGER NOT NULL DEFAULT 1,
         id                TEXT    PRIMARY KEY NOT NULL,

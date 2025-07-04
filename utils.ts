@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
 import { SQLiteDatabase } from 'expo-sqlite';
-import type { Count, DbCount, SetCount } from './types';
+import type { Count, SetCount } from './types';
 
 export const onPressReset = (count: Count, setCount: SetCount) => {
   if (count.value === 0) return;
@@ -63,11 +63,3 @@ export const onPressStartNewCountButton = async (
     { cancelable: true }
   );
 };
-
-export const transformDbCountToCount = (dbCount: DbCount): Count => ({
-  createdAt: dbCount.createdAt,
-  id: dbCount.id,
-  lastModified: dbCount.lastModified,
-  title: dbCount.title,
-  value: dbCount.count
-});

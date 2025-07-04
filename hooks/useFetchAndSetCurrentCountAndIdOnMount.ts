@@ -1,19 +1,19 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
-import type { Count, DbCount, SetCount } from '../types';
+import type { Count, SetCount } from '../types';
 
 export const useFetchAndSetCurrentCountAndIdOnMount = (setCount: SetCount) => {
   const db = useSQLiteContext();
   useEffect(() => {
     (async () => {
-      let currentCount: Count | DbCount | null;
+      let currentCount: Count | null;
       try {
         console.log(
           'useFetchAndSetCurrentCountAndIdOnMount(): Querying DB for a Count that has currentlyCounting true.'
         );
 
-        currentCount = await db.getFirstAsync<DbCount>(
+        currentCount = await db.getFirstAsync<Count>(
           'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
           [true]
         );
@@ -47,9 +47,7 @@ export const useFetchAndSetCurrentCountAndIdOnMount = (setCount: SetCount) => {
           JSON.stringify(currentCount)
         );
 
-        const { count, ...rest } = currentCount;
-        const countObj = { ...rest, value: count };
-        setCount(countObj);
+        setCount(currentCount);
       } catch (e) {
         console.error('Error fetching current Count from database: ', e);
       }
