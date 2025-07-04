@@ -1,5 +1,5 @@
+import * as Device from 'expo-device';
 import * as Haptics from 'expo-haptics';
-import type { Count, DbCount } from '../types';
 import { CountingModeContext } from '../contexts';
 import { CountSelector } from '../components';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Snackbar from 'react-native-snackbar';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
+import type { Count, DbCount } from '../types';
 import { onPressDelete, onPressReset, onPressStartNewCountButton } from '../utils';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -26,6 +27,7 @@ export default function Index() {
   const editInputFieldRef = useRef<TextInput>(null);
   const saveInputFieldRef = useRef<TextInput>(null);
   const [infoSnackbarIsOpen, setInfoSnackbarIsOpen] = useState(false);
+  const [isIpad, setIsIpad] = useState(false);
   const [showEditInputField, setShowEditInputField] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, onChangeTitleToSave] = useState('');
@@ -33,6 +35,11 @@ export default function Index() {
   useFetchAndSetCurrentCountAndIdOnMount(setCount);
   usePersistCurrentCountAndId(count, count.id);
   useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
+
+  useEffect(() => {
+    console.log('Is tablet: ', Device.deviceType === Device.DeviceType.TABLET);
+    setIsIpad(Device.deviceType === Device.DeviceType.TABLET);
+  }, []);
 
   useEffect(() => {
     if (!showEditInputField) return;
@@ -87,33 +94,33 @@ export default function Index() {
 
     Snackbar.show({
       action: {
-        text: 'Dismiss',
-        textColor: 'black',
         onPress: () => {
           Snackbar.dismiss();
           setInfoSnackbarIsOpen(false);
-        }
+        },
+        text: 'Dismiss',
+        textColor: 'black'
       },
       backgroundColor: '#758BFD',
       duration: Snackbar.LENGTH_INDEFINITE,
       text:
         `Created on ${new Date(dbCount.createdAt || '').toLocaleString(undefined, {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
-          second: '2-digit'
+          month: 'long',
+          second: '2-digit',
+          weekday: 'long',
+          year: 'numeric'
         })}\n` +
         `Count changed on ${new Date(dbCount.lastModified || '').toLocaleString(undefined, {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
-          second: '2-digit'
+          month: 'long',
+          second: '2-digit',
+          weekday: 'long',
+          year: 'numeric'
         })}`,
       textColor: 'black'
     });
@@ -245,7 +252,11 @@ export default function Index() {
           style={{ ...styles.saveInputField, display: showEditInputField ? 'flex' : 'none' }}
           value={titleToSave}
         />
-        <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.count}>
+        <Text
+          adjustsFontSizeToFit={isIpad ? false : true}
+          numberOfLines={1}
+          style={{ ...styles.count, fontSize: isIpad ? 300 : 200 }}
+        >
           {count.value}
         </Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -339,14 +350,13 @@ const styles = StyleSheet.create({
     gap: 25,
     justifyContent: 'space-between',
     maxWidth: 768,
-    width: '100%',
     paddingBottom: 5,
     paddingHorizontal: 20,
-    paddingTop: 20
+    paddingTop: 20,
+    width: '100%'
   },
   count: {
-    color: '#fff',
-    fontSize: 200
+    color: '#fff'
   },
   countButton: {
     alignItems: 'center',

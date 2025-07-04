@@ -44,12 +44,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
-  dropdownItemText: {
-    color: '#fff',
-    fontSize: 18
-  },
   dropdownItemSecondRowText: {
     color: '#ddd',
     fontSize: 15
+  },
+  dropdownItemText: {
+    color: '#fff',
+    fontSize: 18
   }
 });
