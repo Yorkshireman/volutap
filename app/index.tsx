@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Snackbar from 'react-native-snackbar';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
-import { onPressReset, onPressStartNewCountButton } from '../utils';
+import { onPressDelete, onPressReset, onPressStartNewCountButton } from '../utils';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
@@ -138,6 +138,14 @@ export default function Index() {
           {count.value}
         </Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
+          {count.id && (
+            <TouchableOpacity
+              onPress={() => onPressDelete(count, db, setCount)}
+              style={styles.refreshButton}
+            >
+              <Ionicons color={'#fff'} name='trash-outline' size={72} />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             onPress={() => onPressReset(count, setCount)}
             style={styles.refreshButton}
