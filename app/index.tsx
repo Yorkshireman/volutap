@@ -22,7 +22,6 @@ export default function Index() {
     useContext(CountingModeContext);
   const db = useSQLiteContext();
   const saveInputFieldRef = useRef<TextInput>(null);
-  const [showCountSelector, setShowCountSelector] = useState(true);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, onChangeTitleToSave] = useState('');
   useFetchAndSetCurrentCountAndIdOnMount(setCount);
@@ -47,7 +46,6 @@ export default function Index() {
 
   const onPressSaveButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setShowCountSelector(false);
     setShowSaveInputField(true);
   };
 
@@ -95,8 +93,6 @@ export default function Index() {
         title: trimmed,
         value: count.value
       });
-
-      setShowCountSelector(true);
     } catch (e) {
       console.error('DB error: ', e);
     }
@@ -110,11 +106,10 @@ export default function Index() {
           justifyContent: countingWithVolumeButtons ? 'center' : 'space-between'
         }}
       >
-        {showCountSelector && (
+        {!showSaveInputField && (
           <CountSelector
             count={count}
             setCount={setCount}
-            setShowCountSelector={setShowCountSelector}
             setShowSaveInputField={setShowSaveInputField}
           />
         )}
@@ -123,7 +118,6 @@ export default function Index() {
           onBlur={() => {
             if (titleToSave.trim()) return;
             setShowSaveInputField(false);
-            setShowCountSelector(true);
           }}
           onChangeText={onChangeTitleToSave}
           onSubmitEditing={onSubmitEditing}

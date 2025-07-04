@@ -13,18 +13,16 @@ import {
   useAnimatedValue,
   View
 } from 'react-native';
-import type { Count, SetCount, SetShowCountSelector, SetShowSaveInputField } from '../types';
+import type { Count, SetCount, SetShowSaveInputField } from '../types';
 import { useEffect, useState } from 'react';
 
 export const CountSelector = ({
   count,
   setCount,
-  setShowCountSelector,
   setShowSaveInputField
 }: {
   count: Count;
   setCount: SetCount;
-  setShowCountSelector: SetShowCountSelector;
   setShowSaveInputField: SetShowSaveInputField;
 }) => {
   const [counts, setCounts] = useState<Count[]>();
@@ -71,7 +69,6 @@ export const CountSelector = ({
           },
           {
             onPress: () => {
-              setShowCountSelector(false);
               setShowSaveInputField(true);
             },
             style: 'cancel',
