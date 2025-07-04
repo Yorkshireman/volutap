@@ -8,8 +8,8 @@ import Snackbar from 'react-native-snackbar';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
 import type { Count, DbCount } from '../types';
+import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { onPressDelete, onPressReset, onPressStartNewCountButton } from '../utils';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
   useFetchAndSetCurrentCountAndIdOnMount,
@@ -17,7 +17,8 @@ import {
   useSetCountOnVolumeChange
 } from '../hooks';
 
-const TOOLBAR_ICON_SIZE = 64;
+const screenWidth = Dimensions.get('window').width;
+const TOOLBAR_ICON_SIZE = screenWidth < 400 ? 48 : screenWidth < 430 ? 54 : 64;
 
 export default function Index() {
   const [count, setCount] = useState<Count>({ value: 0 });
@@ -37,7 +38,6 @@ export default function Index() {
   useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
 
   useEffect(() => {
-    console.log('Is tablet: ', Device.deviceType === Device.DeviceType.TABLET);
     setIsIpad(Device.deviceType === Device.DeviceType.TABLET);
   }, []);
 
