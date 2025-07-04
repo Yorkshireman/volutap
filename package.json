@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "ios": "expo run:ios",
-    "lint": "expo lint",
+    "lint": "expo lint && tsc",
     "prebuild": "expo prebuild -p ios",
     "start": "expo start",
     "start-dev-client": "expo start --dev-client",

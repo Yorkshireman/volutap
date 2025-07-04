@@ -1,6 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import type { Count } from '../types';
 import { CountingModeContext } from '../contexts';
+import { CountSelector } from '../components';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -96,17 +97,18 @@ export default function Index() {
           justifyContent: countingWithVolumeButtons ? 'center' : 'space-between'
         }}
       >
-        <Text style={{ color: 'white' }}>{count.title}</Text>
+        {count.title && <CountSelector count={count} setCount={setCount} />}
         <TextInput
+          maxLength={36}
+          onBlur={() => !titleToSave && setShowSaveInputField(false)}
+          onChangeText={onChangeTitleToSave}
+          onSubmitEditing={onSubmitEditing}
+          placeholder={'Name'}
+          placeholderTextColor={'#fff'}
           ref={saveInputFieldRef}
           returnKeyType='done'
           style={{ ...styles.saveInputField, display: showSaveInputField ? 'flex' : 'none' }}
-          onBlur={() => !titleToSave && setShowSaveInputField(false)}
-          placeholderTextColor={'#fff'}
-          onChangeText={onChangeTitleToSave}
-          onSubmitEditing={onSubmitEditing}
           value={titleToSave}
-          placeholder={'Name'}
         />
         <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.count}>
           {count.value}

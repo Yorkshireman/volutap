@@ -15,3 +15,5 @@ export type DbCount = {
   title: string;
   count: number;
 };
+
+export type SetCount = React.Dispatch<React.SetStateAction<Count>>;

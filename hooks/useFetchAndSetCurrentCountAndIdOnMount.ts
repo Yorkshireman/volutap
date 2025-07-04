@@ -1,11 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
-import type { Count, DbCount } from '../types';
+import type { Count, DbCount, SetCount } from '../types';
 
-export const useFetchAndSetCurrentCountAndIdOnMount = (
-  setCount: React.Dispatch<React.SetStateAction<Count>>
-) => {
+export const useFetchAndSetCurrentCountAndIdOnMount = (setCount: SetCount) => {
   const db = useSQLiteContext();
   useEffect(() => {
     (async () => {

@@ -1,12 +1,9 @@
 import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
-import type { Count } from './types';
 import { SQLiteDatabase } from 'expo-sqlite';
+import type { Count, DbCount, SetCount } from './types';
 
-export const onPressReset = (
-  count: Count,
-  setCount: React.Dispatch<React.SetStateAction<Count>>
-) => {
+export const onPressReset = (count: Count, setCount: SetCount) => {
   if (count.value === 0) return;
 
   Alert.alert(
@@ -32,7 +29,7 @@ export const onPressReset = (
 export const onPressStartNewCountButton = async (
   count: Count,
   db: SQLiteDatabase,
-  setCount: React.Dispatch<React.SetStateAction<Count>>
+  setCount: SetCount
 ) => {
   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   Alert.alert(
@@ -66,3 +63,11 @@ export const onPressStartNewCountButton = async (
     { cancelable: true }
   );
 };
+
+export const transformDbCountToCount = (dbCount: DbCount): Count => ({
+  createdAt: dbCount.createdAt,
+  id: dbCount.id,
+  lastModified: dbCount.lastModified,
+  title: dbCount.title,
+  value: dbCount.count
+});
