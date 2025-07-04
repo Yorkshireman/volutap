@@ -102,15 +102,17 @@ export default function Index() {
           month: 'long',
           day: 'numeric',
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
+          second: '2-digit'
         })}\n` +
-        `Last modified on ${new Date(dbCount.lastModified || '').toLocaleString(undefined, {
+        `Count changed on ${new Date(dbCount.lastModified || '').toLocaleString(undefined, {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
           day: 'numeric',
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
+          second: '2-digit'
         })}`,
       textColor: 'black'
     });
@@ -175,8 +177,6 @@ export default function Index() {
   const onSubmitEditingExistingCountTitle = async () => {
     const trimmed = titleToSave.trim();
     if (!trimmed) return;
-
-    const now = new Date().toISOString();
 
     if (!count.id) {
       console.error('onSubmitEditingExistingCountTitle(): No count ID available.');
