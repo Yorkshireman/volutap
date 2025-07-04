@@ -321,11 +321,13 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
+    alignSelf: 'center',
     backgroundColor: '#27187E',
     flex: 1,
     gap: 25,
     justifyContent: 'space-between',
     maxWidth: 768,
+    width: '100%',
     paddingHorizontal: 20,
     paddingTop: 20
   },
