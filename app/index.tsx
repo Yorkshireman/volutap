@@ -4,6 +4,7 @@ import { CountingModeContext } from '../contexts';
 import { CountSelector } from '../components';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Snackbar from 'react-native-snackbar';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
 import { onPressReset, onPressStartNewCountButton } from '../utils';
@@ -74,6 +75,13 @@ export default function Index() {
         now,
         trimmed
       );
+
+      Snackbar.show({
+        backgroundColor: '#758BFD',
+        duration: Snackbar.LENGTH_LONG,
+        text: 'Saved!',
+        textColor: 'black'
+      });
 
       onChangeTitleToSave('');
       setCount({
