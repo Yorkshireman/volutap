@@ -11,13 +11,13 @@ export const usePopulateCountSelector = (
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        const result: Count[] = await db.getAllAsync(
+        const savedCounts: Count[] = await db.getAllAsync(
           'SELECT * FROM savedCounts ORDER BY lastModified DESC'
         );
 
-        const currentlyCounting = result.find(count => count.currentlyCounting);
+        const currentlyCounting = savedCounts.find(count => count.currentlyCounting);
         setSelectedCount(currentlyCounting || null);
-        setCounts(result.filter(({ id }) => id !== currentlyCounting?.id));
+        setCounts(savedCounts);
       } catch (error) {
         console.error('Error fetching counts:', error);
         return;

@@ -122,15 +122,17 @@ export const CountSelector = ({
     };
 
     rotateDropdownIconUp();
-  }, [dropdownIconRotationAnim, isDropdownVisible]);
+  }, [dropdownIconRotationAnim, isDropdownVisible, selectedCount]);
 
-  if (!counts) return null;
+  if (!counts?.length) return null;
 
   return (
     <View style={styles.container}>
       <View style={styles.innerWrapper}>
         <Pressable
-          onPress={() => setDropdownVisible(!isDropdownVisible)}
+          onPress={() =>
+            (!selectedCount || counts.length > 1) && setDropdownVisible(!isDropdownVisible)
+          }
           style={{
             ...styles.selector,
             borderBottomLeftRadius: isDropdownVisible ? 0 : 8,
@@ -141,34 +143,38 @@ export const CountSelector = ({
           <View style={styles.titleWrapper}>
             <Text style={styles.text}>{selectedCount?.title}</Text>
           </View>
-          <Animated.View
-            style={[
-              styles.dropdownIconWrapper,
-              {
-                transform: [{ rotate }]
-              }
-            ]}
-          >
-            <Ionicons color='#fff' name={'chevron-down-outline'} size={24} />
-          </Animated.View>
+          {!selectedCount || counts.length > 1 ? (
+            <Animated.View
+              style={[
+                styles.dropdownIconWrapper,
+                {
+                  transform: [{ rotate }]
+                }
+              ]}
+            >
+              <Ionicons color='#fff' name={'chevron-down-outline'} size={24} />
+            </Animated.View>
+          ) : null}
         </Pressable>
         {isDropdownVisible && (
           <ScrollView indicatorStyle='white' style={styles.dropdown}>
-            {counts.map(({ id, title }, i) => {
-              const isLast = i === counts.length - 1;
-              return (
-                <TouchableOpacity
-                  key={id}
-                  onPress={() => onSelectCount(id)}
-                  style={{
-                    ...styles.dropdownItem,
-                    borderBottomWidth: isLast ? 0 : 1
-                  }}
-                >
-                  <Text style={styles.dropdownItemText}>{title}</Text>
-                </TouchableOpacity>
-              );
-            })}
+            {counts
+              .filter(({ id }) => id !== selectedCount?.id)
+              .map(({ id, title }, i) => {
+                const isLast = i === counts.length - 1;
+                return (
+                  <TouchableOpacity
+                    key={id}
+                    onPress={() => onSelectCount(id)}
+                    style={{
+                      ...styles.dropdownItem,
+                      borderBottomWidth: isLast ? 0 : 1
+                    }}
+                  >
+                    <Text style={styles.dropdownItemText}>{title}</Text>
+                  </TouchableOpacity>
+                );
+              })}
           </ScrollView>
         )}
       </View>
