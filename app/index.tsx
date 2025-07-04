@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import type { Count } from '../types';
+import type { Count, DbCount } from '../types';
 import { CountingModeContext } from '../contexts';
 import { CountSelector } from '../components';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -42,6 +42,53 @@ export default function Index() {
   const onPressIncrementButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     setCount(prev => ({ ...prev, value: prev.value + 1 }));
+  };
+
+  const onPressInfo = async (id: Count['id']) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    if (!id) {
+      console.error('onPressInfo(): No ID provided for count info.');
+      return;
+    }
+
+    const dbCount: DbCount | null = await db.getFirstAsync(
+      'SELECT * FROM savedCounts WHERE id = ?',
+      [id]
+    );
+
+    if (!dbCount) {
+      console.error(`onPressInfo(): No count found with ID ${id}.`);
+      return;
+    }
+
+    Snackbar.show({
+      action: {
+        text: 'Dismiss',
+        textColor: 'black',
+        onPress: () => Snackbar.dismiss()
+      },
+      backgroundColor: '#758BFD',
+      duration: Snackbar.LENGTH_INDEFINITE,
+      text:
+        `Created on ${new Date(dbCount.createdAt || '').toLocaleString(undefined, {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}\n` +
+        `Last modified on ${new Date(dbCount.lastModified || '').toLocaleString(undefined, {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}`,
+      textColor: 'black'
+    });
   };
 
   const onPressSaveButton = () => {
@@ -133,12 +180,20 @@ export default function Index() {
         </Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           {count.id && (
-            <TouchableOpacity
-              onPress={() => onPressDelete(count, db, setCount)}
-              style={styles.refreshButton}
-            >
-              <Ionicons color={'#fff'} name='trash-outline' size={72} />
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity
+                onPress={() => onPressDelete(count, db, setCount)}
+                style={styles.refreshButton}
+              >
+                <Ionicons color={'#fff'} name='trash-outline' size={72} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => count.id && onPressInfo(count.id)}
+                style={styles.refreshButton}
+              >
+                <Ionicons color={'#fff'} name='information-circle-outline' size={72} />
+              </TouchableOpacity>
+            </>
           )}
           <TouchableOpacity
             onPress={() => onPressReset(count, setCount)}
