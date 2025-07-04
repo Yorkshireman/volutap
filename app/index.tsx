@@ -22,6 +22,7 @@ export default function Index() {
     useContext(CountingModeContext);
   const db = useSQLiteContext();
   const saveInputFieldRef = useRef<TextInput>(null);
+  const [infoSnackbarIsOpen, setInfoSnackbarIsOpen] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, onChangeTitleToSave] = useState('');
   useFetchAndSetCurrentCountAndIdOnMount(setCount);
@@ -47,6 +48,12 @@ export default function Index() {
   const onPressInfo = async (id: Count['id']) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
+    if (infoSnackbarIsOpen) {
+      Snackbar.dismiss();
+      setInfoSnackbarIsOpen(false);
+      return;
+    }
+
     if (!id) {
       console.error('onPressInfo(): No ID provided for count info.');
       return;
@@ -66,7 +73,10 @@ export default function Index() {
       action: {
         text: 'Dismiss',
         textColor: 'black',
-        onPress: () => Snackbar.dismiss()
+        onPress: () => {
+          Snackbar.dismiss();
+          setInfoSnackbarIsOpen(false);
+        }
       },
       backgroundColor: '#758BFD',
       duration: Snackbar.LENGTH_INDEFINITE,
@@ -89,6 +99,8 @@ export default function Index() {
         })}`,
       textColor: 'black'
     });
+
+    setInfoSnackbarIsOpen(true);
   };
 
   const onPressSaveButton = () => {
