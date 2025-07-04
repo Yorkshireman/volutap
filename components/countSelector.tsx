@@ -50,13 +50,13 @@ export const CountSelector = ({
 
   if (!counts?.length) return null;
 
+  const shouldEnableDropdown = !selectedCount || counts.length > 1;
+
   return (
     <View style={styles.container}>
       <View style={styles.innerWrapper}>
         <Pressable
-          onPress={() =>
-            (!selectedCount || counts.length > 1) && setDropdownVisible(!isDropdownVisible)
-          }
+          onPress={() => shouldEnableDropdown && setDropdownVisible(!isDropdownVisible)}
           style={{
             ...styles.selector,
             borderBottomLeftRadius: isDropdownVisible ? 0 : 8,
@@ -67,7 +67,7 @@ export const CountSelector = ({
           <View style={styles.titleWrapper}>
             <Text style={styles.text}>{selectedCount?.title}</Text>
           </View>
-          {!selectedCount || counts.length > 1 ? (
+          {shouldEnableDropdown ? (
             <Animated.View
               style={[
                 styles.dropdownIconWrapper,
