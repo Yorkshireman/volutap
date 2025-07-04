@@ -4,6 +4,7 @@ import { transformDbCountToCount } from '../utils';
 import { usePopulateCountSelector } from '../hooks';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
+  Alert,
   Animated,
   Pressable,
   ScrollView,
@@ -13,10 +14,26 @@ import {
   useAnimatedValue,
   View
 } from 'react-native';
-import type { Count, DbCount, SetCount } from '../types';
+import type {
+  Count,
+  DbCount,
+  SetCount,
+  SetShowCountSelector,
+  SetShowSaveInputField
+} from '../types';
 import { useEffect, useState } from 'react';
 
-export const CountSelector = ({ count, setCount }: { count: Count; setCount: SetCount }) => {
+export const CountSelector = ({
+  count,
+  setCount,
+  setShowCountSelector,
+  setShowSaveInputField
+}: {
+  count: Count;
+  setCount: SetCount;
+  setShowCountSelector: SetShowCountSelector;
+  setShowSaveInputField: SetShowSaveInputField;
+}) => {
   const [counts, setCounts] = useState<Count[]>();
   const db = useSQLiteContext();
   const dropdownIconRotationAnim = useAnimatedValue(0);
@@ -28,6 +45,48 @@ export const CountSelector = ({ count, setCount }: { count: Count; setCount: Set
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (!id) {
       console.error('No count ID provided.');
+      return;
+    }
+
+    if (!selectedCount && count.value) {
+      Alert.alert(
+        'Save Current Count?',
+        'You have a count in progress. Do you want to save it before switching?',
+        [
+          {
+            onPress: async () => {
+              await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
+                true,
+                id
+              ]);
+
+              const newCount: DbCount | null = await db.getFirstAsync(
+                'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
+                [true]
+              );
+
+              if (!newCount) {
+                console.error('No new count with currentlyCounting true found after update.');
+                return;
+              }
+
+              setCount(transformDbCountToCount(newCount));
+              setDropdownVisible(false);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            },
+            text: 'Proceed Without Saving'
+          },
+          {
+            onPress: () => {
+              setShowCountSelector(false);
+              setShowSaveInputField(true);
+            },
+            style: 'cancel',
+            text: 'Save'
+          }
+        ]
+      );
+
       return;
     }
 

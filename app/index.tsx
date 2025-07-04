@@ -109,7 +109,14 @@ export default function Index() {
           justifyContent: countingWithVolumeButtons ? 'center' : 'space-between'
         }}
       >
-        {showCountSelector && <CountSelector count={count} setCount={setCount} />}
+        {showCountSelector && (
+          <CountSelector
+            count={count}
+            setCount={setCount}
+            setShowCountSelector={setShowCountSelector}
+            setShowSaveInputField={setShowSaveInputField}
+          />
+        )}
         <TextInput
           maxLength={36}
           onBlur={() => {

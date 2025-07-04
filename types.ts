@@ -17,3 +17,5 @@ export type DbCount = {
 };
 
 export type SetCount = React.Dispatch<React.SetStateAction<Count>>;
+export type SetShowCountSelector = React.Dispatch<React.SetStateAction<boolean>>;
+export type SetShowSaveInputField = React.Dispatch<React.SetStateAction<boolean>>;
