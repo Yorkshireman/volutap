@@ -16,18 +16,27 @@ import {
   useSetCountOnVolumeChange
 } from '../hooks';
 
+const TOOLBAR_ICON_SIZE = 64;
+
 export default function Index() {
   const [count, setCount] = useState<Count>({ value: 0 });
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
   const db = useSQLiteContext();
+  const editInputFieldRef = useRef<TextInput>(null);
   const saveInputFieldRef = useRef<TextInput>(null);
   const [infoSnackbarIsOpen, setInfoSnackbarIsOpen] = useState(false);
+  const [showEditInputField, setShowEditInputField] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, onChangeTitleToSave] = useState('');
   useFetchAndSetCurrentCountAndIdOnMount(setCount);
   usePersistCurrentCountAndId(count, count.id);
   useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
+
+  useEffect(() => {
+    if (!showEditInputField) return;
+    editInputFieldRef.current?.focus();
+  }, [showEditInputField]);
 
   useEffect(() => {
     if (!showSaveInputField) return;
@@ -38,6 +47,12 @@ export default function Index() {
     if (count.value === 0) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     setCount(prev => ({ ...prev, value: prev.value - 1 }));
+  };
+
+  const onPressEditButton = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setShowEditInputField(true);
+    onChangeTitleToSave(count.title || 'Name');
   };
 
   const onPressIncrementButton = () => {
@@ -157,6 +172,34 @@ export default function Index() {
     }
   };
 
+  const onSubmitEditingExistingCountTitle = async () => {
+    const trimmed = titleToSave.trim();
+    if (!trimmed) return;
+
+    const now = new Date().toISOString();
+
+    if (!count.id) {
+      console.error('onSubmitEditingExistingCountTitle(): No count ID available.');
+      return;
+    }
+
+    try {
+      console.log(`Updating Count title in the DB, title: ${trimmed}, id: ${count.id}.`);
+      await db.runAsync('UPDATE savedCounts SET title = ? WHERE id = ?', [trimmed, count.id]);
+      Snackbar.show({
+        backgroundColor: '#758BFD',
+        duration: Snackbar.LENGTH_LONG,
+        text: 'Saved!',
+        textColor: 'black'
+      });
+
+      onChangeTitleToSave('');
+      setCount(prev => ({ ...prev, title: trimmed }));
+    } catch (e) {
+      console.error('DB error: ', e);
+    }
+  };
+
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
       <View
@@ -165,7 +208,7 @@ export default function Index() {
           justifyContent: countingWithVolumeButtons ? 'center' : 'space-between'
         }}
       >
-        {!showSaveInputField && (
+        {!showSaveInputField && !showEditInputField && (
           <CountSelector
             count={count}
             setCount={setCount}
@@ -187,6 +230,20 @@ export default function Index() {
           style={{ ...styles.saveInputField, display: showSaveInputField ? 'flex' : 'none' }}
           value={titleToSave}
         />
+        <TextInput
+          maxLength={36}
+          onBlur={() => {
+            if (titleToSave.trim()) return;
+            setShowEditInputField(false);
+          }}
+          onChangeText={onChangeTitleToSave}
+          onSubmitEditing={onSubmitEditingExistingCountTitle}
+          placeholderTextColor={'#fff'}
+          ref={editInputFieldRef}
+          returnKeyType='done'
+          style={{ ...styles.saveInputField, display: showEditInputField ? 'flex' : 'none' }}
+          value={titleToSave}
+        />
         <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.count}>
           {count.value}
         </Text>
@@ -197,13 +254,20 @@ export default function Index() {
                 onPress={() => onPressDelete(count, db, setCount)}
                 style={styles.refreshButton}
               >
-                <Ionicons color={'#fff'} name='trash-outline' size={72} />
+                <Ionicons color={'#fff'} name='trash-outline' size={TOOLBAR_ICON_SIZE} />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => count.id && onPressInfo(count.id)}
                 style={styles.refreshButton}
               >
-                <Ionicons color={'#fff'} name='information-circle-outline' size={72} />
+                <Ionicons
+                  color={'#fff'}
+                  name='information-circle-outline'
+                  size={TOOLBAR_ICON_SIZE}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={onPressEditButton} style={styles.refreshButton}>
+                <Ionicons color={'#fff'} name='pencil' size={TOOLBAR_ICON_SIZE} />
               </TouchableOpacity>
             </>
           )}
@@ -211,19 +275,19 @@ export default function Index() {
             onPress={() => onPressReset(count, setCount)}
             style={styles.refreshButton}
           >
-            <Ionicons color={'#fff'} name='refresh-outline' size={72} />
+            <Ionicons color={'#fff'} name='refresh-outline' size={TOOLBAR_ICON_SIZE} />
           </TouchableOpacity>
           {count.id && (
             <TouchableOpacity
               onPress={() => onPressStartNewCountButton(count, db, setCount)}
               style={styles.refreshButton}
             >
-              <Ionicons color={'#fff'} name='create-outline' size={72} />
+              <Ionicons color={'#fff'} name='create-outline' size={TOOLBAR_ICON_SIZE} />
             </TouchableOpacity>
           )}
           {!count.id && (
             <TouchableOpacity onPress={onPressSaveButton} style={styles.saveButton}>
-              <Ionicons color={'#fff'} name='save-outline' size={72} />
+              <Ionicons color={'#fff'} name='save-outline' size={TOOLBAR_ICON_SIZE} />
             </TouchableOpacity>
           )}
         </View>
