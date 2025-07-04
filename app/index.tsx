@@ -29,6 +29,7 @@ export default function Index() {
   const [showEditInputField, setShowEditInputField] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, onChangeTitleToSave] = useState('');
+  const [buttonHeight, setButtonHeight] = useState(0);
   useFetchAndSetCurrentCountAndIdOnMount(setCount);
   usePersistCurrentCountAndId(count, count.id);
   useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
@@ -304,12 +305,23 @@ export default function Index() {
           </TouchableOpacity>
         </View>
         {!countingWithVolumeButtons && (
-          <View style={styles.countButtonsWrapper}>
+          <View
+            style={styles.countButtonsWrapper}
+            onLayout={e => setButtonHeight(e.nativeEvent.layout.height)}
+          >
             <TouchableOpacity onPress={onPressDecrementButton} style={styles.countButton}>
-              <Ionicons color={'#fff'} name='remove-outline' size={72} />
+              <Ionicons
+                color={'#fff'}
+                name='remove-outline'
+                size={Math.min(buttonHeight ? buttonHeight * 0.4 : 72, 72)}
+              />
             </TouchableOpacity>
             <TouchableOpacity onPress={onPressIncrementButton} style={styles.countButton}>
-              <Ionicons color={'#fff'} name='add-outline' size={72} />
+              <Ionicons
+                color={'#fff'}
+                name='add-outline'
+                size={Math.min(buttonHeight ? buttonHeight * 0.4 : 72, 72)}
+              />
             </TouchableOpacity>
           </View>
         )}
@@ -328,6 +340,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     maxWidth: 768,
     width: '100%',
+    paddingBottom: 5,
     paddingHorizontal: 20,
     paddingTop: 20
   },
