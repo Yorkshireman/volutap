@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "counter",
+    "name": "Counter",
     "assetBundlePatterns": ["assets/*"],
     "slug": "counter",
     "version": "1.0.0",
