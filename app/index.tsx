@@ -10,6 +10,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
 import type { Count, DbCount } from '../types';
 import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { getDatabase, onValue, ref, runTransaction } from 'firebase/database';
 import { onPressDelete, onPressReset, onPressStartNewCountButton } from '../utils';
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
@@ -29,6 +30,8 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+const firebaseDb = getDatabase(app);
 const screenWidth = Dimensions.get('window').width;
 const TOOLBAR_ICON_SIZE = screenWidth < 400 ? 48 : screenWidth < 430 ? 54 : 64;
 
@@ -49,6 +52,8 @@ export default function Index() {
   usePersistCurrentCountAndId(count, count.id);
   useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
 
+  const roomsRef = ref(firebaseDb, 'rooms/global/count');
+
   useEffect(() => {
     setIsIpad(Device.deviceType === Device.DeviceType.TABLET);
   }, []);
@@ -62,6 +67,10 @@ export default function Index() {
     if (!showSaveInputField) return;
     saveInputFieldRef.current?.focus();
   }, [showSaveInputField]);
+
+  useEffect(() => {
+    runTransaction(roomsRef, () => count.value);
+  }, [count, roomsRef]);
 
   const onPressDecrementButton = () => {
     if (count.value === 0) return;
