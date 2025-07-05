@@ -101,7 +101,6 @@ export const onSelectCount = async ({
   count,
   db,
   id,
-  selectedCount,
   setCount,
   setDropdownVisible,
   setShowSaveInputField
@@ -109,14 +108,13 @@ export const onSelectCount = async ({
   count: Count;
   db: SQLiteDatabase;
   id: Count['id'];
-  selectedCount: Count | null;
   setCount: SetCount;
   setDropdownVisible: SetDropdownVisible;
   setShowSaveInputField: SetShowSaveInputField;
 }) => {
   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-  if (!selectedCount && count.value) {
+  if (!count.id && count.value) {
     Alert.alert(
       'Save Current Count?',
       'You have a count in progress. Do you want to save it before switching?',
@@ -165,7 +163,7 @@ export const onSelectCount = async ({
   try {
     await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
       false,
-      selectedCount?.id || ''
+      count.id || ''
     ]);
 
     await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [

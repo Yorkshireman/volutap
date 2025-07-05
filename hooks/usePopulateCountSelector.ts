@@ -5,8 +5,7 @@ import { useEffect } from 'react';
 export const usePopulateCountSelector = (
   count: Count,
   db: SQLiteDatabase,
-  setCounts: React.Dispatch<React.SetStateAction<Count[] | undefined>>,
-  setSelectedCount: React.Dispatch<React.SetStateAction<Count | null>>
+  setCounts: React.Dispatch<React.SetStateAction<Count[] | undefined>>
 ) => {
   useEffect(() => {
     const fetchCounts = async () => {
@@ -15,8 +14,6 @@ export const usePopulateCountSelector = (
           'SELECT * FROM savedCounts ORDER BY lastModified DESC'
         );
 
-        const currentlyCounting = savedCounts.find(count => count.currentlyCounting);
-        setSelectedCount(currentlyCounting || null);
         setCounts(savedCounts);
       } catch (error) {
         console.error('Error fetching counts:', error);
@@ -25,5 +22,5 @@ export const usePopulateCountSelector = (
     };
 
     fetchCounts();
-  }, [count, db, setCounts, setSelectedCount]);
+  }, [count, db, setCounts]);
 };

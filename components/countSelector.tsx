@@ -28,8 +28,7 @@ export const CountSelector = ({
   const db = useSQLiteContext();
   const dropdownIconRotationAnim = useAnimatedValue(0);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-  const [selectedCount, setSelectedCount] = useState<Count | null>(null);
-  usePopulateCountSelector(count, db, setCounts, setSelectedCount);
+  usePopulateCountSelector(count, db, setCounts);
 
   const rotate = dropdownIconRotationAnim.interpolate({
     inputRange: [0, 180],
@@ -46,11 +45,11 @@ export const CountSelector = ({
     };
 
     rotateDropdownIconUp();
-  }, [dropdownIconRotationAnim, isDropdownVisible, selectedCount]);
+  }, [dropdownIconRotationAnim, isDropdownVisible, count.id]);
 
   if (!counts?.length) return null;
 
-  const shouldEnableDropdown = !selectedCount || counts.length > 1;
+  const shouldEnableDropdown = !count.id || counts.length > 1;
 
   return (
     <View style={styles.container}>
@@ -65,7 +64,7 @@ export const CountSelector = ({
           }}
         >
           <View style={styles.titleWrapper}>
-            <Text style={styles.text}>{selectedCount?.title}</Text>
+            <Text style={styles.text}>{count.title}</Text>
           </View>
           {shouldEnableDropdown ? (
             <Animated.View
@@ -83,7 +82,7 @@ export const CountSelector = ({
         {isDropdownVisible && (
           <ScrollView indicatorStyle='white' style={styles.dropdown}>
             {counts
-              .filter(({ id }) => id !== selectedCount?.id)
+              .filter(({ id }) => id !== count.id)
               .map(({ createdAt, id, lastModified, title, value }, i) => {
                 const isLast = i === counts.length - 1;
                 const onPress = () =>
@@ -91,7 +90,6 @@ export const CountSelector = ({
                     count,
                     db,
                     id,
-                    selectedCount,
                     setCount,
                     setDropdownVisible,
                     setShowSaveInputField
