@@ -15,18 +15,19 @@
     "expo": "~53.0.12",
     "expo-av": "~15.1.6",
     "expo-dev-client": "~5.2.2",
+    "expo-device": "~7.1.4",
     "expo-haptics": "~14.1.4",
     "expo-router": "~5.1.0",
     "expo-sqlite": "~15.2.13",
     "expo-status-bar": "~2.2.3",
+    "firebase": "^11.10.0",
     "react": "19.0.0",
     "react-native": "0.79.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-snackbar": "^2.9.0",
     "react-native-uuid": "^2.0.3",
-    "react-native-volume-manager": "^2.0.8",
-    "expo-device": "~7.1.4"
+    "react-native-volume-manager": "^2.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

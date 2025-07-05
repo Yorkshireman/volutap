@@ -2,6 +2,7 @@ import * as Device from 'expo-device';
 import * as Haptics from 'expo-haptics';
 import { CountingModeContext } from '../contexts';
 import { CountSelector } from '../components';
+import { initializeApp } from 'firebase/app';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Snackbar from 'react-native-snackbar';
@@ -17,6 +18,17 @@ import {
   useSetCountOnVolumeChange
 } from '../hooks';
 
+const firebaseConfig = {
+  apiKey: 'AIzaSyA4ugb38YbH64adnBR2wvDXaltzaIMeZuc',
+  appId: '1:929009834313:web:e70f631e187a65597fa298',
+  authDomain: 'counter-7b22f.firebaseapp.com',
+  databaseURL: 'https://counter-7b22f-default-rtdb.firebaseio.com',
+  messagingSenderId: '929009834313',
+  projectId: 'counter-7b22f',
+  storageBucket: 'counter-7b22f.firebasestorage.app'
+};
+
+const app = initializeApp(firebaseConfig);
 const screenWidth = Dimensions.get('window').width;
 const TOOLBAR_ICON_SIZE = screenWidth < 400 ? 48 : screenWidth < 430 ? 54 : 64;
 
