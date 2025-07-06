@@ -83,7 +83,6 @@ export const onPressStartNewCountButton = async (
               count.id
             ]);
 
-            console.log(`Updated currentlyCounting to false for count with id: ${count.id}`);
             setCount({ value: 0 });
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           } catch (e) {
