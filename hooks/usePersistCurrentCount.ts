@@ -3,8 +3,7 @@ import type { Count } from '../types';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef } from 'react';
 
-export const usePersistCurrentCountAndId = (count: Count, currentCountId?: string) => {
-  //rename
+export const usePersistCurrentCount = (count: Count) => {
   const db = useSQLiteContext();
   const currentCountValueRef = useRef<number | null>(null);
   const didMount = useRef(false);
@@ -15,38 +14,23 @@ export const usePersistCurrentCountAndId = (count: Count, currentCountId?: strin
       return;
     }
 
-    if (currentCountValueRef.current === count.value) {
-      console.log('usePersistCurrentCountAndId(): Count has not changed, skipping persistence.');
-      return;
-    }
+    if (currentCountValueRef.current === count.value) return;
 
     const saveCountToDB = async () => {
-      if (!currentCountId) return;
+      if (!count.id) return;
 
       try {
         const { value: currentCountDBvalue } =
           (await db.getFirstAsync<Count>('SELECT value FROM savedCounts WHERE id = ?', [
-            currentCountId
+            count.id
           ])) || {};
 
-        if (currentCountDBvalue === count.value) {
-          console.log(
-            'usePersistCurrentCountAndId(): Count in DB is already up to date, skipping update.'
-          );
-
-          return;
-        }
-
-        console.log(
-          `usePersistCurrentCountAndId(): Updating savedCount in DB with id: ${currentCountId}, new count: ${JSON.stringify(
-            count
-          )}.`
-        );
+        if (currentCountDBvalue === count.value) return;
 
         await db.runAsync('UPDATE savedCounts SET value = ?, lastModified = ? WHERE id = ?', [
           count.value,
           new Date().toISOString(),
-          currentCountId
+          count.id
         ]);
 
         currentCountValueRef.current = count.value;
@@ -55,12 +39,7 @@ export const usePersistCurrentCountAndId = (count: Count, currentCountId?: strin
       }
     };
 
-    console.log(
-      'usePersistCurrentCountAndId(): Persisting Count to AsyncStorage: ',
-      JSON.stringify(count)
-    );
-
     AsyncStorage.setItem('currentCount', JSON.stringify(count));
     saveCountToDB();
-  }, [count, currentCountId, db]);
+  }, [count, db]);
 };
