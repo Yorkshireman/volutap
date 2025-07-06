@@ -6,8 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Snackbar from 'react-native-snackbar';
 import { useSQLiteContext } from 'expo-sqlite';
-import uuid from 'react-native-uuid';
-import { CountSelector, CountToolbar } from '../components';
+import { CountSelector, CountToolbar, SaveCountInputField } from '../components';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
@@ -22,7 +21,6 @@ export default function Index() {
     useContext(CountingModeContext);
   const db = useSQLiteContext();
   const editInputFieldRef = useRef<TextInput>(null);
-  const saveInputFieldRef = useRef<TextInput>(null);
   const [isIpad, setIsIpad] = useState(false);
   const [showEditInputField, setShowEditInputField] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
@@ -41,11 +39,6 @@ export default function Index() {
     editInputFieldRef.current?.focus();
   }, [showEditInputField]);
 
-  useEffect(() => {
-    if (!showSaveInputField) return;
-    saveInputFieldRef.current?.focus();
-  }, [showSaveInputField]);
-
   const onPressDecrementButton = () => {
     if (count.value === 0) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -62,50 +55,6 @@ export default function Index() {
     setCountingWithVolumeButtons(!countingWithVolumeButtons);
   };
 
-  const onSubmitEditing = async () => {
-    const trimmed = titleToSave.trim();
-    if (!trimmed) return;
-
-    const id = uuid.v4();
-    const now = new Date().toISOString();
-
-    try {
-      console.log(
-        `Adding a new Count to the database, createdAt: ${now}, title: ${trimmed}, id: ${id}.`
-      );
-
-      await db.runAsync(
-        'INSERT INTO savedCounts (value, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?, ?)',
-        count.value,
-        now,
-        true,
-        id,
-        now,
-        trimmed
-      );
-
-      Snackbar.show({
-        backgroundColor: '#758BFD',
-        duration: Snackbar.LENGTH_LONG,
-        text: 'Saved!',
-        textColor: 'black'
-      });
-
-      setTitleToSave('');
-      setCount({
-        // dry up?
-        createdAt: now,
-        currentlyCounting: true,
-        id,
-        lastModified: now,
-        title: trimmed,
-        value: count.value
-      });
-    } catch (e) {
-      console.error('DB error: ', e);
-    }
-  };
-
   const onSubmitEditingExistingCountTitle = async () => {
     const trimmed = titleToSave.trim();
     if (!trimmed) return;
@@ -116,7 +65,6 @@ export default function Index() {
     }
 
     try {
-      console.log(`Updating Count title in the DB, title: ${trimmed}, id: ${count.id}.`);
       await db.runAsync('UPDATE savedCounts SET title = ? WHERE id = ?', [trimmed, count.id]);
       Snackbar.show({
         backgroundColor: '#758BFD',
@@ -147,20 +95,13 @@ export default function Index() {
             setShowSaveInputField={setShowSaveInputField}
           />
         )}
-        <TextInput
-          maxLength={36}
-          onBlur={() => {
-            if (titleToSave.trim()) return;
-            setShowSaveInputField(false);
-          }}
-          onChangeText={setTitleToSave}
-          onSubmitEditing={onSubmitEditing}
-          placeholder={'Name'}
-          placeholderTextColor={'#fff'}
-          ref={saveInputFieldRef}
-          returnKeyType='done'
-          style={{ ...styles.saveInputField, display: showSaveInputField ? 'flex' : 'none' }}
-          value={titleToSave}
+        <SaveCountInputField
+          count={count}
+          setCount={setCount}
+          setShowSaveInputField={setShowSaveInputField}
+          setTitleToSave={setTitleToSave}
+          showSaveInputField={showSaveInputField}
+          titleToSave={titleToSave}
         />
         <TextInput
           maxLength={36}
