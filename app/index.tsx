@@ -10,7 +10,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
 import type { Count, DbCount } from '../types';
 import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { getDatabase, onValue, ref, runTransaction } from 'firebase/database';
+import { getDatabase, ref, runTransaction } from 'firebase/database';
 import { onPressDelete, onPressReset, onPressStartNewCountButton } from '../utils';
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
