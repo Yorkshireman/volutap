@@ -3,7 +3,7 @@ import type { Count } from '../types';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef } from 'react';
 
-export const usePersistCurrentCount = (count: Count, currentCountId?: string) => {
+export const usePersistCurrentCount = (count: Count) => {
   const db = useSQLiteContext();
   const currentCountValueRef = useRef<number | null>(null);
   const didMount = useRef(false);
@@ -17,12 +17,12 @@ export const usePersistCurrentCount = (count: Count, currentCountId?: string) =>
     if (currentCountValueRef.current === count.value) return;
 
     const saveCountToDB = async () => {
-      if (!currentCountId) return;
+      if (!count.id) return;
 
       try {
         const { value: currentCountDBvalue } =
           (await db.getFirstAsync<Count>('SELECT value FROM savedCounts WHERE id = ?', [
-            currentCountId
+            count.id
           ])) || {};
 
         if (currentCountDBvalue === count.value) return;
@@ -30,7 +30,7 @@ export const usePersistCurrentCount = (count: Count, currentCountId?: string) =>
         await db.runAsync('UPDATE savedCounts SET value = ?, lastModified = ? WHERE id = ?', [
           count.value,
           new Date().toISOString(),
-          currentCountId
+          count.id
         ]);
 
         currentCountValueRef.current = count.value;
@@ -41,5 +41,5 @@ export const usePersistCurrentCount = (count: Count, currentCountId?: string) =>
 
     AsyncStorage.setItem('currentCount', JSON.stringify(count));
     saveCountToDB();
-  }, [count, currentCountId, db]);
+  }, [count, db]);
 };

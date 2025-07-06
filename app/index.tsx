@@ -27,7 +27,7 @@ export default function Index() {
   const [titleToSave, setTitleToSave] = useState('');
   const [buttonHeight, setButtonHeight] = useState(0);
   useFetchAndSetCurrentCountAndIdOnMount(setCount);
-  usePersistCurrentCount(count, count.id);
+  usePersistCurrentCount(count);
   useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
 
   useEffect(() => {
