@@ -11,7 +11,7 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
   useFetchAndSetCurrentCountAndIdOnMount,
-  usePersistCurrentCountAndId,
+  usePersistCurrentCount,
   useSetCountOnVolumeChange
 } from '../hooks';
 
@@ -27,7 +27,7 @@ export default function Index() {
   const [titleToSave, setTitleToSave] = useState('');
   const [buttonHeight, setButtonHeight] = useState(0);
   useFetchAndSetCurrentCountAndIdOnMount(setCount);
-  usePersistCurrentCountAndId(count, count.id);
+  usePersistCurrentCount(count, count.id);
   useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
 
   useEffect(() => {

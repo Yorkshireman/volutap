@@ -3,8 +3,7 @@ import type { Count } from '../types';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef } from 'react';
 
-export const usePersistCurrentCountAndId = (count: Count, currentCountId?: string) => {
-  //rename
+export const usePersistCurrentCount = (count: Count, currentCountId?: string) => {
   const db = useSQLiteContext();
   const currentCountValueRef = useRef<number | null>(null);
   const didMount = useRef(false);
