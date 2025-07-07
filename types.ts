@@ -19,5 +19,6 @@ export type DbCount = {
 export type SetCount = React.Dispatch<React.SetStateAction<Count>>;
 export type SetDropdownVisible = React.Dispatch<React.SetStateAction<boolean>>;
 export type SetShowEditInputField = React.Dispatch<React.SetStateAction<boolean>>;
+export type SetShowOptionsMenu = React.Dispatch<React.SetStateAction<boolean>>;
 export type SetShowSaveInputField = React.Dispatch<React.SetStateAction<boolean>>;
 export type SetTitleToSave = React.Dispatch<React.SetStateAction<string>>;

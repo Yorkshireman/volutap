@@ -1,9 +1,21 @@
 import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
 import { SQLiteDatabase } from 'expo-sqlite';
-import type { Count, SetCount, SetDropdownVisible, SetShowSaveInputField } from './types';
+import type {
+  Count,
+  SetCount,
+  SetDropdownVisible,
+  SetShowOptionsMenu,
+  SetShowSaveInputField
+} from './types';
 
-export const onPressDelete = (count: Count, db: SQLiteDatabase, setCount: SetCount) => {
+export const onPressDelete = (
+  count: Count,
+  db: SQLiteDatabase,
+  setCount: SetCount,
+  setShowOptionsMenu: SetShowOptionsMenu
+) => {
+  setShowOptionsMenu(false);
   Alert.alert(
     'Delete Saved Count',
     'Are you sure? This cannot be undone.',

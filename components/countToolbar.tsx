@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Menu } from 'react-native-paper';
 import { router } from 'expo-router';
 import Snackbar from 'react-native-snackbar';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -35,10 +36,12 @@ export const CountToolbar = ({
 }: CountToolbarProps) => {
   const db = useSQLiteContext();
   const [infoSnackbarIsOpen, setInfoSnackbarIsOpen] = useState(false);
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
 
   const onPressEditButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowEditInputField(true);
+    setShowOptionsMenu(false);
     setTitleToSave(count.title || 'Name');
   };
 
@@ -102,67 +105,91 @@ export const CountToolbar = ({
     setInfoSnackbarIsOpen(true);
   };
 
+  const onPressOptionsButton = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setShowOptionsMenu(prev => !prev);
+  };
+
   const onPressSaveButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowSaveInputField(true);
   };
 
   return (
-    <View style={{ gap: 10 }}>
+    <View style={{ flexDirection: 'row', gap: 5 }}>
       {count.id && (
-        <View style={{ flexDirection: 'row', gap: 20 }}>
-          <TouchableOpacity
-            onPress={() => onPressDelete(count, db, setCount)}
-            style={styles.refreshButton}
-          >
-            <Ionicons color={'#fff'} name='trash-outline' size={TOOLBAR_ICON_SIZE} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => count.id && onPressInfo(count.id)}
-            style={styles.refreshButton}
-          >
-            <Ionicons color={'#fff'} name='information-circle-outline' size={TOOLBAR_ICON_SIZE} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onPressEditButton} style={styles.refreshButton}>
-            <Ionicons color={'#fff'} name='pencil' size={TOOLBAR_ICON_SIZE} />
-          </TouchableOpacity>
-        </View>
-      )}
-      <View style={{ flexDirection: 'row', gap: 20 }}>
-        <TouchableOpacity
-          onPress={() => onPressReset(count, setCount)}
-          style={styles.refreshButton}
-        >
-          <Ionicons color={'#fff'} name='refresh-outline' size={TOOLBAR_ICON_SIZE} />
+        <TouchableOpacity onPress={() => count.id && onPressInfo(count.id)} style={styles.icon}>
+          <Ionicons color={'#fff'} name='information-circle-outline' size={TOOLBAR_ICON_SIZE} />
         </TouchableOpacity>
-        {count.id && (
-          <>
-            <TouchableOpacity onPress={() => router.push('/settings')} style={styles.refreshButton}>
-              <Ionicons color={'#fff'} name='settings-outline' size={TOOLBAR_ICON_SIZE} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => onPressStartNewCountButton(count, db, setCount)}
-              style={styles.refreshButton}
-            >
-              <Ionicons color={'#fff'} name='create-outline' size={TOOLBAR_ICON_SIZE} />
-            </TouchableOpacity>
-          </>
-        )}
-        {!count.id && (
-          <TouchableOpacity onPress={onPressSaveButton} style={styles.saveButton}>
-            <Ionicons color={'#fff'} name='save-outline' size={TOOLBAR_ICON_SIZE} />
+      )}
+      <TouchableOpacity onPress={() => onPressReset(count, setCount)} style={styles.icon}>
+        <Ionicons color={'#fff'} name='refresh-outline' size={TOOLBAR_ICON_SIZE} />
+      </TouchableOpacity>
+      {!count.id && (
+        <TouchableOpacity onPress={onPressSaveButton} style={styles.icon}>
+          <Ionicons color={'#fff'} name='save-outline' size={TOOLBAR_ICON_SIZE} />
+        </TouchableOpacity>
+      )}
+      {count.id && (
+        <>
+          <TouchableOpacity onPress={() => router.push('/settings')} style={styles.icon}>
+            <Ionicons color={'#fff'} name='settings-outline' size={TOOLBAR_ICON_SIZE} />
           </TouchableOpacity>
-        )}
-      </View>
+          <TouchableOpacity
+            onPress={() => onPressStartNewCountButton(count, db, setCount)}
+            style={styles.icon}
+          >
+            <Ionicons color={'#fff'} name='create-outline' size={TOOLBAR_ICON_SIZE} />
+          </TouchableOpacity>
+          <Menu
+            anchor={
+              <TouchableOpacity onPress={onPressOptionsButton} style={styles.icon}>
+                <Ionicons
+                  color={'#fff'}
+                  name='ellipsis-horizontal-circle'
+                  size={TOOLBAR_ICON_SIZE}
+                />
+              </TouchableOpacity>
+            }
+            contentStyle={styles.menuContentStyle}
+            visible={showOptionsMenu}
+            onDismiss={() => setShowOptionsMenu(false)}
+          >
+            <Menu.Item
+              leadingIcon={() => <Ionicons color='#fff' name='pencil' size={24} />}
+              onPress={onPressEditButton}
+              title='Edit Name'
+              titleStyle={styles.menuItemTitleStyle}
+            />
+            <Menu.Item
+              leadingIcon={() => <Ionicons color='#fff' name='trash-outline' size={24} />}
+              onPress={() => onPressDelete(count, db, setCount, setShowOptionsMenu)}
+              title='Delete'
+              titleStyle={styles.menuItemTitleStyle}
+            />
+          </Menu>
+        </>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  refreshButton: {
+  icon: {
     padding: 5
   },
-  saveButton: {
-    padding: 5
+  menuContentStyle: {
+    backgroundColor: '#27187E',
+    borderColor: '#fff',
+    borderWidth: 1,
+    shadowColor: '#fff',
+    shadowOffset: { height: 3, width: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3
+  },
+  menuItemTitleStyle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold'
   }
 });
