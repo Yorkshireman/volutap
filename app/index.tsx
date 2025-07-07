@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   countButtonsWrapper: {
-    flex: 1,
+    flex: 2,
     flexDirection: 'row',
     gap: 30
   },

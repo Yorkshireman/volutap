@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import Snackbar from 'react-native-snackbar';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
@@ -107,9 +108,9 @@ export const CountToolbar = ({
   };
 
   return (
-    <View style={{ flexDirection: 'row', gap: 10 }}>
+    <View style={{ gap: 10 }}>
       {count.id && (
-        <>
+        <View style={{ flexDirection: 'row', gap: 20 }}>
           <TouchableOpacity
             onPress={() => onPressDelete(count, db, setCount)}
             style={styles.refreshButton}
@@ -125,24 +126,34 @@ export const CountToolbar = ({
           <TouchableOpacity onPress={onPressEditButton} style={styles.refreshButton}>
             <Ionicons color={'#fff'} name='pencil' size={TOOLBAR_ICON_SIZE} />
           </TouchableOpacity>
-        </>
+        </View>
       )}
-      <TouchableOpacity onPress={() => onPressReset(count, setCount)} style={styles.refreshButton}>
-        <Ionicons color={'#fff'} name='refresh-outline' size={TOOLBAR_ICON_SIZE} />
-      </TouchableOpacity>
-      {count.id && (
+      <View style={{ flexDirection: 'row', gap: 20 }}>
         <TouchableOpacity
-          onPress={() => onPressStartNewCountButton(count, db, setCount)}
+          onPress={() => onPressReset(count, setCount)}
           style={styles.refreshButton}
         >
-          <Ionicons color={'#fff'} name='create-outline' size={TOOLBAR_ICON_SIZE} />
+          <Ionicons color={'#fff'} name='refresh-outline' size={TOOLBAR_ICON_SIZE} />
         </TouchableOpacity>
-      )}
-      {!count.id && (
-        <TouchableOpacity onPress={onPressSaveButton} style={styles.saveButton}>
-          <Ionicons color={'#fff'} name='save-outline' size={TOOLBAR_ICON_SIZE} />
-        </TouchableOpacity>
-      )}
+        {count.id && (
+          <>
+            <TouchableOpacity onPress={() => router.push('/settings')} style={styles.refreshButton}>
+              <Ionicons color={'#fff'} name='settings-outline' size={TOOLBAR_ICON_SIZE} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => onPressStartNewCountButton(count, db, setCount)}
+              style={styles.refreshButton}
+            >
+              <Ionicons color={'#fff'} name='create-outline' size={TOOLBAR_ICON_SIZE} />
+            </TouchableOpacity>
+          </>
+        )}
+        {!count.id && (
+          <TouchableOpacity onPress={onPressSaveButton} style={styles.saveButton}>
+            <Ionicons color={'#fff'} name='save-outline' size={TOOLBAR_ICON_SIZE} />
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
