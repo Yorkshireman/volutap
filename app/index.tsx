@@ -4,11 +4,14 @@ import type { Count } from '../types';
 import { CountingModeContext } from '../contexts';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Snackbar from 'react-native-snackbar';
-import { useSQLiteContext } from 'expo-sqlite';
-import { CountSelector, CountToolbar, SaveCountInputField } from '../components';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useContext, useEffect, useRef, useState } from 'react';
+import {
+  CountSelector,
+  CountToolbar,
+  EditCountTitleInputField,
+  SaveCountInputField
+} from '../components';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useContext, useEffect, useState } from 'react';
 import {
   useFetchAndSetCurrentCountAndIdOnMount,
   usePersistCurrentCount,
@@ -19,8 +22,6 @@ export default function Index() {
   const [count, setCount] = useState<Count>({ value: 0 });
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
-  const db = useSQLiteContext();
-  const editInputFieldRef = useRef<TextInput>(null);
   const [isIpad, setIsIpad] = useState(false);
   const [showEditInputField, setShowEditInputField] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
@@ -33,11 +34,6 @@ export default function Index() {
   useEffect(() => {
     setIsIpad(Device.deviceType === Device.DeviceType.TABLET);
   }, []);
-
-  useEffect(() => {
-    if (!showEditInputField) return;
-    editInputFieldRef.current?.focus();
-  }, [showEditInputField]);
 
   const onPressDecrementButton = () => {
     if (count.value === 0) return;
@@ -53,31 +49,6 @@ export default function Index() {
   const onPressSwitchCountModeButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setCountingWithVolumeButtons(!countingWithVolumeButtons);
-  };
-
-  const onSubmitEditingExistingCountTitle = async () => {
-    const trimmed = titleToSave.trim();
-    if (!trimmed) return;
-
-    if (!count.id) {
-      console.error('onSubmitEditingExistingCountTitle(): No count ID available.');
-      return;
-    }
-
-    try {
-      await db.runAsync('UPDATE savedCounts SET title = ? WHERE id = ?', [trimmed, count.id]);
-      Snackbar.show({
-        backgroundColor: '#758BFD',
-        duration: Snackbar.LENGTH_LONG,
-        text: 'Saved!',
-        textColor: 'black'
-      });
-
-      setTitleToSave('');
-      setCount(prev => ({ ...prev, title: trimmed }));
-    } catch (e) {
-      console.error('DB error: ', e);
-    }
   };
 
   return (
@@ -103,19 +74,13 @@ export default function Index() {
           showSaveInputField={showSaveInputField}
           titleToSave={titleToSave}
         />
-        <TextInput
-          maxLength={36}
-          onBlur={() => {
-            if (titleToSave.trim()) return;
-            setShowEditInputField(false);
-          }}
-          onChangeText={setTitleToSave}
-          onSubmitEditing={onSubmitEditingExistingCountTitle}
-          placeholderTextColor={'#fff'}
-          ref={editInputFieldRef}
-          returnKeyType='done'
-          style={{ ...styles.saveInputField, display: showEditInputField ? 'flex' : 'none' }}
-          value={titleToSave}
+        <EditCountTitleInputField
+          count={count}
+          setCount={setCount}
+          setShowEditInputField={setShowEditInputField}
+          setTitleToSave={setTitleToSave}
+          showEditInputField={showEditInputField}
+          titleToSave={titleToSave}
         />
         <Text
           adjustsFontSizeToFit={isIpad ? false : true}
@@ -204,15 +169,6 @@ const styles = StyleSheet.create({
     flex: 2,
     flexDirection: 'row',
     gap: 30
-  },
-  saveInputField: {
-    borderColor: '#fff',
-    borderRadius: 5,
-    borderWidth: 1,
-    color: '#fff',
-    fontSize: 18,
-    padding: 10,
-    width: '100%'
   },
   switchCountModeButton: {
     borderColor: '#fff',
