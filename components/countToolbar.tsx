@@ -115,6 +115,11 @@ export const CountToolbar = ({
     setShowSaveInputField(true);
   };
 
+  const onPressSettingsButton = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push(`/settings?id=${count.id}`);
+  };
+
   return (
     <View style={{ flexDirection: 'row', gap: 5 }}>
       {count.id && (
@@ -132,7 +137,7 @@ export const CountToolbar = ({
       )}
       {count.id && (
         <>
-          <TouchableOpacity onPress={() => router.push('/settings')} style={styles.icon}>
+          <TouchableOpacity onPress={onPressSettingsButton} style={styles.icon}>
             <Ionicons color={'#fff'} name='settings-outline' size={TOOLBAR_ICON_SIZE} />
           </TouchableOpacity>
           <TouchableOpacity

@@ -1,47 +1,42 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function Settings() {
+  const {
+    params: { id }
+  } = useRoute() as { params: { id: string } };
+  console.log({ id });
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
-      <Text style={styles.description}>
-        This is the settings page. You can customize your app here.
-      </Text>
-      <TouchableOpacity style={styles.button} onPress={() => console.log('Settings saved!')}>
-        <Text style={styles.buttonText}>Save Settings</Text>
-      </TouchableOpacity>
+      <Text style={styles.heading}>Settings</Text>
+      <Text style={styles.subHeading}>Changes here only apply to the current Count</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
-    backgroundColor: '#007BFF',
-    borderRadius: 5,
-    padding: 15
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold'
-  },
   container: {
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    // backgroundColor: '#333',
+    backgroundColor: '#FAFAFA',
     flex: 1,
-    justifyContent: 'center'
+    gap: 10,
+    padding: 20
   },
-  description: {
-    color: '#333',
-    fontSize: 16,
-    marginBottom: 20,
-    paddingHorizontal: 20,
+  heading: {
+    alignSelf: 'flex-start',
+    color: '#222',
+    fontSize: 32,
+    fontWeight: 'bold'
+  },
+  subHeading: {
+    alignSelf: 'flex-start',
+    color: '#222',
+    fontSize: 18
+  },
+  text: {
+    color: '#222',
+    fontSize: 18,
     textAlign: 'center'
-  },
-  title: {
-    color: '#333',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10
   }
 });
