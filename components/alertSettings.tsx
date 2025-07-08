@@ -117,6 +117,7 @@ export const AlertSettings = () => {
               onChangeText={v => setAlertAtValue(!v ? null : parseInt(v, 10))}
               onSubmitEditing={onSubmitCount}
               placeholder={'Number'}
+              placeholderTextColor='#888'
               returnKeyType='done'
               keyboardType='numeric'
               style={styles.alertAtInput}
