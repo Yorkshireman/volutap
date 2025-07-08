@@ -1,50 +1,10 @@
 import { countVar } from '../reactiveVars';
+import { SavedAlert } from './savedAlert';
 import { useReactiveVar } from '@apollo/client';
+import { useState } from 'react';
 import uuid from 'react-native-uuid';
 import { AlertType, type Count } from '../types';
 import { StyleSheet, Switch, Text, TextInput, View } from 'react-native';
-import { useEffect, useState } from 'react';
-
-const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; count: Count }) => {
-  const [alertAtValue, setAlertAtValue] = useState<number | null>(null);
-  useEffect(() => setAlertAtValue(alert.at), [alert.at]);
-
-  return (
-    <View style={styles.savedAlert}>
-      <View style={styles.savedAlertFirstColumn}>
-        {/* change to dropdown select */}
-        <Text style={styles.alertAtText}>Alert at:</Text>
-        <TextInput
-          maxLength={6}
-          onChangeText={v => setAlertAtValue(!v ? null : parseInt(v, 10))}
-          onSubmitEditing={() => {
-            if (!alertAtValue) return;
-            if (count.alerts.find(a => a.at === alertAtValue)) {
-              console.warn(`Alert already set for ${alertAtValue}`);
-              return;
-            }
-
-            const updatedAlerts: Count['alerts'] = [
-              ...count.alerts.filter(a => a.id !== alert.id),
-              {
-                ...alert,
-                at: alertAtValue
-              }
-            ];
-
-            countVar({ ...count, alerts: updatedAlerts });
-          }}
-          placeholder={'Number'}
-          returnKeyType='done'
-          keyboardType='numeric'
-          style={styles.alertAtInput}
-          value={alertAtValue?.toString() || undefined}
-        />
-      </View>
-      <Switch onValueChange={v => console.log(v)} value={!!alertAtValue} />
-    </View>
-  );
-};
 
 export const AlertSettings = () => {
   const [alertAtValue, setAlertAtValue] = useState<number | null>(null);
