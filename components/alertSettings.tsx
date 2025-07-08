@@ -26,7 +26,11 @@ export const AlertSettings = () => {
   const count = useReactiveVar(countVar);
   const db = useSQLiteContext();
   const didMount = useRef(false);
-  const [errorSnackbarIsOpen, setErrorSnackbarIsOpen] = useState(false);
+  const [showValidationErrorMessage, setShowValidationErrorMessage] = useState(false);
+
+  useEffect(() => {
+    if (!alertAtValue) setShowValidationErrorMessage(false);
+  }, [alertAtValue]);
 
   useEffect(() => {
     if (!didMount.current) {
@@ -74,7 +78,8 @@ export const AlertSettings = () => {
 
   const onSubmitCount = () => {
     if (!alertAtValue) return;
-    if (count.alerts.find(a => a.at === alertAtValue)) {
+    if (count.alerts.find(({ at }) => at === alertAtValue)) {
+      setShowValidationErrorMessage(true);
       return;
     }
 
@@ -99,29 +104,34 @@ export const AlertSettings = () => {
       text: 'Saved!',
       textColor: 'black'
     });
-
-    setErrorSnackbarIsOpen(true);
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.alertForm}>
-        <View style={styles.alertFormFirstColumn}>
-          <Text style={styles.alertAtText}>Alert at:</Text>
-          <TextInput
-            maxLength={6}
-            onChangeText={v => setAlertAtValue(!v ? null : parseInt(v, 10))}
-            onSubmitEditing={onSubmitCount}
-            placeholder={'Number'}
-            returnKeyType='done'
-            keyboardType='numeric'
-            style={styles.alertAtInput}
-            value={alertAtValue?.toString() || undefined}
-          />
+        <View style={styles.alertFormFirstRow}>
+          <View style={styles.alertFormFirstRowFirstColumn}>
+            <Text style={styles.alertAtText}>Alert at:</Text>
+            <TextInput
+              maxLength={6}
+              onChangeText={v => setAlertAtValue(!v ? null : parseInt(v, 10))}
+              onSubmitEditing={onSubmitCount}
+              placeholder={'Number'}
+              returnKeyType='done'
+              keyboardType='numeric'
+              style={styles.alertAtInput}
+              value={alertAtValue?.toString() || undefined}
+            />
+          </View>
+          <TouchableOpacity style={styles.addButton} onPress={onSubmitCount}>
+            <Text style={styles.addButtonText}>Add</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.addButton} onPress={onSubmitCount}>
-          <Text style={styles.addButtonText}>Add</Text>
-        </TouchableOpacity>
+        {showValidationErrorMessage && (
+          <Text style={{ color: 'red', fontSize: 16 }}>
+            Alert already exists for {alertAtValue} - do you need to turn it on?
+          </Text>
+        )}
       </View>
       <View style={styles.savedAlerts}>
         {count.alerts
@@ -164,11 +174,14 @@ const styles = StyleSheet.create({
     fontSize: 18
   },
   alertForm: {
+    gap: 2
+  },
+  alertFormFirstRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%'
   },
-  alertFormFirstColumn: {
+  alertFormFirstRowFirstColumn: {
     alignItems: 'center',
     flexDirection: 'row',
     gap: 5
