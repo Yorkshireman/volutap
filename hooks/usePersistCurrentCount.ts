@@ -1,9 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Count } from '../types';
+import { countVar } from '../reactiveVars';
+import type { DbCount } from '../types';
+import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef } from 'react';
 
-export const usePersistCurrentCount = (count: Count) => {
+export const usePersistCurrentCount = () => {
+  const count = useReactiveVar(countVar);
   const db = useSQLiteContext();
   const currentCountValueRef = useRef<number | null>(null);
   const didMount = useRef(false);
@@ -21,7 +24,7 @@ export const usePersistCurrentCount = (count: Count) => {
 
       try {
         const { value: currentCountDBvalue } =
-          (await db.getFirstAsync<Count>('SELECT value FROM savedCounts WHERE id = ?', [
+          (await db.getFirstAsync<DbCount>('SELECT value FROM savedCounts WHERE id = ?', [
             count.id
           ])) || {};
 

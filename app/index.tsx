@@ -1,9 +1,10 @@
 import * as Device from 'expo-device';
 import * as Haptics from 'expo-haptics';
-import type { Count } from '../types';
 import { CountingModeContext } from '../contexts';
+import { countVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useReactiveVar } from '@apollo/client';
 import {
   CountSelector,
   CountToolbar,
@@ -19,7 +20,7 @@ import {
 } from '../hooks';
 
 export default function Index() {
-  const [count, setCount] = useState<Count>({ alerts: [], value: 0 });
+  const count = useReactiveVar(countVar);
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
   const [isIpad, setIsIpad] = useState(false);
@@ -27,9 +28,9 @@ export default function Index() {
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, setTitleToSave] = useState('');
   const [buttonHeight, setButtonHeight] = useState(0);
-  useFetchAndSetCurrentCountAndIdOnMount(setCount);
-  usePersistCurrentCount(count);
-  useSetCountOnVolumeChange(countingWithVolumeButtons, count, setCount);
+  useFetchAndSetCurrentCountAndIdOnMount();
+  usePersistCurrentCount();
+  useSetCountOnVolumeChange(countingWithVolumeButtons);
 
   useEffect(() => {
     setIsIpad(Device.deviceType === Device.DeviceType.TABLET);
@@ -38,12 +39,12 @@ export default function Index() {
   const onPressDecrementButton = () => {
     if (count.value === 0) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    setCount(prev => ({ ...prev, value: prev.value - 1 }));
+    countVar({ ...count, value: count.value - 1 });
   };
 
   const onPressIncrementButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    setCount(prev => ({ ...prev, value: prev.value + 1 }));
+    countVar({ ...count, value: count.value + 1 });
   };
 
   const onPressSwitchCountModeButton = () => {
@@ -60,23 +61,15 @@ export default function Index() {
         }}
       >
         {!showSaveInputField && !showEditInputField && (
-          <CountSelector
-            count={count}
-            setCount={setCount}
-            setShowSaveInputField={setShowSaveInputField}
-          />
+          <CountSelector setShowSaveInputField={setShowSaveInputField} />
         )}
         <SaveCountInputField
-          count={count}
-          setCount={setCount}
           setShowSaveInputField={setShowSaveInputField}
           setTitleToSave={setTitleToSave}
           showSaveInputField={showSaveInputField}
           titleToSave={titleToSave}
         />
         <EditCountTitleInputField
-          count={count}
-          setCount={setCount}
           setShowEditInputField={setShowEditInputField}
           setTitleToSave={setTitleToSave}
           showEditInputField={showEditInputField}
@@ -91,7 +84,6 @@ export default function Index() {
         </Text>
         <CountToolbar
           count={count}
-          setCount={setCount}
           setShowEditInputField={setShowEditInputField}
           setShowSaveInputField={setShowSaveInputField}
           setTitleToSave={setTitleToSave}

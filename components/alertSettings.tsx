@@ -1,18 +1,74 @@
 import { countVar } from '../reactiveVars';
 import { SavedAlert } from './savedAlert';
 import { useReactiveVar } from '@apollo/client';
-import { useState } from 'react';
+import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
 import { AlertType, type Count } from '../types';
 import { StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+
+const countIsMissingRequiredFields = (count: Count): boolean => {
+  return (
+    !count.alerts ||
+    !count.createdAt ||
+    count.currentlyCounting === undefined ||
+    !count.id ||
+    !count.lastModified ||
+    !count.title ||
+    count.value === undefined
+  );
+};
 
 export const AlertSettings = () => {
   const [alertAtValue, setAlertAtValue] = useState<number | null>(null);
   const count = useReactiveVar(countVar);
-  console.log('========== count ==========');
+  const db = useSQLiteContext();
+  const didMount = useRef(false);
+
+  useEffect(() => {
+    if (!didMount.current) return;
+    didMount.current = true;
+    if (!count.id) return;
+
+    async function updateCountInDB() {
+      try {
+        if (countIsMissingRequiredFields(count)) {
+          console.warn('Count is missing required fields, not updating DB:', count);
+          return;
+        }
+
+        await db.runAsync(
+          `UPDATE savedCounts SET
+            alerts = ?,
+            createdAt = ?,
+            currentlyCounting = ?,
+            id = ?,
+            lastModified = ?,
+            title = ?
+            value = ?,
+            WHERE id = ?`,
+          [
+            JSON.stringify(count.alerts),
+            count.createdAt!,
+            count.currentlyCounting!,
+            count.id!,
+            count.lastModified!,
+            count.title!,
+            count.value
+          ]
+        );
+
+        console.log('Count updated in DB:', count);
+      } catch (error) {
+        console.error('Error updating count in DB:', error);
+      }
+    }
+
+    updateCountInDB();
+  }, [count, db]);
+  console.log('========== AlertSettings rendering, count: ==========');
   console.log(JSON.stringify(count, null, 2));
   console.log('========== end ===========');
-
   return (
     <View style={styles.container}>
       <View style={styles.alertForm}>

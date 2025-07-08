@@ -1,9 +1,10 @@
 import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
+import type { ReactiveVar } from '@apollo/client';
 import { SQLiteDatabase } from 'expo-sqlite';
 import type {
   Count,
-  SetCount,
+  DbCount,
   SetDropdownVisible,
   SetShowOptionsMenu,
   SetShowSaveInputField
@@ -11,8 +12,8 @@ import type {
 
 export const onPressDelete = (
   count: Count,
+  countVar: ReactiveVar<Count>,
   db: SQLiteDatabase,
-  setCount: SetCount,
   setShowOptionsMenu: SetShowOptionsMenu
 ) => {
   setShowOptionsMenu(false);
@@ -38,7 +39,7 @@ export const onPressDelete = (
             return;
           }
 
-          setCount({ value: 0 });
+          countVar({ alerts: [], value: 0 });
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
         text: 'Delete'
@@ -48,7 +49,7 @@ export const onPressDelete = (
   );
 };
 
-export const onPressReset = (count: Count, setCount: SetCount) => {
+export const onPressReset = (count: Count, countVar: ReactiveVar<Count>) => {
   if (count.value === 0) return;
 
   Alert.alert(
@@ -61,7 +62,7 @@ export const onPressReset = (count: Count, setCount: SetCount) => {
       },
       {
         onPress: async () => {
-          setCount(prev => ({ ...prev, value: 0 }));
+          countVar({ ...count, value: 0 });
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
         text: 'OK'
@@ -73,8 +74,8 @@ export const onPressReset = (count: Count, setCount: SetCount) => {
 
 export const onPressStartNewCountButton = async (
   count: Count,
-  db: SQLiteDatabase,
-  setCount: SetCount
+  countVar: ReactiveVar<Count>,
+  db: SQLiteDatabase
 ) => {
   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   Alert.alert(
@@ -95,7 +96,7 @@ export const onPressStartNewCountButton = async (
               count.id
             ]);
 
-            setCount({ value: 0 });
+            countVar({ alerts: [], value: 0 });
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           } catch (e) {
             console.error('Error updating currentlyCounting in database: ', e);
@@ -110,16 +111,16 @@ export const onPressStartNewCountButton = async (
 
 export const onSelectCount = async ({
   count,
+  countVar,
   db,
   id,
-  setCount,
   setDropdownVisible,
   setShowSaveInputField
 }: {
   count: Count;
+  countVar: ReactiveVar<Count>;
   db: SQLiteDatabase;
   id: Count['id'];
-  setCount: SetCount;
   setDropdownVisible: SetDropdownVisible;
   setShowSaveInputField: SetShowSaveInputField;
 }) => {
@@ -142,7 +143,7 @@ export const onSelectCount = async ({
               id
             ]);
 
-            const newCount: Count | null = await db.getFirstAsync(
+            const newCount = await db.getFirstAsync<DbCount>(
               'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
               [true]
             );
@@ -152,7 +153,8 @@ export const onSelectCount = async ({
               return;
             }
 
-            setCount(newCount);
+            const alerts = JSON.parse(newCount.alerts);
+            countVar({ ...newCount, alerts });
             setDropdownVisible(false);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           },
@@ -182,7 +184,7 @@ export const onSelectCount = async ({
       id || ''
     ]);
 
-    const newCount: Count | null = await db.getFirstAsync(
+    const newCount = await db.getFirstAsync<DbCount>(
       'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
       [true]
     );
@@ -192,7 +194,8 @@ export const onSelectCount = async ({
       return;
     }
 
-    setCount(newCount);
+    const alerts = JSON.parse(newCount.alerts);
+    countVar({ ...newCount, alerts });
     setDropdownVisible(false);
   } catch (error) {
     console.error('onSelectCount(): ', error);

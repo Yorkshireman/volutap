@@ -4,12 +4,12 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Menu } from 'react-native-paper';
 import { router } from 'expo-router';
 import Snackbar from 'react-native-snackbar';
+import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import type {
   Count,
   DbCount,
-  SetCount,
   SetShowEditInputField,
   SetShowSaveInputField,
   SetTitleToSave
@@ -22,19 +22,17 @@ const TOOLBAR_ICON_SIZE = screenWidth < 400 ? 48 : screenWidth < 430 ? 54 : 64;
 
 interface CountToolbarProps {
   count: Count;
-  setCount: SetCount;
   setShowEditInputField: SetShowEditInputField;
   setShowSaveInputField: SetShowSaveInputField;
   setTitleToSave: SetTitleToSave;
 }
 
 export const CountToolbar = ({
-  count,
-  setCount,
   setShowEditInputField,
   setShowSaveInputField,
   setTitleToSave
 }: CountToolbarProps) => {
+  const count = useReactiveVar(countVar);
   const db = useSQLiteContext();
   const [infoSnackbarIsOpen, setInfoSnackbarIsOpen] = useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
@@ -60,10 +58,7 @@ export const CountToolbar = ({
       return;
     }
 
-    const dbCount: DbCount | null = await db.getFirstAsync(
-      'SELECT * FROM savedCounts WHERE id = ?',
-      [id]
-    );
+    const dbCount = await db.getFirstAsync<DbCount>('SELECT * FROM savedCounts WHERE id = ?', [id]);
 
     if (!dbCount) {
       console.error(`onPressInfo(): No count found with ID ${id}.`);
@@ -128,7 +123,7 @@ export const CountToolbar = ({
           <Ionicons color={'#fff'} name='information-circle-outline' size={TOOLBAR_ICON_SIZE} />
         </TouchableOpacity>
       )}
-      <TouchableOpacity onPress={() => onPressReset(count, setCount)} style={styles.icon}>
+      <TouchableOpacity onPress={() => onPressReset(count, countVar)} style={styles.icon}>
         <Ionicons color={'#fff'} name='refresh-outline' size={TOOLBAR_ICON_SIZE} />
       </TouchableOpacity>
       {!count.id && (
@@ -142,7 +137,7 @@ export const CountToolbar = ({
       {count.id && (
         <>
           <TouchableOpacity
-            onPress={() => onPressStartNewCountButton(count, db, setCount)}
+            onPress={() => onPressStartNewCountButton(count, countVar, db)}
             style={styles.icon}
           >
             <Ionicons color={'#fff'} name='create-outline' size={TOOLBAR_ICON_SIZE} />
@@ -169,7 +164,7 @@ export const CountToolbar = ({
             />
             <Menu.Item
               leadingIcon={() => <Ionicons color='#fff' name='trash-outline' size={24} />}
-              onPress={() => onPressDelete(count, db, setCount, setShowOptionsMenu)}
+              onPress={() => onPressDelete(count, countVar, db, setShowOptionsMenu)}
               title='Delete'
               titleStyle={styles.menuItemTitleStyle}
             />

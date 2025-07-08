@@ -1,24 +1,25 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { countVar } from '../reactiveVars';
 import { useEffect } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
-import type { Count, SetCount } from '../types';
+import type { Count, DbCount } from '../types';
 
-export const useFetchAndSetCurrentCountAndIdOnMount = (setCount: SetCount) => {
+export const useFetchAndSetCurrentCountAndIdOnMount = () => {
   const db = useSQLiteContext();
+
   useEffect(() => {
     (async () => {
-      let currentCount: Count | null;
       try {
         console.log(
           'useFetchAndSetCurrentCountAndIdOnMount(): Querying DB for a Count that has currentlyCounting true.'
         );
 
-        currentCount = await db.getFirstAsync<Count>(
+        const dbCurrentlyCountingCount = await db.getFirstAsync<DbCount>(
           'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
           [true]
         );
 
-        if (!currentCount) {
+        if (!dbCurrentlyCountingCount) {
           console.log(
             'useFetchAndSetCurrentCountAndIdOnMount(): No current count found in database, building using AsyncStorage count value.'
           );
@@ -38,19 +39,20 @@ export const useFetchAndSetCurrentCountAndIdOnMount = (setCount: SetCount) => {
           );
 
           const parsedStoredCount: Count = storedCount ? JSON.parse(storedCount) : null;
-          setCount(parsedStoredCount);
+          countVar(parsedStoredCount);
           return;
         }
 
         console.log(
           'useFetchAndSetCurrentCountAndIdOnMount(): Current count found in database: ',
-          JSON.stringify(currentCount)
+          JSON.stringify(dbCurrentlyCountingCount)
         );
 
-        setCount(currentCount);
+        const alerts = JSON.parse(dbCurrentlyCountingCount.alerts);
+        countVar({ ...dbCurrentlyCountingCount, alerts });
       } catch (e) {
         console.error('Error fetching current Count from database: ', e);
       }
     })();
-  }, [db, setCount]);
+  }, [db]);
 };
