@@ -47,7 +47,8 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
           }
 
           if (volume > 0.5) {
-            countVar({ ...count, value: count.value + 1 });
+            const current = countVar();
+            countVar({ ...current, value: current.value + 1 });
           } else if (volume < 0.5) {
             if (countValueRef.current === 0) {
               programmaticVolumeChangeRef.current = true;
@@ -55,7 +56,8 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
               return;
             }
 
-            countVar({ ...count, value: count.value - 1 });
+            const current = countVar();
+            countVar({ ...current, value: current.value - 1 });
           }
         });
       })();
