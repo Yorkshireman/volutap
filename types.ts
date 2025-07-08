@@ -1,7 +1,22 @@
+export enum AlertType {
+  SOUND = 'sound',
+  SOUND_AND_VIBRATE = 'sound and vibrate',
+  VIBRATE = 'vibrate'
+}
+
+type Alert = {
+  at: number;
+  on: boolean;
+  repeat: boolean;
+  type: AlertType;
+  id: string;
+};
+
 export type Count = {
-  id?: string;
+  alerts: Alert[] | [];
   createdAt?: string;
   currentlyCounting?: boolean;
+  id?: string;
   lastModified?: string;
   title?: string;
   value: number;

@@ -1,4 +1,5 @@
 import * as Haptics from 'expo-haptics';
+import { countVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Menu } from 'react-native-paper';
 import { router } from 'expo-router';
@@ -117,6 +118,7 @@ export const CountToolbar = ({
 
   const onPressSettingsButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    countVar({ ...count, alerts: [] });
     router.push(`/settings?id=${count.id}`);
   };
 
@@ -135,11 +137,11 @@ export const CountToolbar = ({
           <Ionicons color={'#fff'} name='save-outline' size={TOOLBAR_ICON_SIZE} />
         </TouchableOpacity>
       )}
+      <TouchableOpacity onPress={onPressSettingsButton} style={styles.icon}>
+        <Ionicons color={'#fff'} name='settings-outline' size={TOOLBAR_ICON_SIZE} />
+      </TouchableOpacity>
       {count.id && (
         <>
-          <TouchableOpacity onPress={onPressSettingsButton} style={styles.icon}>
-            <Ionicons color={'#fff'} name='settings-outline' size={TOOLBAR_ICON_SIZE} />
-          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => onPressStartNewCountButton(count, db, setCount)}
             style={styles.icon}

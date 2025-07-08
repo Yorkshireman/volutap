@@ -19,7 +19,7 @@ import {
 } from '../hooks';
 
 export default function Index() {
-  const [count, setCount] = useState<Count>({ value: 0 });
+  const [count, setCount] = useState<Count>({ alerts: [], value: 0 });
   const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
     useContext(CountingModeContext);
   const [isIpad, setIsIpad] = useState(false);
