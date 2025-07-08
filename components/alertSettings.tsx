@@ -56,38 +56,40 @@ export const AlertSettings = () => {
   return (
     <View style={styles.container}>
       <View style={styles.alertForm}>
-        <Text style={styles.alertAtText}>Alert at:</Text>
-        <TextInput
-          maxLength={6}
-          onChangeText={v => setAlertAtValue(!v ? null : parseInt(v, 10))}
-          onSubmitEditing={() => {
-            if (!alertAtValue) return;
-            if (count.alerts.find(a => a.at === alertAtValue)) {
-              console.warn(`Alert already set for ${alertAtValue}`);
-              return;
-            }
-
-            const id = uuid.v4();
-            const updatedAlerts: Count['alerts'] = [
-              ...count.alerts.filter(a => a.at !== alertAtValue),
-              {
-                at: alertAtValue,
-                id: id,
-                on: true,
-                repeat: false,
-                type: AlertType.SOUND
+        <View style={styles.alertFormFirstColumn}>
+          <Text style={styles.alertAtText}>Alert at:</Text>
+          <TextInput
+            maxLength={6}
+            onChangeText={v => setAlertAtValue(!v ? null : parseInt(v, 10))}
+            onSubmitEditing={() => {
+              if (!alertAtValue) return;
+              if (count.alerts.find(a => a.at === alertAtValue)) {
+                console.warn(`Alert already set for ${alertAtValue}`);
+                return;
               }
-            ];
 
-            countVar({ ...count, alerts: updatedAlerts });
-            setAlertAtValue(null);
-          }}
-          placeholder={'Number'}
-          returnKeyType='done'
-          keyboardType='numeric'
-          style={styles.alertAtInput}
-          value={alertAtValue?.toString() || undefined}
-        />
+              const id = uuid.v4();
+              const updatedAlerts: Count['alerts'] = [
+                ...count.alerts.filter(a => a.at !== alertAtValue),
+                {
+                  at: alertAtValue,
+                  id: id,
+                  on: true,
+                  repeat: false,
+                  type: AlertType.SOUND
+                }
+              ];
+
+              countVar({ ...count, alerts: updatedAlerts });
+              setAlertAtValue(null);
+            }}
+            placeholder={'Number'}
+            returnKeyType='done'
+            keyboardType='numeric'
+            style={styles.alertAtInput}
+            value={alertAtValue?.toString() || undefined}
+          />
+        </View>
         <Switch onValueChange={v => console.log(v)} value={!!alertAtValue} />
       </View>
       <View style={styles.savedAlerts}>
@@ -116,7 +118,14 @@ const styles = StyleSheet.create({
     fontSize: 18
   },
   alertForm: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%'
+  },
+  alertFormFirstColumn: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 5
   },
   container: {
     gap: 10

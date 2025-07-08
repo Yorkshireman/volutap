@@ -118,8 +118,7 @@ export const CountToolbar = ({
 
   const onPressSettingsButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    countVar({ ...count, alerts: [] });
-    router.push(`/settings?id=${count.id}`);
+    router.push('/settings');
   };
 
   return (

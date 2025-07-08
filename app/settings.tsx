@@ -1,38 +1,10 @@
 import { AlertSettings } from '../components';
-import type { Count } from '../types';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRoute } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useEffect, useState } from 'react';
 
 export default function Settings() {
-  // const [count, setCount] = useState<Count | null>(null);
-  const db = useSQLiteContext();
   const router = useRouter();
-  const {
-    params: { id }
-  } = useRoute() as { params: { id: string } };
-
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const savedCount = await db.getFirstAsync<Count>(`SELECT * FROM savedCounts WHERE id = ?`, [
-  //         id
-  //       ]);
-
-  //       if (!savedCount) {
-  //         console.error('Settings: No Count found with the provided ID.');
-  //         return;
-  //       }
-
-  //       setCount(savedCount);
-  //     } catch (error) {
-  //       console.error('Settings: Error fetching current Count from DB:', error);
-  //     }
-  //   })();
-  // }, [db, id]);
 
   return (
     <View style={styles.container}>
