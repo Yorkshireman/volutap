@@ -26,14 +26,17 @@ export const AlertSettings = () => {
   const didMount = useRef(false);
 
   useEffect(() => {
-    if (!didMount.current) return;
-    didMount.current = true;
+    if (!didMount.current) {
+      didMount.current = true;
+      return;
+    }
+
     if (!count.id) return;
 
     async function updateCountInDB() {
       try {
         if (countIsMissingRequiredFields(count)) {
-          console.warn('Count is missing required fields, not updating DB:', count);
+          console.warn('Count in state is missing required fields, not updating DB:', count);
           return;
         }
 
@@ -42,19 +45,18 @@ export const AlertSettings = () => {
             alerts = ?,
             createdAt = ?,
             currentlyCounting = ?,
-            id = ?,
             lastModified = ?,
-            title = ?
-            value = ?,
+            title = ?,
+            value = ?
             WHERE id = ?`,
           [
             JSON.stringify(count.alerts),
             count.createdAt!,
             count.currentlyCounting!,
-            count.id!,
             count.lastModified!,
             count.title!,
-            count.value
+            count.value,
+            count.id!
           ]
         );
 
@@ -66,9 +68,7 @@ export const AlertSettings = () => {
 
     updateCountInDB();
   }, [count, db]);
-  console.log('========== AlertSettings rendering, count: ==========');
-  console.log(JSON.stringify(count, null, 2));
-  console.log('========== end ===========');
+
   return (
     <View style={styles.container}>
       <View style={styles.alertForm}>
