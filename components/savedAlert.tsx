@@ -5,7 +5,16 @@ import { useEffect, useState } from 'react';
 
 export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; count: Count }) => {
   const [alertAtValue, setAlertAtValue] = useState<number | null>(null);
-  useEffect(() => setAlertAtValue(alert.at), [alert.at]);
+  const [alertOnValue, setAlertOnValue] = useState<boolean>(alert.on);
+
+  useEffect(() => {
+    setAlertAtValue(alert.at);
+    setAlertOnValue(alert.on);
+  }, [alert.at, alert.on]);
+
+  const onToggleAlert = () => {
+    setAlertOnValue(!alertOnValue);
+  };
 
   return (
     <View style={styles.savedAlert}>
@@ -39,7 +48,11 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
           value={alertAtValue?.toString() || undefined}
         />
       </View>
-      <Switch onValueChange={v => console.log(v)} value={!!alertAtValue} />
+      <Switch
+        trackColor={{ false: 'red', true: '#0CCE6B' }}
+        onValueChange={onToggleAlert}
+        value={alertOnValue}
+      />
     </View>
   );
 };
@@ -50,7 +63,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: '#222',
     fontSize: 18,
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
     paddingVertical: 2
   },
   alertAtText: {

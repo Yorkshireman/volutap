@@ -1,10 +1,12 @@
+import * as Haptics from 'expo-haptics';
 import { countVar } from '../reactiveVars';
 import { SavedAlert } from './savedAlert';
+import Snackbar from 'react-native-snackbar';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
 import { AlertType, type Count } from '../types';
-import { StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 
 const countIsMissingRequiredFields = (count: Count): boolean => {
@@ -24,6 +26,7 @@ export const AlertSettings = () => {
   const count = useReactiveVar(countVar);
   const db = useSQLiteContext();
   const didMount = useRef(false);
+  const [errorSnackbarIsOpen, setErrorSnackbarIsOpen] = useState(false);
 
   useEffect(() => {
     if (!didMount.current) {
@@ -69,6 +72,37 @@ export const AlertSettings = () => {
     updateCountInDB();
   }, [count, db]);
 
+  const onSubmitCount = () => {
+    if (!alertAtValue) return;
+    if (count.alerts.find(a => a.at === alertAtValue)) {
+      return;
+    }
+
+    const id = uuid.v4();
+    const updatedAlerts: Count['alerts'] = [
+      ...count.alerts.filter(a => a.at !== alertAtValue),
+      {
+        at: alertAtValue,
+        id: id,
+        on: true,
+        repeat: false,
+        type: AlertType.SOUND
+      }
+    ];
+
+    countVar({ ...count, alerts: updatedAlerts });
+    setAlertAtValue(null);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Snackbar.show({
+      backgroundColor: '#0CCE6B',
+      duration: Snackbar.LENGTH_LONG,
+      text: 'Saved!',
+      textColor: 'black'
+    });
+
+    setErrorSnackbarIsOpen(true);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.alertForm}>
@@ -77,28 +111,7 @@ export const AlertSettings = () => {
           <TextInput
             maxLength={6}
             onChangeText={v => setAlertAtValue(!v ? null : parseInt(v, 10))}
-            onSubmitEditing={() => {
-              if (!alertAtValue) return;
-              if (count.alerts.find(a => a.at === alertAtValue)) {
-                console.warn(`Alert already set for ${alertAtValue}`);
-                return;
-              }
-
-              const id = uuid.v4();
-              const updatedAlerts: Count['alerts'] = [
-                ...count.alerts.filter(a => a.at !== alertAtValue),
-                {
-                  at: alertAtValue,
-                  id: id,
-                  on: true,
-                  repeat: false,
-                  type: AlertType.SOUND
-                }
-              ];
-
-              countVar({ ...count, alerts: updatedAlerts });
-              setAlertAtValue(null);
-            }}
+            onSubmitEditing={onSubmitCount}
             placeholder={'Number'}
             returnKeyType='done'
             keyboardType='numeric'
@@ -106,7 +119,9 @@ export const AlertSettings = () => {
             value={alertAtValue?.toString() || undefined}
           />
         </View>
-        <Switch onValueChange={v => console.log(v)} value={!!alertAtValue} />
+        <TouchableOpacity style={styles.addButton} onPress={onSubmitCount}>
+          <Text style={styles.addButtonText}>Add</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.savedAlerts}>
         {count.alerts
@@ -121,13 +136,28 @@ export const AlertSettings = () => {
 };
 
 const styles = StyleSheet.create({
+  addButton: {
+    alignItems: 'center',
+    backgroundColor: '#27187E',
+    borderColor: '#27187E',
+    borderRadius: 8,
+    borderWidth: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 3
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 18
+  },
   alertAtInput: {
     borderRadius: 8,
     borderWidth: 1,
     color: '#222',
     fontSize: 18,
-    paddingHorizontal: 10,
-    paddingVertical: 2
+    paddingHorizontal: 15,
+    paddingVertical: 2,
+    width: 100
   },
   alertAtText: {
     color: '#222',
