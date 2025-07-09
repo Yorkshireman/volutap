@@ -7,7 +7,7 @@ export default function Settings() {
   const router = useRouter();
 
   return (
-    <ScrollView style={{ backgroundColor: '#758BFD' }}>
+    <ScrollView style={{ backgroundColor: '#E7E9F7' }}>
       <View style={styles.container}>
         <TouchableOpacity onPress={() => router.back()} style={styles.closeIconWrapper}>
           <Ionicons name='close-circle-sharp' size={40} color='#222' style={styles.closeIcon} />
