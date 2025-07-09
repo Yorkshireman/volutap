@@ -91,7 +91,7 @@ export const AlertSettings = () => {
         id: id,
         on: true,
         repeat: false,
-        type: AlertType.SOUND
+        type: AlertType.SOUND_AND_VIBRATE
       }
     ];
 
