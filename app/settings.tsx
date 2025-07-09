@@ -7,7 +7,7 @@ export default function Settings() {
   const router = useRouter();
 
   return (
-    <ScrollView>
+    <ScrollView style={{ backgroundColor: '#FAFAFA' }}>
       <View style={styles.container}>
         <TouchableOpacity onPress={() => router.back()} style={styles.closeIconWrapper}>
           <Ionicons name='close-circle-sharp' size={40} color='#222' style={styles.closeIcon} />
@@ -33,7 +33,6 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: 'center',
-    backgroundColor: '#FAFAFA',
     gap: 10,
     padding: 20,
     paddingBottom: 50

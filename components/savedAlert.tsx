@@ -1,6 +1,9 @@
+import * as Haptics from 'expo-haptics';
 import { countVar } from '../reactiveVars';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import Snackbar from 'react-native-snackbar';
+import { Alert, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { AlertType, Count } from '../types';
-import { StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useEffect, useState } from 'react';
 
 export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; count: Count }) => {
@@ -54,20 +57,45 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
             value={alertAtValue?.toString() || undefined}
           />
         </View>
-        <TouchableOpacity
-          onPress={() => {
-            const updatedAlerts = count.alerts.filter(a => a.id !== alert.id);
-            countVar({ ...count, alerts: updatedAlerts });
-            console.log(`Deleted alert with ID: ${alert.id}`);
-          }}
-        >
-          <Text>trash</Text>
-        </TouchableOpacity>
-        <Switch
-          onValueChange={onToggleAlert}
-          trackColor={{ false: 'red', true: '#0CCE6B' }}
-          value={alertOnValue}
-        />
+        <View style={styles.secondColumn}>
+          <TouchableOpacity
+            onPress={() => {
+              Alert.alert('Delete Alert', `Are you sure?`, [
+                {
+                  style: 'cancel',
+                  text: 'Cancel'
+                },
+                {
+                  onPress: () => {
+                    const updatedAlerts = count.alerts.filter(a => a.id !== alert.id);
+                    countVar({ ...count, alerts: updatedAlerts });
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    Snackbar.show({
+                      backgroundColor: '#0CCE6B',
+                      duration: Snackbar.LENGTH_LONG,
+                      text: 'Alert Deleted',
+                      textColor: 'black'
+                    });
+                  },
+                  style: 'destructive',
+                  text: 'Delete'
+                }
+              ]);
+            }}
+          >
+            <Ionicons
+              name='trash-outline'
+              size={24}
+              color='#D44D5C'
+              style={{ paddingHorizontal: 10, paddingVertical: 5 }}
+            />
+          </TouchableOpacity>
+          <Switch
+            onValueChange={onToggleAlert}
+            trackColor={{ false: 'red', true: '#0CCE6B' }}
+            value={alertOnValue}
+          />
+        </View>
       </View>
       <View style={styles.secondRow}>
         <Text style={styles.alertAtText}>Sound on alert</Text>
@@ -138,6 +166,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between'
+  },
+  secondColumn: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 20
   },
   secondRow: {
     alignItems: 'center',
