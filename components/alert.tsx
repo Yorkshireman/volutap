@@ -5,23 +5,13 @@ import { useEffect, useRef, useState } from 'react';
 
 export const Alert = () => {
   const { alerts, value } = useReactiveVar(countVar);
-  const hasBeenDismissedRef = useRef(false);
-  const hasBeenTriggeredRef = useRef(false);
   const pulseAnim = useRef(new Animated.Value(0)).current;
-  const [shouldShow, setShouldShow] = useState(true);
-  const triggers = alerts.map(alert => alert.at);
+  const [shouldShow, setShouldShow] = useState(false);
+  const triggers = alerts.filter(alert => alert.on).map(alert => alert.at);
 
   const countTriggerReached = triggers.includes(value);
 
   useEffect(() => {
-    if (!countTriggerReached && !hasBeenTriggeredRef.current) {
-      setShouldShow(false);
-      return;
-    } else {
-      setShouldShow(true);
-      hasBeenTriggeredRef.current = true;
-    }
-
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
@@ -37,16 +27,30 @@ export const Alert = () => {
       ])
     );
 
+    if (!shouldShow) {
+      pulseAnim.setValue(0);
+      return;
+    }
+
     loop.start();
-    return () => loop.stop();
-  }, [countTriggerReached, pulseAnim]);
+
+    return () => {
+      loop.stop();
+    };
+  }, [pulseAnim, shouldShow]);
+
+  useEffect(() => {
+    if (countTriggerReached) {
+      setShouldShow(true);
+    }
+  }, [countTriggerReached]);
 
   const backgroundColor = pulseAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['black', '#444']
   });
 
-  if ((!shouldShow && !hasBeenTriggeredRef.current) || hasBeenDismissedRef.current) {
+  if (!shouldShow) {
     return null;
   }
 
@@ -56,7 +60,6 @@ export const Alert = () => {
       <TouchableOpacity
         onPress={() => {
           setShouldShow(false);
-          hasBeenDismissedRef.current = true;
         }}
       >
         <Text style={styles.dismissButton}>Dismiss</Text>
