@@ -149,21 +149,21 @@ export const AlertSettings = () => {
 const styles = StyleSheet.create({
   addButton: {
     alignItems: 'center',
-    backgroundColor: '#27187E',
-    borderColor: '#27187E',
-    borderRadius: 8,
-    borderWidth: 1,
+    backgroundColor: '#AEB8FE',
+    borderRadius: 10,
     justifyContent: 'center',
     paddingHorizontal: 15,
-    paddingVertical: 3
+    paddingVertical: 6
   },
   addButtonText: {
-    color: '#fff',
-    fontSize: 18
+    color: 'black',
+    fontSize: 18,
+    fontWeight: 'bold'
   },
   alertAtInput: {
+    borderColor: '#FF8600',
     borderRadius: 8,
-    borderWidth: 1,
+    borderWidth: 2,
     color: '#222',
     fontSize: 18,
     paddingHorizontal: 15,
@@ -171,8 +171,8 @@ const styles = StyleSheet.create({
     width: 100
   },
   alertAtText: {
-    color: '#222',
-    fontSize: 18
+    fontSize: 18,
+    fontWeight: 'bold'
   },
   alertForm: {
     gap: 2

@@ -164,10 +164,14 @@ const styles = StyleSheet.create({
   },
   alertAtText: {
     color: '#222',
-    fontSize: 18
+    fontSize: 18,
+    fontWeight: 'bold'
   },
   container: {
-    gap: 10
+    backgroundColor: '#f2eeed',
+    borderRadius: 15,
+    gap: 10,
+    padding: 10
   },
   firstColumn: {
     alignItems: 'center',
