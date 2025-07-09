@@ -164,7 +164,7 @@ export const AlertSettings = () => {
 const styles = StyleSheet.create({
   addButton: {
     alignItems: 'center',
-    backgroundColor: '#758BFD',
+    backgroundColor: '#27187E',
     borderRadius: 10,
     justifyContent: 'center',
     paddingHorizontal: 15,
@@ -222,7 +222,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 15,
     gap: 10,
-    padding: 15
+    padding: 15,
+    shadowColor: '#000',
+    shadowOffset: { height: 2, width: 0 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8
   },
   heading: {
     fontSize: 24,

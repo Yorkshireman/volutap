@@ -22,7 +22,7 @@ export default function Settings() {
 
 const styles = StyleSheet.create({
   closeIcon: {
-    color: 'black'
+    color: '#27187E'
   },
   closeIconWrapper: {
     alignSelf: 'flex-end',
