@@ -2,6 +2,13 @@
 
 ## Running locally on physical iPhone
 
+- `npx expo run:ios -d`
+- Choose physical iPhone (should show up if usb connected or on same network with no VPNs on)
+
+Once built (`development` build) it should install the app on the phone and start it.
+
+### Using EAS
+
 - `eas build --profile development --platform ios`
 - when finished, install app onto physical iPhone using the presented QR code
 - `npm run start-dev-client`
