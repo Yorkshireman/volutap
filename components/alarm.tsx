@@ -1,18 +1,19 @@
+import type { Alert } from '../types';
 import { countVar } from '../reactiveVars';
 import { useReactiveVar } from '@apollo/client';
 import { useUpdateSavedCountOnCountChange } from '../hooks';
 import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 
-export const Alert = () => {
+export const Alarm = () => {
   const count = useReactiveVar(countVar);
   const { alerts, value } = count;
   const pulseAnim = useRef(new Animated.Value(0)).current;
   const [shouldShow, setShouldShow] = useState(false);
+  const [triggeredAlert, setTriggeredAlert] = useState<Alert | null>(null);
   const triggers = alerts.filter(alert => alert.on).map(alert => alert.at);
-  useUpdateSavedCountOnCountChange();
-
   const countTriggerReached = triggers.includes(value);
+  useUpdateSavedCountOnCountChange();
 
   useEffect(() => {
     const loop = Animated.loop(
@@ -46,6 +47,7 @@ export const Alert = () => {
     if (countTriggerReached) {
       setShouldShow(true);
       const triggeredAlert = alerts.find(alert => alert.at === value);
+      setTriggeredAlert(triggeredAlert || null);
       if (triggeredAlert && !triggeredAlert.repeat) {
         // Optionally, you can handle the alert type here (e.g., play sound, vibrate)
         // For example:
@@ -72,15 +74,16 @@ export const Alert = () => {
     outputRange: ['black', '#444']
   });
 
-  const onDismiss = () => {
-    setShouldShow(false);
-  };
-
   return (
     <Animated.View style={[styles.container, { backgroundColor }]}>
-      <Text style={{ color: 'white', fontSize: 24 }}>ALERT!</Text>
-      <TouchableOpacity onPress={onDismiss}>
-        <Text style={styles.dismissButton}>Dismiss</Text>
+      <Text ellipsizeMode='tail' numberOfLines={1} style={styles.countText}>
+        {triggeredAlert?.at}
+      </Text>
+      <Text ellipsizeMode='tail' numberOfLines={1} style={styles.subText}>
+        Reached!
+      </Text>
+      <TouchableOpacity onPress={() => setShouldShow(false)} style={styles.dismissButton}>
+        <Text style={styles.dismissButtonText}>Dismiss</Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -90,23 +93,36 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     borderRadius: 50,
-    flexDirection: 'row',
-    height: 150,
-    justifyContent: 'space-between',
     left: '3%',
-    paddingHorizontal: 40,
-    paddingVertical: 30,
+    padding: 25,
     position: 'absolute',
     right: 0,
     top: 60,
     width: '94%',
     zIndex: 1000
   },
+  countText: {
+    color: 'white',
+    flexShrink: 1,
+    fontSize: 64,
+    fontWeight: 'bold'
+  },
   dismissButton: {
+    alignItems: 'center',
     backgroundColor: '#FF8600',
     borderRadius: 30,
+    padding: 18,
+    width: '100%'
+  },
+  dismissButtonText: {
     color: 'white',
-    fontSize: 18,
-    padding: 20
+    fontSize: 24,
+    fontWeight: 'bold'
+  },
+  subText: {
+    color: 'white',
+    flexShrink: 1,
+    fontSize: 48,
+    marginBottom: 12
   }
 });

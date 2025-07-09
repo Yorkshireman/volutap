@@ -4,7 +4,7 @@ export enum AlertType {
   VIBRATE = 'vibrate'
 }
 
-type Alert = {
+export type Alert = {
   at: number;
   on: boolean;
   repeat: boolean;
