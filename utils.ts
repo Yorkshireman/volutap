@@ -42,6 +42,7 @@ export const onPressDelete = (
           countVar({ alerts: [], value: 0 });
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
+        style: 'destructive',
         text: 'Delete'
       }
     ],

@@ -98,27 +98,19 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
         </View>
       </View>
       <View style={styles.secondRow}>
-        <Text style={styles.alertAtText}>Sound on alert</Text>
+        <Text style={styles.alertAtText}>Repeating</Text>
         <Switch
           disabled={!alert.on}
-          onValueChange={soundOn => {
-            const newType = soundOn ? AlertType.SOUND_AND_VIBRATE : AlertType.VIBRATE;
-            const updatedAlerts = count.alerts.map(a =>
-              a.id === alert.id ? { ...a, type: newType } : a
-            );
-
+          onValueChange={repeat => {
+            const updatedAlerts = count.alerts.map(a => (a.id === alert.id ? { ...a, repeat } : a));
             countVar({ ...count, alerts: updatedAlerts });
           }}
           trackColor={{ false: '#222', true: '#0CCE6B' }}
-          value={
-            !alert.on
-              ? false
-              : alert.type === AlertType.SOUND || alert.type === AlertType.SOUND_AND_VIBRATE
-          }
+          value={alert.on ? alert.repeat : false}
         />
       </View>
       <View style={styles.thirdRow}>
-        <Text style={styles.alertAtText}>Vibrate on alert</Text>
+        <Text style={styles.alertAtText}>Vibrate</Text>
         <Switch
           disabled={!alert.on}
           onValueChange={vibrateOn => {
@@ -134,6 +126,26 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
             !alert.on
               ? false
               : alert.type === AlertType.VIBRATE || alert.type === AlertType.SOUND_AND_VIBRATE
+          }
+        />
+      </View>
+      <View style={styles.fourthRow}>
+        <Text style={styles.alertAtText}>Play Sound</Text>
+        <Switch
+          disabled={!alert.on}
+          onValueChange={soundOn => {
+            const newType = soundOn ? AlertType.SOUND_AND_VIBRATE : AlertType.VIBRATE;
+            const updatedAlerts = count.alerts.map(a =>
+              a.id === alert.id ? { ...a, type: newType } : a
+            );
+
+            countVar({ ...count, alerts: updatedAlerts });
+          }}
+          trackColor={{ false: '#222', true: '#0CCE6B' }}
+          value={
+            !alert.on
+              ? false
+              : alert.type === AlertType.SOUND || alert.type === AlertType.SOUND_AND_VIBRATE
           }
         />
       </View>
@@ -163,6 +175,11 @@ const styles = StyleSheet.create({
     gap: 5
   },
   firstRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  fourthRow: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between'

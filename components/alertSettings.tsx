@@ -90,7 +90,7 @@ export const AlertSettings = () => {
         at: alertAtValue,
         id: id,
         on: true,
-        repeat: false,
+        repeat: true,
         type: AlertType.SOUND_AND_VIBRATE
       }
     ];
