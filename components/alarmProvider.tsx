@@ -1,15 +1,18 @@
 import { CountingModeContext } from '../contexts';
-import { countVar } from '../reactiveVars';
 import { useAudioPlayer } from 'expo-audio';
 import { useReactiveVar } from '@apollo/client';
 import { Alert, AlertType, Count } from '../types';
 import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { countVar, disableVolumeButtonCountingVar } from '../reactiveVars';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useSetCountOnVolumeChange, useUpdateSavedCountOnCountChange } from '../hooks';
 
 const audioSource = require('../assets/beep-alarm-366507.mp3');
 
 const usePlaySound = (triggeredAlert: Alert | null) => {
+  const { countingWithVolumeButtons } = useContext(CountingModeContext);
+  const { restartSilentSound } = useSetCountOnVolumeChange(countingWithVolumeButtons);
+
   const player = useAudioPlayer(audioSource);
 
   useEffect(() => {
@@ -20,9 +23,19 @@ const usePlaySound = (triggeredAlert: Alert | null) => {
     ) {
       player.seekTo(0);
       player.play();
+      player.addListener('playbackStatusUpdate', status => {
+        if (status.isLoaded && status.didJustFinish) {
+          countingWithVolumeButtons && restartSilentSound();
+        }
+
+        // if (status.isLoaded && status.playing) {
+        //   disableVolumeButtonCountingVar(true);
+        // }
+      });
+
       return;
     }
-  }, [triggeredAlert, player]);
+  }, [countingWithVolumeButtons, restartSilentSound, triggeredAlert, player]);
 };
 
 const Alarm = ({
@@ -32,9 +45,7 @@ const Alarm = ({
   triggeredAlert: Alert;
   setTriggeredAlert: React.Dispatch<React.SetStateAction<Alert | null>>;
 }) => {
-  const { countingWithVolumeButtons } = useContext(CountingModeContext);
   const pulseAnim = useRef(new Animated.Value(0)).current;
-  const { restartSilentSound } = useSetCountOnVolumeChange(countingWithVolumeButtons);
   usePlaySound(triggeredAlert);
 
   useEffect(() => {
@@ -59,9 +70,11 @@ const Alarm = ({
     }
 
     loop.start();
+    disableVolumeButtonCountingVar(true);
 
     return () => {
       loop.stop();
+      disableVolumeButtonCountingVar(false);
     };
   }, [pulseAnim, triggeredAlert]);
 
@@ -72,9 +85,6 @@ const Alarm = ({
 
   const onDismiss = () => {
     setTriggeredAlert(null);
-    if (countingWithVolumeButtons) {
-      restartSilentSound();
-    }
   };
 
   return (
@@ -106,6 +116,7 @@ export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (countTriggerReached) {
       const triggeredAlert = count.alerts.find(alert => alert.at === count.value);
       setTriggeredAlert(triggeredAlert || null);
+
       if (triggeredAlert && !triggeredAlert.repeat) {
         const updatedAlert = { ...triggeredAlert, on: false };
         countVar({

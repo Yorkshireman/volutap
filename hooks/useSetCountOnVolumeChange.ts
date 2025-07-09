@@ -1,9 +1,9 @@
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
 import type { Count } from '../types';
-import { countVar } from '../reactiveVars';
 import { useReactiveVar } from '@apollo/client';
 import { VolumeManager } from 'react-native-volume-manager';
+import { countVar, disableVolumeButtonCountingVar } from '../reactiveVars';
 import { useEffect, useRef } from 'react';
 
 export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) => {
@@ -54,9 +54,10 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
             return;
           }
 
+          const disableVolumeButtonCounting = disableVolumeButtonCountingVar();
           if (volume > 0.5) {
             const current = countVar();
-            countVar({ ...current, value: current.value + 1 });
+            !disableVolumeButtonCounting && countVar({ ...current, value: current.value + 1 });
           } else if (volume < 0.5) {
             if (countValueRef.current === 0) {
               programmaticVolumeChangeRef.current = true;
@@ -65,7 +66,7 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
             }
 
             const current = countVar();
-            countVar({ ...current, value: current.value - 1 });
+            !disableVolumeButtonCounting && countVar({ ...current, value: current.value - 1 });
           }
         });
       })();
@@ -75,7 +76,7 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
       silentSoundRef.current?.unloadAsync();
       sub?.remove();
     };
-  }, [countingWithVolumeButtons]); // add count?
+  }, [countingWithVolumeButtons]);
 
   useEffect(() => {
     if (!didMount.current) {
