@@ -1,38 +1,14 @@
 import { CountingModeContext } from '../contexts';
-import { useAudioPlayer } from 'expo-audio';
 import { useReactiveVar } from '@apollo/client';
-import { Alert, AlertType, Count } from '../types';
+import { Alert, Count } from '../types';
 import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { countVar, disableVolumeButtonCountingVar } from '../reactiveVars';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { useSetCountOnVolumeChange, useUpdateSavedCountOnCountChange } from '../hooks';
-
-const audioSource = require('../assets/beep-alarm-366507.mp3');
-
-const usePlaySound = (triggeredAlert: Alert | null) => {
-  const { countingWithVolumeButtons } = useContext(CountingModeContext);
-  const { restartSilentSound } = useSetCountOnVolumeChange(countingWithVolumeButtons);
-
-  const player = useAudioPlayer(audioSource);
-
-  useEffect(() => {
-    if (
-      triggeredAlert &&
-      (triggeredAlert.type === AlertType.SOUND ||
-        triggeredAlert.type === AlertType.SOUND_AND_VIBRATE)
-    ) {
-      player.seekTo(0);
-      player.play();
-      player.addListener('playbackStatusUpdate', status => {
-        if (status.isLoaded && status.didJustFinish) {
-          countingWithVolumeButtons && restartSilentSound();
-        }
-      });
-
-      return;
-    }
-  }, [countingWithVolumeButtons, restartSilentSound, triggeredAlert, player]);
-};
+import {
+  usePlaySound,
+  useSetCountOnVolumeChange,
+  useUpdateSavedCountOnCountChange
+} from '../hooks';
 
 const Alarm = ({
   triggeredAlert,
