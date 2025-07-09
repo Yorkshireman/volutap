@@ -1,10 +1,11 @@
+import { CountingModeContext } from '../contexts';
 import { countVar } from '../reactiveVars';
 import { useAudioPlayer } from 'expo-audio';
 import { useReactiveVar } from '@apollo/client';
-import { useUpdateSavedCountOnCountChange } from '../hooks';
 import { Alert, AlertType, Count } from '../types';
 import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { useSetCountOnVolumeChange, useUpdateSavedCountOnCountChange } from '../hooks';
 
 const audioSource = require('../assets/beep-alarm-366507.mp3');
 
@@ -31,7 +32,9 @@ const Alarm = ({
   triggeredAlert: Alert;
   setTriggeredAlert: React.Dispatch<React.SetStateAction<Alert | null>>;
 }) => {
+  const { countingWithVolumeButtons } = useContext(CountingModeContext);
   const pulseAnim = useRef(new Animated.Value(0)).current;
+  const { restartSilentSound } = useSetCountOnVolumeChange(countingWithVolumeButtons);
   usePlaySound(triggeredAlert);
 
   useEffect(() => {
@@ -67,6 +70,13 @@ const Alarm = ({
     outputRange: ['black', '#444']
   });
 
+  const onDismiss = () => {
+    setTriggeredAlert(null);
+    if (countingWithVolumeButtons) {
+      restartSilentSound();
+    }
+  };
+
   return (
     <Animated.View style={[styles.container, { backgroundColor }]}>
       <Text ellipsizeMode='tail' numberOfLines={1} style={styles.countText}>
@@ -75,7 +85,7 @@ const Alarm = ({
       <Text ellipsizeMode='tail' numberOfLines={1} style={styles.subText}>
         Reached!
       </Text>
-      <TouchableOpacity onPress={() => setTriggeredAlert(null)} style={styles.dismissButton}>
+      <TouchableOpacity onPress={onDismiss} style={styles.dismissButton}>
         <Text style={styles.dismissButtonText}>Dismiss</Text>
       </TouchableOpacity>
     </Animated.View>
