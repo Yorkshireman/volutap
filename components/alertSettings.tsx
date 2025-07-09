@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { countVar } from '../reactiveVars';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { SavedAlert } from './savedAlert';
 import Snackbar from 'react-native-snackbar';
 import { useReactiveVar } from '@apollo/client';
@@ -111,7 +112,6 @@ export const AlertSettings = () => {
       <View style={styles.alertForm}>
         <View style={styles.alertFormFirstRow}>
           <View style={styles.alertFormFirstRowFirstColumn}>
-            <Text style={styles.alertAtText}>Alert at:</Text>
             <TextInput
               maxLength={6}
               onChangeText={v => setAlertAtValue(!v ? null : parseInt(v, 10))}
@@ -128,6 +128,20 @@ export const AlertSettings = () => {
             <Text style={styles.addButtonText}>Add</Text>
           </TouchableOpacity>
         </View>
+        {!showValidationErrorMessage && !count.alerts.length && (
+          <View style={styles.alertAtInputInfoWrapper}>
+            <Ionicons
+              color='#444'
+              name='information-circle-outline'
+              size={24}
+              style={styles.alertAtInputInfoIcon}
+            />
+            <Text style={styles.alertAtInputInfoText}>
+              You can set one or more alerts to be notified by sound or vibration when the count
+              reaches a specific number.
+            </Text>
+          </View>
+        )}
         {showValidationErrorMessage && (
           <Text style={{ color: 'red', fontSize: 16 }}>
             Alert already exists for {alertAtValue} - do you need to turn it on?
@@ -170,12 +184,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     paddingVertical: 4
   },
+  alertAtInputInfoIcon: {
+    fontSize: 18,
+    paddingTop: 1
+  },
+  alertAtInputInfoText: {
+    color: '#444',
+    flexShrink: 1,
+    fontSize: 16
+  },
+  alertAtInputInfoWrapper: {
+    flexDirection: 'row',
+    gap: 3,
+    paddingLeft: 5
+  },
   alertAtText: {
     fontSize: 18,
     fontWeight: 'bold'
   },
   alertForm: {
-    gap: 2
+    gap: 5
   },
   alertFormFirstRow: {
     flexDirection: 'row',
