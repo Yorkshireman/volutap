@@ -1,6 +1,7 @@
 import { countVar } from '../reactiveVars';
 import { useReactiveVar } from '@apollo/client';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useEffect, useRef } from 'react';
 
 export const Alert = () => {
   const { alerts, value } = useReactiveVar(countVar);
@@ -10,8 +11,33 @@ export const Alert = () => {
   //   return null; // No alert to show
   // }
 
+  // Pulse animation setup
+  const pulseAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          duration: 800,
+          toValue: 1,
+          useNativeDriver: false
+        }),
+        Animated.timing(pulseAnim, {
+          duration: 800,
+          toValue: 0,
+          useNativeDriver: false
+        })
+      ])
+    ).start();
+  }, [pulseAnim]);
+
+  const backgroundColor = pulseAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['black', '#444']
+  });
+
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { backgroundColor }]}>
       <Text style={{ color: 'white', fontSize: 24 }}>ALERT!</Text>
       <TouchableOpacity
         onPress={() => {
@@ -20,14 +46,13 @@ export const Alert = () => {
       >
         <Text style={styles.dismissButton}>Dismiss</Text>
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: 'black',
     borderRadius: 50,
     flexDirection: 'row',
     height: 150,
