@@ -9,7 +9,6 @@ export const Alarm = () => {
   const count = useReactiveVar(countVar);
   const { alerts, value } = count;
   const pulseAnim = useRef(new Animated.Value(0)).current;
-  const [shouldShow, setShouldShow] = useState(false);
   const [triggeredAlert, setTriggeredAlert] = useState<Alert | null>(null);
   const triggers = alerts.filter(alert => alert.on).map(alert => alert.at);
   const countTriggerReached = triggers.includes(value);
@@ -31,7 +30,7 @@ export const Alarm = () => {
       ])
     );
 
-    if (!shouldShow) {
+    if (!triggeredAlert) {
       pulseAnim.setValue(0);
       return;
     }
@@ -41,11 +40,10 @@ export const Alarm = () => {
     return () => {
       loop.stop();
     };
-  }, [pulseAnim, shouldShow]);
+  }, [pulseAnim, triggeredAlert]);
 
   useEffect(() => {
     if (countTriggerReached) {
-      setShouldShow(true);
       const triggeredAlert = alerts.find(alert => alert.at === value);
       setTriggeredAlert(triggeredAlert || null);
       if (triggeredAlert && !triggeredAlert.repeat) {
@@ -65,7 +63,7 @@ export const Alarm = () => {
     }
   }, [alerts, count, countTriggerReached, value]);
 
-  if (!shouldShow) {
+  if (!triggeredAlert) {
     return null;
   }
 
@@ -82,7 +80,7 @@ export const Alarm = () => {
       <Text ellipsizeMode='tail' numberOfLines={1} style={styles.subText}>
         Reached!
       </Text>
-      <TouchableOpacity onPress={() => setShouldShow(false)} style={styles.dismissButton}>
+      <TouchableOpacity onPress={() => setTriggeredAlert(null)} style={styles.dismissButton}>
         <Text style={styles.dismissButtonText}>Dismiss</Text>
       </TouchableOpacity>
     </Animated.View>
