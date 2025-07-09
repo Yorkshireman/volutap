@@ -102,5 +102,9 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
     resetVolume();
   }, [count, countingWithVolumeButtons]);
 
-  return { restartSilentSound: startSilentSound };
+  const setVolumeToMid = async () => {
+    await VolumeManager.setVolume(0.5);
+  };
+
+  return { restartSilentSound: startSilentSound, setVolumeToMid };
 };

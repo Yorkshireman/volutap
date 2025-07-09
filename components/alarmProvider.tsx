@@ -41,7 +41,9 @@ const Alarm = ({
   triggeredAlert: Alert;
   setTriggeredAlert: React.Dispatch<React.SetStateAction<Alert | null>>;
 }) => {
+  const { countingWithVolumeButtons } = useContext(CountingModeContext);
   const pulseAnim = useRef(new Animated.Value(0)).current;
+  const { setVolumeToMid } = useSetCountOnVolumeChange(countingWithVolumeButtons);
   usePlaySound(triggeredAlert);
 
   useEffect(() => {
@@ -71,8 +73,9 @@ const Alarm = ({
     return () => {
       loop.stop();
       disableVolumeButtonCountingVar(false);
+      setVolumeToMid();
     };
-  }, [pulseAnim, triggeredAlert]);
+  }, [pulseAnim, setVolumeToMid, triggeredAlert]);
 
   const backgroundColor = pulseAnim.interpolate({
     inputRange: [0, 1],
