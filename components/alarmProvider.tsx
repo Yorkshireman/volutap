@@ -27,10 +27,6 @@ const usePlaySound = (triggeredAlert: Alert | null) => {
         if (status.isLoaded && status.didJustFinish) {
           countingWithVolumeButtons && restartSilentSound();
         }
-
-        // if (status.isLoaded && status.playing) {
-        //   disableVolumeButtonCountingVar(true);
-        // }
       });
 
       return;
