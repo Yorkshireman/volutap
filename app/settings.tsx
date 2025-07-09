@@ -31,7 +31,6 @@ const styles = StyleSheet.create({
     top: 20
   },
   container: {
-    alignItems: 'center',
     gap: 10,
     padding: 20,
     paddingBottom: 50
@@ -45,7 +44,8 @@ const styles = StyleSheet.create({
   subHeading: {
     alignSelf: 'flex-start',
     color: '#222',
-    fontSize: 18
+    fontSize: 18,
+    marginBottom: 20
   },
   text: {
     color: '#222',

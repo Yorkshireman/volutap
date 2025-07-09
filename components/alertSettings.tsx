@@ -165,10 +165,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     color: '#222',
+    flex: 1,
     fontSize: 18,
-    paddingHorizontal: 15,
-    paddingVertical: 2,
-    width: 100
+    paddingHorizontal: 5,
+    paddingVertical: 4
   },
   alertAtText: {
     fontSize: 18,
@@ -179,15 +179,17 @@ const styles = StyleSheet.create({
   },
   alertFormFirstRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%'
+    gap: 5,
+    justifyContent: 'space-between'
   },
   alertFormFirstRowFirstColumn: {
     alignItems: 'center',
+    flex: 1,
     flexDirection: 'row',
     gap: 5
   },
   container: {
+    alignSelf: 'stretch',
     gap: 10
   },
   savedAlert: {
