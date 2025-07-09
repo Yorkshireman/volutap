@@ -9,7 +9,8 @@ import {
   CountSelector,
   CountToolbar,
   EditCountTitleInputField,
-  SaveCountInputField
+  SaveCountInputField,
+  SwitchCountModeButton
 } from '../components';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useContext, useEffect, useState } from 'react';
@@ -21,8 +22,7 @@ import {
 
 export default function Index() {
   const count = useReactiveVar(countVar);
-  const { countingWithVolumeButtons, setCountingWithVolumeButtons } =
-    useContext(CountingModeContext);
+  const { countingWithVolumeButtons } = useContext(CountingModeContext);
   const [isIpad, setIsIpad] = useState(false);
   const [showEditInputField, setShowEditInputField] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
@@ -45,11 +45,6 @@ export default function Index() {
   const onPressIncrementButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     countVar({ ...count, value: count.value + 1 });
-  };
-
-  const onPressSwitchCountModeButton = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setCountingWithVolumeButtons(!countingWithVolumeButtons);
   };
 
   return (
@@ -88,18 +83,7 @@ export default function Index() {
           setShowSaveInputField={setShowSaveInputField}
           setTitleToSave={setTitleToSave}
         />
-        <View style={styles.switchCountModeButtonWrapper}>
-          <TouchableOpacity
-            onPress={onPressSwitchCountModeButton}
-            style={styles.switchCountModeButton}
-          >
-            <Text style={styles.switchCountModeButtonText}>
-              {countingWithVolumeButtons
-                ? 'Switch to using screen buttons'
-                : 'Switch to using volume buttons'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <SwitchCountModeButton />
         {!countingWithVolumeButtons && (
           <View
             style={styles.countButtonsWrapper}
@@ -161,21 +145,5 @@ const styles = StyleSheet.create({
     flex: 2,
     flexDirection: 'row',
     gap: 30
-  },
-  switchCountModeButton: {
-    borderColor: '#fff',
-    borderRadius: 20,
-    borderWidth: 1,
-    padding: 18
-  },
-  switchCountModeButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    textAlign: 'center'
-  },
-  switchCountModeButtonWrapper: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    width: '100%'
   }
 });

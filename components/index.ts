@@ -6,3 +6,4 @@ export { CountToolbar } from './countToolbar';
 export { EditCountTitleInputField } from './editCountTitleInputField';
 export { SaveCountInputField } from './saveCountInputField';
 export { SavedAlert } from './savedAlert';
+export { SwitchCountModeButton } from './switchCountModeButton';
