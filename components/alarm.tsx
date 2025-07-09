@@ -1,15 +1,35 @@
 import { countVar } from '../reactiveVars';
+import { useAudioPlayer } from 'expo-audio';
 import { useReactiveVar } from '@apollo/client';
 import { useUpdateSavedCountOnCountChange } from '../hooks';
-import type { Alert, Count } from '../types';
+import { Alert, AlertType, Count } from '../types';
 import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
+
+const audioSource = require('../assets/beep-alarm-366507.mp3');
+
+const usePlaySound = (triggeredAlert: Alert | null) => {
+  const player = useAudioPlayer(audioSource);
+
+  useEffect(() => {
+    if (
+      triggeredAlert &&
+      (triggeredAlert.type === AlertType.SOUND ||
+        triggeredAlert.type === AlertType.SOUND_AND_VIBRATE)
+    ) {
+      player.seekTo(0); // remove when own component is used
+      player.play();
+      return;
+    }
+  }, [triggeredAlert, player]);
+};
 
 export const Alarm = () => {
   const count = useReactiveVar(countVar);
   const pulseAnim = useRef(new Animated.Value(0)).current;
   useUpdateSavedCountOnCountChange();
   const [triggeredAlert, setTriggeredAlert] = useState<Alert | null>(null);
+  usePlaySound(triggeredAlert);
   const triggerCountValues: Count['value'][] = count.alerts
     .filter(alert => alert.on)
     .map(alert => alert.at);
@@ -49,13 +69,6 @@ export const Alarm = () => {
       const triggeredAlert = count.alerts.find(alert => alert.at === count.value);
       setTriggeredAlert(triggeredAlert || null);
       if (triggeredAlert && !triggeredAlert.repeat) {
-        // Optionally, you can handle the alert type here (e.g., play sound, vibrate)
-        // For example:
-        // if (triggeredAlert.type === AlertType.SOUND) {
-        //   playSound();
-        // } else if (triggeredAlert.type === AlertType.VIBRATE) {
-        //   vibrate();
-        // }
         const updatedAlert = { ...triggeredAlert, on: false };
         countVar({
           ...count,
