@@ -17,24 +17,22 @@ const usePlaySound = (triggeredAlert: Alert | null) => {
       (triggeredAlert.type === AlertType.SOUND ||
         triggeredAlert.type === AlertType.SOUND_AND_VIBRATE)
     ) {
-      player.seekTo(0); // remove when own component is used
+      player.seekTo(0);
       player.play();
       return;
     }
   }, [triggeredAlert, player]);
 };
 
-export const Alarm = () => {
-  const count = useReactiveVar(countVar);
+const Alarm = ({
+  triggeredAlert,
+  setTriggeredAlert
+}: {
+  triggeredAlert: Alert;
+  setTriggeredAlert: React.Dispatch<React.SetStateAction<Alert | null>>;
+}) => {
   const pulseAnim = useRef(new Animated.Value(0)).current;
-  useUpdateSavedCountOnCountChange();
-  const [triggeredAlert, setTriggeredAlert] = useState<Alert | null>(null);
   usePlaySound(triggeredAlert);
-  const triggerCountValues: Count['value'][] = count.alerts
-    .filter(alert => alert.on)
-    .map(alert => alert.at);
-
-  const countTriggerReached = triggerCountValues.includes(count.value);
 
   useEffect(() => {
     const loop = Animated.loop(
@@ -64,24 +62,6 @@ export const Alarm = () => {
     };
   }, [pulseAnim, triggeredAlert]);
 
-  useEffect(() => {
-    if (countTriggerReached) {
-      const triggeredAlert = count.alerts.find(alert => alert.at === count.value);
-      setTriggeredAlert(triggeredAlert || null);
-      if (triggeredAlert && !triggeredAlert.repeat) {
-        const updatedAlert = { ...triggeredAlert, on: false };
-        countVar({
-          ...count,
-          alerts: count.alerts.map(alert => (alert.id === updatedAlert.id ? updatedAlert : alert))
-        });
-      }
-    }
-  }, [count, countTriggerReached]);
-
-  if (!triggeredAlert) {
-    return null;
-  }
-
   const backgroundColor = pulseAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['black', '#444']
@@ -99,6 +79,40 @@ export const Alarm = () => {
         <Text style={styles.dismissButtonText}>Dismiss</Text>
       </TouchableOpacity>
     </Animated.View>
+  );
+};
+
+export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const count = useReactiveVar(countVar);
+  useUpdateSavedCountOnCountChange();
+  const [triggeredAlert, setTriggeredAlert] = useState<Alert | null>(null);
+  const triggerCountValues: Count['value'][] = count.alerts
+    .filter(alert => alert.on)
+    .map(alert => alert.at);
+
+  const countTriggerReached = triggerCountValues.includes(count.value);
+
+  useEffect(() => {
+    if (countTriggerReached) {
+      const triggeredAlert = count.alerts.find(alert => alert.at === count.value);
+      setTriggeredAlert(triggeredAlert || null);
+      if (triggeredAlert && !triggeredAlert.repeat) {
+        const updatedAlert = { ...triggeredAlert, on: false };
+        countVar({
+          ...count,
+          alerts: count.alerts.map(alert => (alert.id === updatedAlert.id ? updatedAlert : alert))
+        });
+      }
+    }
+  }, [count, countTriggerReached]);
+
+  return (
+    <>
+      {triggeredAlert && (
+        <Alarm triggeredAlert={triggeredAlert} setTriggeredAlert={setTriggeredAlert} />
+      )}
+      {children}
+    </>
   );
 };
 

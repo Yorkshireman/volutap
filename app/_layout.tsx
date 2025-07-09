@@ -1,7 +1,7 @@
-import { CountingModeProvider } from '../components';
 import { PaperProvider } from 'react-native-paper';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { AlarmProvider, CountingModeProvider } from '../components';
 import { type SQLiteDatabase, SQLiteProvider } from 'expo-sqlite';
 
 export default function RootLayout() {
@@ -9,11 +9,16 @@ export default function RootLayout() {
     <PaperProvider>
       <SQLiteProvider databaseName='counter.db' onInit={migrateDbIfNeeded}>
         <CountingModeProvider>
-          <Stack>
-            <Stack.Screen name='index' options={{ headerShown: false }} />
-            <Stack.Screen name='settings' options={{ headerShown: false, presentation: 'modal' }} />
-          </Stack>
-          <StatusBar style='light' />
+          <AlarmProvider>
+            <Stack>
+              <Stack.Screen name='index' options={{ headerShown: false }} />
+              <Stack.Screen
+                name='settings'
+                options={{ headerShown: false, presentation: 'modal' }}
+              />
+            </Stack>
+            <StatusBar style='light' />
+          </AlarmProvider>
         </CountingModeProvider>
       </SQLiteProvider>
     </PaperProvider>

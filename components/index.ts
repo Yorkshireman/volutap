@@ -1,4 +1,4 @@
-export { Alarm } from './alarm';
+export { AlarmProvider } from './alarmProvider';
 export { AlertSettings } from './alertSettings';
 export { CountingButtons } from './countingButtons';
 export { CountingModeProvider } from './countingModeProvider';
