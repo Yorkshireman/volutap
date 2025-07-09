@@ -4,83 +4,36 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { SavedAlert } from './savedAlert';
 import Snackbar from 'react-native-snackbar';
 import { useReactiveVar } from '@apollo/client';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useUpdateSavedCountOnCountChange } from '../hooks';
 import uuid from 'react-native-uuid';
 import { AlertType, type Count } from '../types';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
-
-const countIsMissingRequiredFields = (count: Count): boolean => {
-  return (
-    !count.alerts ||
-    !count.createdAt ||
-    count.currentlyCounting === undefined ||
-    !count.id ||
-    !count.lastModified ||
-    !count.title ||
-    count.value === undefined
-  );
-};
+import { useEffect, useState } from 'react';
 
 export const AlertSettings = () => {
   const [alertAtValue, setAlertAtValue] = useState<number | null>(null);
   const count = useReactiveVar(countVar);
-  const db = useSQLiteContext();
-  const didMount = useRef(false);
-  const [showValidationErrorMessage, setShowValidationErrorMessage] = useState(false);
+  const [validationErrorMessage, setValidationErrorMessage] = useState('');
+  useUpdateSavedCountOnCountChange();
 
   useEffect(() => {
-    if (!alertAtValue) setShowValidationErrorMessage(false);
+    if (!alertAtValue) setValidationErrorMessage('');
   }, [alertAtValue]);
-
-  useEffect(() => {
-    if (!didMount.current) {
-      didMount.current = true;
-      return;
-    }
-
-    if (!count.id) return;
-
-    async function updateCountInDB() {
-      try {
-        if (countIsMissingRequiredFields(count)) {
-          console.warn('Count in state is missing required fields, not updating DB:', count);
-          return;
-        }
-
-        await db.runAsync(
-          `UPDATE savedCounts SET
-            alerts = ?,
-            createdAt = ?,
-            currentlyCounting = ?,
-            lastModified = ?,
-            title = ?,
-            value = ?
-            WHERE id = ?`,
-          [
-            JSON.stringify(count.alerts),
-            count.createdAt!,
-            count.currentlyCounting!,
-            count.lastModified!,
-            count.title!,
-            count.value,
-            count.id!
-          ]
-        );
-
-        console.log('Count updated in DB:', count);
-      } catch (error) {
-        console.error('Error updating count in DB:', error);
-      }
-    }
-
-    updateCountInDB();
-  }, [count, db]);
 
   const onSubmitCount = () => {
     if (!alertAtValue) return;
+    if (alertAtValue === count.value) {
+      setValidationErrorMessage(
+        `Alert cannot be set to the current count value of ${count.value}. Either go back to the main screen and change the count value or choose a different value here.`
+      );
+
+      return;
+    }
+
     if (count.alerts.find(({ at }) => at === alertAtValue)) {
-      setShowValidationErrorMessage(true);
+      setValidationErrorMessage(
+        `Alert already exists for ${alertAtValue} - do you need to turn it on?`
+      );
       return;
     }
 
@@ -129,7 +82,7 @@ export const AlertSettings = () => {
             <Text style={styles.addButtonText}>Add</Text>
           </TouchableOpacity>
         </View>
-        {!showValidationErrorMessage && !count.alerts.length && (
+        {!validationErrorMessage && !count.alerts.length && (
           <View style={styles.alertAtInputInfoWrapper}>
             <Ionicons
               color='#444'
@@ -143,10 +96,8 @@ export const AlertSettings = () => {
             </Text>
           </View>
         )}
-        {showValidationErrorMessage && (
-          <Text style={{ color: 'red', fontSize: 16 }}>
-            Alert already exists for {alertAtValue} - do you need to turn it on?
-          </Text>
+        {validationErrorMessage && (
+          <Text style={{ color: 'red', fontSize: 16 }}>{validationErrorMessage}</Text>
         )}
       </View>
       <View style={styles.savedAlerts}>

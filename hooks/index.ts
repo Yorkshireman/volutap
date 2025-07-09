@@ -2,3 +2,4 @@ export { useFetchAndSetCurrentCountAndIdOnMount } from './useFetchAndSetCurrentC
 export { usePersistCurrentCount } from './usePersistCurrentCount';
 export { usePopulateCountSelector } from './usePopulateCountSelector';
 export { useSetCountOnVolumeChange } from './useSetCountOnVolumeChange';
+export { useUpdateSavedCountOnCountChange } from './useUpdateSavedCountOnCountChange';
