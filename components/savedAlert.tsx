@@ -113,14 +113,14 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
             value={alert.on ? alert.repeat : false}
           />
         </View>
-        <View style={styles.secondRowInfoWrapper}>
+        <View style={styles.infoWrapper}>
           <Ionicons
             name='information-circle-outline'
             size={20}
             color='#444'
-            style={styles.secondRowInfoWrapperIcon}
+            style={styles.infoWrapperIcon}
           />
-          <Text style={styles.secondRowInfoWrapperText}>
+          <Text style={styles.infoWrapperText}>
             If enabled, the alert will happen every time the count reaches {alert.at}
           </Text>
         </View>
@@ -146,24 +146,35 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
         />
       </View>
       <View style={styles.fourthRow}>
-        <Text style={styles.alertAtText}>Play Sound</Text>
-        <Switch
-          disabled={!alert.on}
-          onValueChange={soundOn => {
-            const newType = soundOn ? AlertType.SOUND_AND_VIBRATE : AlertType.VIBRATE;
-            const updatedAlerts = count.alerts.map(a =>
-              a.id === alert.id ? { ...a, type: newType } : a
-            );
+        <View style={styles.fourthRowFirstRow}>
+          <Text style={styles.alertAtText}>Play Sound</Text>
+          <Switch
+            disabled={!alert.on}
+            onValueChange={soundOn => {
+              const newType = soundOn ? AlertType.SOUND_AND_VIBRATE : AlertType.VIBRATE;
+              const updatedAlerts = count.alerts.map(a =>
+                a.id === alert.id ? { ...a, type: newType } : a
+              );
 
-            countVar({ ...count, alerts: updatedAlerts });
-          }}
-          trackColor={{ false: '#222', true: '#758BFD' }}
-          value={
-            !alert.on
-              ? false
-              : alert.type === AlertType.SOUND || alert.type === AlertType.SOUND_AND_VIBRATE
-          }
-        />
+              countVar({ ...count, alerts: updatedAlerts });
+            }}
+            trackColor={{ false: '#222', true: '#758BFD' }}
+            value={
+              !alert.on
+                ? false
+                : alert.type === AlertType.SOUND || alert.type === AlertType.SOUND_AND_VIBRATE
+            }
+          />
+        </View>
+        <View style={styles.infoWrapper}>
+          <Ionicons
+            name='information-circle-outline'
+            size={20}
+            color='#444'
+            style={styles.infoWrapperIcon}
+          />
+          <Text style={styles.infoWrapperText}>Ensure Silent Mode is off and the volume is up</Text>
+        </View>
       </View>
     </View>
   );
@@ -202,9 +213,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   fourthRow: {
+    gap: 1
+  },
+  fourthRowFirstRow: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between'
+  },
+  infoWrapper: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 5
+  },
+  infoWrapperIcon: {
+    alignSelf: 'flex-start'
+  },
+  infoWrapperText: {
+    color: '#444',
+    flexShrink: 1,
+    fontSize: 14
   },
   secondColumn: {
     alignItems: 'center',
@@ -218,20 +245,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between'
-  },
-  secondRowInfoWrapper: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 5,
-    justifyContent: 'space-between'
-  },
-  secondRowInfoWrapperIcon: {
-    alignSelf: 'flex-start'
-  },
-  secondRowInfoWrapperText: {
-    color: '#444',
-    flexShrink: 1,
-    fontSize: 14
   },
   thirdRow: {
     alignItems: 'center',
