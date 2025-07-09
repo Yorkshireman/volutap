@@ -1,3 +1,4 @@
+export { Alert } from './alert';
 export { AlertSettings } from './alertSettings';
 export { CountingButtons } from './countingButtons';
 export { CountingModeProvider } from './countingModeProvider';

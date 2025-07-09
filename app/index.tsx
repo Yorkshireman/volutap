@@ -4,6 +4,7 @@ import { countVar } from '../reactiveVars';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReactiveVar } from '@apollo/client';
 import {
+  Alert,
   CountingButtons,
   CountSelector,
   CountToolbar,
@@ -36,6 +37,7 @@ export default function Index() {
 
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
+      <Alert />
       <View
         style={{
           ...styles.container,
