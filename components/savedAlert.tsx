@@ -92,7 +92,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
           </TouchableOpacity>
           <Switch
             onValueChange={onToggleAlert}
-            trackColor={{ false: 'red', true: '#0CCE6B' }}
+            trackColor={{ false: 'red', true: '#27187E' }}
             value={alertOnValue}
           />
         </View>
@@ -105,7 +105,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
             const updatedAlerts = count.alerts.map(a => (a.id === alert.id ? { ...a, repeat } : a));
             countVar({ ...count, alerts: updatedAlerts });
           }}
-          trackColor={{ false: '#222', true: '#0CCE6B' }}
+          trackColor={{ false: '#222', true: '#AEB8FE' }}
           value={alert.on ? alert.repeat : false}
         />
       </View>
@@ -121,7 +121,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
 
             countVar({ ...count, alerts: updatedAlerts });
           }}
-          trackColor={{ false: '#222', true: '#0CCE6B' }}
+          trackColor={{ false: '#222', true: '#AEB8FE' }}
           value={
             !alert.on
               ? false
@@ -141,7 +141,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
 
             countVar({ ...count, alerts: updatedAlerts });
           }}
-          trackColor={{ false: '#222', true: '#0CCE6B' }}
+          trackColor={{ false: '#222', true: '#AEB8FE' }}
           value={
             !alert.on
               ? false
@@ -159,7 +159,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: '#222',
     fontSize: 18,
-    paddingHorizontal: 15,
+    fontWeight: 'bold',
+    paddingHorizontal: 20,
     paddingVertical: 2
   },
   alertAtText: {

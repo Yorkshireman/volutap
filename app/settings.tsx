@@ -7,7 +7,7 @@ export default function Settings() {
   const router = useRouter();
 
   return (
-    <ScrollView style={{ backgroundColor: '#fff' }}>
+    <ScrollView style={{ backgroundColor: '#758BFD' }}>
       <View style={styles.container}>
         <TouchableOpacity onPress={() => router.back()} style={styles.closeIconWrapper}>
           <Ionicons name='close-circle-sharp' size={40} color='#222' style={styles.closeIcon} />
@@ -22,7 +22,7 @@ export default function Settings() {
 
 const styles = StyleSheet.create({
   closeIcon: {
-    color: '#27187E'
+    color: 'black'
   },
   closeIconWrapper: {
     alignSelf: 'flex-end',
@@ -37,13 +37,13 @@ const styles = StyleSheet.create({
   },
   heading: {
     alignSelf: 'flex-start',
-    color: '#222',
+    color: 'black',
     fontSize: 32,
     fontWeight: 'bold'
   },
   subHeading: {
     alignSelf: 'flex-start',
-    color: '#222',
+    color: 'black',
     fontSize: 18,
     marginBottom: 20
   },

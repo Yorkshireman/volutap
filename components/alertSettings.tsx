@@ -109,6 +109,7 @@ export const AlertSettings = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.heading}>Alerts</Text>
       <View style={styles.alertForm}>
         <View style={styles.alertFormFirstRow}>
           <View style={styles.alertFormFirstRowFirstColumn}>
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
   alertAtInput: {
     borderColor: '#FF8600',
     borderRadius: 8,
-    borderWidth: 2,
+    borderWidth: 3,
     color: '#222',
     flex: 1,
     fontSize: 18,
@@ -218,7 +219,14 @@ const styles = StyleSheet.create({
   },
   container: {
     alignSelf: 'stretch',
-    gap: 10
+    backgroundColor: '#FAFAFA',
+    borderRadius: 15,
+    gap: 10,
+    padding: 15
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: 'bold'
   },
   savedAlert: {
     flexDirection: 'row',
