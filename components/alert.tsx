@@ -1,47 +1,62 @@
 import { countVar } from '../reactiveVars';
 import { useReactiveVar } from '@apollo/client';
 import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const Alert = () => {
   const { alerts, value } = useReactiveVar(countVar);
+  const hasBeenDismissedRef = useRef(false);
+  const hasBeenTriggeredRef = useRef(false);
+  const pulseAnim = useRef(new Animated.Value(0)).current;
+  const [shouldShow, setShouldShow] = useState(true);
   const triggers = alerts.map(alert => alert.at);
 
-  // if (!triggers.includes(value)) {
-  //   return null; // No alert to show
-  // }
-
-  // Pulse animation setup
-  const pulseAnim = useRef(new Animated.Value(0)).current;
+  const countTriggerReached = triggers.includes(value);
 
   useEffect(() => {
-    Animated.loop(
+    if (!countTriggerReached && !hasBeenTriggeredRef.current) {
+      setShouldShow(false);
+      return;
+    } else {
+      setShouldShow(true);
+      hasBeenTriggeredRef.current = true;
+    }
+
+    const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          duration: 800,
+          duration: 500,
           toValue: 1,
-          useNativeDriver: false
+          useNativeDriver: true
         }),
         Animated.timing(pulseAnim, {
-          duration: 800,
+          duration: 500,
           toValue: 0,
-          useNativeDriver: false
+          useNativeDriver: true
         })
       ])
-    ).start();
-  }, [pulseAnim]);
+    );
+
+    loop.start();
+    return () => loop.stop();
+  }, [countTriggerReached, pulseAnim]);
 
   const backgroundColor = pulseAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['black', '#444']
   });
 
+  if ((!shouldShow && !hasBeenTriggeredRef.current) || hasBeenDismissedRef.current) {
+    return null;
+  }
+
   return (
     <Animated.View style={[styles.container, { backgroundColor }]}>
       <Text style={{ color: 'white', fontSize: 24 }}>ALERT!</Text>
       <TouchableOpacity
         onPress={() => {
-          console.log('Alert dismissed or action taken');
+          setShouldShow(false);
+          hasBeenDismissedRef.current = true;
         }}
       >
         <Text style={styles.dismissButton}>Dismiss</Text>
