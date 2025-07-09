@@ -99,16 +99,31 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
         </View>
       </View>
       <View style={styles.secondRow}>
-        <Text style={styles.alertAtText}>Repeating</Text>
-        <Switch
-          disabled={!alert.on}
-          onValueChange={repeat => {
-            const updatedAlerts = count.alerts.map(a => (a.id === alert.id ? { ...a, repeat } : a));
-            countVar({ ...count, alerts: updatedAlerts });
-          }}
-          trackColor={{ false: '#222', true: '#758BFD' }}
-          value={alert.on ? alert.repeat : false}
-        />
+        <View style={styles.secondRowFirstRow}>
+          <Text style={styles.alertAtText}>Repeating</Text>
+          <Switch
+            disabled={!alert.on}
+            onValueChange={repeat => {
+              const updatedAlerts = count.alerts.map(a =>
+                a.id === alert.id ? { ...a, repeat } : a
+              );
+              countVar({ ...count, alerts: updatedAlerts });
+            }}
+            trackColor={{ false: '#222', true: '#758BFD' }}
+            value={alert.on ? alert.repeat : false}
+          />
+        </View>
+        <View style={styles.secondRowInfoWrapper}>
+          <Ionicons
+            name='information-circle-outline'
+            size={20}
+            color='#444'
+            style={styles.secondRowInfoWrapperIcon}
+          />
+          <Text style={styles.secondRowInfoWrapperText}>
+            If enabled, the alert will happen every time the count reaches {alert.at}
+          </Text>
+        </View>
       </View>
       <View style={styles.thirdRow}>
         <Text style={styles.alertAtText}>Vibrate</Text>
@@ -197,9 +212,26 @@ const styles = StyleSheet.create({
     gap: 20
   },
   secondRow: {
+    gap: 1
+  },
+  secondRowFirstRow: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between'
+  },
+  secondRowInfoWrapper: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 5,
+    justifyContent: 'space-between'
+  },
+  secondRowInfoWrapperIcon: {
+    alignSelf: 'flex-start'
+  },
+  secondRowInfoWrapperText: {
+    color: '#444',
+    flexShrink: 1,
+    fontSize: 14
   },
   thirdRow: {
     alignItems: 'center',
