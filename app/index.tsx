@@ -1,18 +1,17 @@
 import * as Device from 'expo-device';
-import * as Haptics from 'expo-haptics';
 import { CountingModeContext } from '../contexts';
 import { countVar } from '../reactiveVars';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReactiveVar } from '@apollo/client';
 import {
+  CountingButtons,
   CountSelector,
   CountToolbar,
   EditCountTitleInputField,
   SaveCountInputField,
   SwitchCountModeButton
 } from '../components';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useContext, useEffect, useState } from 'react';
 import {
   useFetchAndSetCurrentCountAndIdOnMount,
@@ -27,7 +26,6 @@ export default function Index() {
   const [showEditInputField, setShowEditInputField] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, setTitleToSave] = useState('');
-  const [buttonHeight, setButtonHeight] = useState(0);
   useFetchAndSetCurrentCountAndIdOnMount();
   usePersistCurrentCount();
   useSetCountOnVolumeChange(countingWithVolumeButtons);
@@ -35,17 +33,6 @@ export default function Index() {
   useEffect(() => {
     setIsIpad(Device.deviceType === Device.DeviceType.TABLET);
   }, []);
-
-  const onPressDecrementButton = () => {
-    if (count.value === 0) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    countVar({ ...count, value: count.value - 1 });
-  };
-
-  const onPressIncrementButton = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    countVar({ ...count, value: count.value + 1 });
-  };
 
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
@@ -84,27 +71,7 @@ export default function Index() {
           setTitleToSave={setTitleToSave}
         />
         <SwitchCountModeButton />
-        {!countingWithVolumeButtons && (
-          <View
-            style={styles.countButtonsWrapper}
-            onLayout={e => setButtonHeight(e.nativeEvent.layout.height)}
-          >
-            <TouchableOpacity onPress={onPressDecrementButton} style={styles.countButton}>
-              <Ionicons
-                color={'#fff'}
-                name='remove-outline'
-                size={Math.min(buttonHeight ? buttonHeight * 0.4 : 72, 72)}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onPressIncrementButton} style={styles.countButton}>
-              <Ionicons
-                color={'#fff'}
-                name='add-outline'
-                size={Math.min(buttonHeight ? buttonHeight * 0.4 : 72, 72)}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
+        {!countingWithVolumeButtons && <CountingButtons />}
       </View>
     </SafeAreaView>
   );
@@ -126,24 +93,5 @@ const styles = StyleSheet.create({
   },
   count: {
     color: '#fff'
-  },
-  countButton: {
-    alignItems: 'center',
-    borderColor: '#fff',
-    borderRadius: 50,
-    borderWidth: 3,
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20
-  },
-  countButtonText: {
-    color: '#fff',
-    fontSize: 36,
-    fontWeight: 'bold'
-  },
-  countButtonsWrapper: {
-    flex: 2,
-    flexDirection: 'row',
-    gap: 30
   }
 });

@@ -1,4 +1,5 @@
 export { AlertSettings } from './alertSettings';
+export { CountingButtons } from './countingButtons';
 export { CountingModeProvider } from './countingModeProvider';
 export { CountSelector } from './countSelector';
 export { CountSelectorDropdownItem } from './countSelectorDropdownItem';
