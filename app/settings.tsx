@@ -1,20 +1,22 @@
 import { AlertSettings } from '../components';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function Settings() {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.closeIconWrapper}>
-        <Ionicons name='close-circle-sharp' size={40} color='#222' style={styles.closeIcon} />
-      </TouchableOpacity>
-      <Text style={styles.heading}>Settings</Text>
-      <Text style={styles.subHeading}>Changes here only apply to the current Count.</Text>
-      <AlertSettings />
-    </View>
+    <ScrollView>
+      <View style={styles.container}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.closeIconWrapper}>
+          <Ionicons name='close-circle-sharp' size={40} color='#222' style={styles.closeIcon} />
+        </TouchableOpacity>
+        <Text style={styles.heading}>Settings</Text>
+        <Text style={styles.subHeading}>Changes here only apply to the current Count.</Text>
+        <AlertSettings />
+      </View>
+    </ScrollView>
   );
 }
 
@@ -31,11 +33,10 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: 'center',
-    // backgroundColor: '#333',
     backgroundColor: '#FAFAFA',
-    flex: 1,
     gap: 10,
-    padding: 20
+    padding: 20,
+    paddingBottom: 50
   },
   heading: {
     alignSelf: 'flex-start',
