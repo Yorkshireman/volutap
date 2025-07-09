@@ -28,7 +28,8 @@
     "react-native-screens": "~4.11.1",
     "react-native-snackbar": "^2.9.0",
     "react-native-uuid": "^2.0.3",
-    "react-native-volume-manager": "^2.0.8"
+    "react-native-volume-manager": "^2.0.8",
+    "expo-audio": "~0.4.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
