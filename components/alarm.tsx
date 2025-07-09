@@ -1,18 +1,20 @@
-import type { Alert } from '../types';
 import { countVar } from '../reactiveVars';
 import { useReactiveVar } from '@apollo/client';
 import { useUpdateSavedCountOnCountChange } from '../hooks';
+import type { Alert, Count } from '../types';
 import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 
 export const Alarm = () => {
   const count = useReactiveVar(countVar);
-  const { alerts, value } = count;
   const pulseAnim = useRef(new Animated.Value(0)).current;
-  const [triggeredAlert, setTriggeredAlert] = useState<Alert | null>(null);
-  const triggers = alerts.filter(alert => alert.on).map(alert => alert.at);
-  const countTriggerReached = triggers.includes(value);
   useUpdateSavedCountOnCountChange();
+  const [triggeredAlert, setTriggeredAlert] = useState<Alert | null>(null);
+  const triggerCountValues: Count['value'][] = count.alerts
+    .filter(alert => alert.on)
+    .map(alert => alert.at);
+
+  const countTriggerReached = triggerCountValues.includes(count.value);
 
   useEffect(() => {
     const loop = Animated.loop(
@@ -44,7 +46,7 @@ export const Alarm = () => {
 
   useEffect(() => {
     if (countTriggerReached) {
-      const triggeredAlert = alerts.find(alert => alert.at === value);
+      const triggeredAlert = count.alerts.find(alert => alert.at === count.value);
       setTriggeredAlert(triggeredAlert || null);
       if (triggeredAlert && !triggeredAlert.repeat) {
         // Optionally, you can handle the alert type here (e.g., play sound, vibrate)
@@ -57,11 +59,11 @@ export const Alarm = () => {
         const updatedAlert = { ...triggeredAlert, on: false };
         countVar({
           ...count,
-          alerts: alerts.map(alert => (alert.id === updatedAlert.id ? updatedAlert : alert))
+          alerts: count.alerts.map(alert => (alert.id === updatedAlert.id ? updatedAlert : alert))
         });
       }
     }
-  }, [alerts, count, countTriggerReached, value]);
+  }, [count, countTriggerReached]);
 
   if (!triggeredAlert) {
     return null;
