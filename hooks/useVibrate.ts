@@ -10,7 +10,9 @@ export const useVibrate = (triggeredAlert: Alert | null) => {
         triggeredAlert.type === AlertType.SOUND_AND_VIBRATE)
     ) {
       Vibration.vibrate();
-      Vibration.vibrate([500], true);
+      // every 500ms for 10 seconds
+      // to loop indefinitely: Vibration.vibrate([500], true);
+      Vibration.vibrate(Array(20).fill(500));
     }
 
     return () => Vibration.cancel();
