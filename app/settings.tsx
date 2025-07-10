@@ -1,6 +1,6 @@
-import { AlertSettings } from '../components';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
+import { AlertSettings, SetCount } from '../components';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function Settings() {
@@ -14,6 +14,7 @@ export default function Settings() {
         </TouchableOpacity>
         <Text style={styles.heading}>Settings</Text>
         <Text style={styles.subHeading}>Changes here only apply to the current Count.</Text>
+        <SetCount />
         <AlertSettings />
       </View>
     </ScrollView>
