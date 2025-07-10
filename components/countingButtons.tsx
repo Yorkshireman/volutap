@@ -1,8 +1,8 @@
 import * as Haptics from 'expo-haptics';
-import { countVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useReactiveVar } from '@apollo/client';
 import { useState } from 'react';
+import { countChangeViaUserInteractionHasHappenedVar, countVar } from '../reactiveVars';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export const CountingButtons = () => {
@@ -13,11 +13,13 @@ export const CountingButtons = () => {
     if (count.value === 0) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     countVar({ ...count, value: count.value - 1 });
+    countChangeViaUserInteractionHasHappenedVar(true);
   };
 
   const onPressIncrementButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     countVar({ ...count, value: count.value + 1 });
+    countChangeViaUserInteractionHasHappenedVar(true);
   };
 
   return (

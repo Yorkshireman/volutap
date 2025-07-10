@@ -1,12 +1,15 @@
 import { Alarm } from './alarm';
-import { countVar } from '../reactiveVars';
 import { useReactiveVar } from '@apollo/client';
 import { useUpdateSavedCountOnCountChange } from '../hooks';
 import { Alert, Count } from '../types';
+import { countChangeViaUserInteractionHasHappenedVar, countVar } from '../reactiveVars';
 import { useEffect, useState } from 'react';
 
 export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const count = useReactiveVar(countVar);
+  const countChangeViaUserInteractionHasHappened = useReactiveVar(
+    countChangeViaUserInteractionHasHappenedVar
+  );
   useUpdateSavedCountOnCountChange();
   const [triggeredAlert, setTriggeredAlert] = useState<Alert | null>(null);
   const triggerCountValues: Count['value'][] = count.alerts
@@ -16,6 +19,14 @@ export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const countTriggerReached = triggerCountValues.includes(count.value);
 
   useEffect(() => {
+    if (!countChangeViaUserInteractionHasHappened) {
+      console.log(
+        'AlarmProvider: No user interaction has changed the count, skipping alert check.'
+      );
+
+      return;
+    }
+
     if (countTriggerReached) {
       const triggeredAlert = count.alerts.find(alert => alert.at === count.value);
       setTriggeredAlert(triggeredAlert || null);
@@ -28,7 +39,7 @@ export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         });
       }
     }
-  }, [count, countTriggerReached]);
+  }, [count, countChangeViaUserInteractionHasHappened, countTriggerReached]);
 
   return (
     <>

@@ -3,7 +3,11 @@ import { Audio } from 'expo-av';
 import type { Count } from '../types';
 import { useReactiveVar } from '@apollo/client';
 import { VolumeManager } from 'react-native-volume-manager';
-import { countVar, disableVolumeButtonCountingVar } from '../reactiveVars';
+import {
+  countChangeViaUserInteractionHasHappenedVar,
+  countVar,
+  disableVolumeButtonCountingVar
+} from '../reactiveVars';
 import { useEffect, useRef } from 'react';
 
 export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) => {
@@ -57,7 +61,10 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
           const disableVolumeButtonCounting = disableVolumeButtonCountingVar();
           if (volume > 0.5) {
             const current = countVar();
-            !disableVolumeButtonCounting && countVar({ ...current, value: current.value + 1 });
+            if (!disableVolumeButtonCounting) {
+              countVar({ ...current, value: current.value + 1 });
+              countChangeViaUserInteractionHasHappenedVar(true);
+            }
           } else if (volume < 0.5) {
             if (countValueRef.current === 0) {
               programmaticVolumeChangeRef.current = true;
@@ -66,7 +73,10 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
             }
 
             const current = countVar();
-            !disableVolumeButtonCounting && countVar({ ...current, value: current.value - 1 });
+            if (!disableVolumeButtonCounting) {
+              countVar({ ...current, value: current.value - 1 });
+              countChangeViaUserInteractionHasHappenedVar(true);
+            }
           }
         });
       })();
