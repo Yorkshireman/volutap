@@ -70,7 +70,7 @@ export const AlertSettings = () => {
               maxLength={7}
               onChangeText={v => setAlertAtValue(!v ? null : parseInt(v, 10))}
               onSubmitEditing={onSubmitCount}
-              placeholder={'Number'}
+              placeholder={'Number to alert at'}
               placeholderTextColor='#888'
               returnKeyType='done'
               keyboardType='numeric'
