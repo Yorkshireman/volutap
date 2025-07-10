@@ -3,7 +3,7 @@ import { CountingModeContext } from '../contexts';
 import { disableVolumeButtonCountingVar } from '../reactiveVars';
 import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useContext, useEffect, useRef } from 'react';
-import { usePlaySound, useSetCountOnVolumeChange } from '../hooks';
+import { usePlaySound, useSetCountOnVolumeChange, useVibrate } from '../hooks';
 
 export const Alarm = ({
   triggeredAlert,
@@ -16,6 +16,7 @@ export const Alarm = ({
   const pulseAnim = useRef(new Animated.Value(0)).current;
   const { setVolumeToMid } = useSetCountOnVolumeChange(countingWithVolumeButtons);
   usePlaySound(triggeredAlert);
+  useVibrate(triggeredAlert);
 
   useEffect(() => {
     const loop = Animated.loop(
