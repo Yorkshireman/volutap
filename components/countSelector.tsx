@@ -1,7 +1,9 @@
 import { CountSelectorDropdownItem } from './countSelectorDropdownItem';
+import { countVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { onSelectCount } from '../utils';
 import { usePopulateCountSelector } from '../hooks';
+import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
   Animated,
@@ -12,18 +14,15 @@ import {
   useAnimatedValue,
   View
 } from 'react-native';
-import type { Count, SetCount, SetShowSaveInputField } from '../types';
+import type { Count, SetShowSaveInputField } from '../types';
 import { useEffect, useState } from 'react';
 
 export const CountSelector = ({
-  count,
-  setCount,
   setShowSaveInputField
 }: {
-  count: Count;
-  setCount: SetCount;
   setShowSaveInputField: SetShowSaveInputField;
 }) => {
+  const count = useReactiveVar(countVar);
   const [counts, setCounts] = useState<Count[]>();
   const db = useSQLiteContext();
   const dropdownIconRotationAnim = useAnimatedValue(0);
@@ -88,9 +87,9 @@ export const CountSelector = ({
                 const onPress = () =>
                   onSelectCount({
                     count,
+                    countVar,
                     db,
                     id,
-                    setCount,
                     setDropdownVisible,
                     setShowSaveInputField
                   });

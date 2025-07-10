@@ -1,12 +1,12 @@
+import { countVar } from '../reactiveVars';
+import type { SetShowEditInputField } from '../types';
 import Snackbar from 'react-native-snackbar';
+import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
-import type { Count, SetCount, SetShowEditInputField } from '../types';
 import { StyleSheet, TextInput } from 'react-native';
 import { useEffect, useRef } from 'react';
 
 interface EditCountTitleInputFieldProps {
-  count: Count;
-  setCount: SetCount;
   setShowEditInputField: SetShowEditInputField;
   setTitleToSave: (title: string) => void;
   showEditInputField: boolean;
@@ -14,13 +14,12 @@ interface EditCountTitleInputFieldProps {
 }
 
 export const EditCountTitleInputField = ({
-  count,
-  setCount,
   setShowEditInputField,
   setTitleToSave,
   showEditInputField,
   titleToSave
 }: EditCountTitleInputFieldProps) => {
+  const count = useReactiveVar(countVar);
   const db = useSQLiteContext();
   const editInputFieldRef = useRef<TextInput>(null);
 
@@ -48,7 +47,7 @@ export const EditCountTitleInputField = ({
       });
 
       setTitleToSave('');
-      setCount(prev => ({ ...prev, title: trimmed }));
+      countVar({ ...count, title: trimmed });
     } catch (e) {
       console.error('DB error: ', e);
     }

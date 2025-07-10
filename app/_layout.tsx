@@ -1,18 +1,27 @@
-import { CountingModeProvider } from '../components';
+import { PaperProvider } from 'react-native-paper';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { AlarmProvider, CountingModeProvider } from '../components';
 import { type SQLiteDatabase, SQLiteProvider } from 'expo-sqlite';
 
 export default function RootLayout() {
   return (
-    <SQLiteProvider databaseName='counter.db' onInit={migrateDbIfNeeded}>
-      <CountingModeProvider>
-        <Stack>
-          <Stack.Screen name='index' options={{ headerShown: false }} />
-        </Stack>
-        <StatusBar style='light' />
-      </CountingModeProvider>
-    </SQLiteProvider>
+    <PaperProvider>
+      <SQLiteProvider databaseName='counter.db' onInit={migrateDbIfNeeded}>
+        <CountingModeProvider>
+          <AlarmProvider>
+            <Stack>
+              <Stack.Screen name='index' options={{ headerShown: false }} />
+              <Stack.Screen
+                name='settings'
+                options={{ headerShown: false, presentation: 'modal' }}
+              />
+            </Stack>
+            <StatusBar style='light' />
+          </AlarmProvider>
+        </CountingModeProvider>
+      </SQLiteProvider>
+    </PaperProvider>
   );
 }
 
@@ -34,12 +43,13 @@ const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
       PRAGMA foreign_keys = ON;
 
       CREATE TABLE IF NOT EXISTS savedCounts (
-        value             INTEGER NOT NULL DEFAULT 0,
+        alerts            TEXT    NOT NULL DEFAULT '[]',
         createdAt         TEXT    NOT NULL,
         currentlyCounting INTEGER NOT NULL DEFAULT 1,
         id                TEXT    PRIMARY KEY NOT NULL,
         lastModified      TEXT    NOT NULL,
-        title             TEXT    NOT NULL
+        title             TEXT    NOT NULL,
+        value             INTEGER NOT NULL DEFAULT 0
       );
     `);
 

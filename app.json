@@ -1,7 +1,9 @@
 {
   "expo": {
     "name": "Counter",
-    "assetBundlePatterns": ["assets/*"],
+    "assetBundlePatterns": [
+      "assets/*"
+    ],
     "slug": "counter",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +21,9 @@
       "bundleIdentifier": "com.codedegen.counter",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ]
       }
     },
     "extra": {
@@ -28,7 +32,11 @@
         "projectId": "bbe4816c-87db-40fd-b4eb-cf7274e754fb"
       }
     },
-    "plugins": ["expo-router", "expo-sqlite"],
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-audio"
+    ],
     "updates": {
       "enabled": true
     }

@@ -1,22 +1,39 @@
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
 import type { Count } from '../types';
+import { useReactiveVar } from '@apollo/client';
 import { VolumeManager } from 'react-native-volume-manager';
-import { type Dispatch, type SetStateAction, useEffect, useRef } from 'react';
+import {
+  countChangeViaUserInteractionHasHappenedVar,
+  countVar,
+  disableVolumeButtonCountingVar
+} from '../reactiveVars';
+import { useEffect, useRef } from 'react';
 
-export const useSetCountOnVolumeChange = (
-  countingWithVolumeButtons: boolean,
-  count: Count,
-  setCount: Dispatch<SetStateAction<Count>>
-) => {
+export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) => {
+  const count = useReactiveVar(countVar);
   const countValueRef = useRef<Count['value']>(count.value);
   const didMount = useRef(false);
   const justSwitchedMode = useRef(false);
   const programmaticVolumeChangeRef = useRef(false);
+  const silentSoundRef = useRef<Audio.Sound | null>(null);
+
+  const startSilentSound = async () => {
+    if (silentSoundRef.current) {
+      await silentSoundRef.current.unloadAsync();
+    }
+
+    const { sound } = await Audio.Sound.createAsync(require('../assets/silent.mp3'), {
+      isLooping: true,
+      shouldPlay: true,
+      volume: 0
+    });
+
+    silentSoundRef.current = sound;
+  };
 
   useEffect(() => {
     let sub: { remove: () => void } | null = null;
-    let soundObj: Audio.Sound | null = null;
 
     if (countingWithVolumeButtons) {
       justSwitchedMode.current = true;
@@ -28,13 +45,7 @@ export const useSetCountOnVolumeChange = (
           staysActiveInBackground: false
         });
 
-        const { sound } = await Audio.Sound.createAsync(require('../assets/silent.mp3'), {
-          isLooping: true,
-          shouldPlay: true,
-          volume: 0
-        });
-
-        soundObj = sound;
+        await startSilentSound();
 
         VolumeManager.showNativeVolumeUI({ enabled: false });
 
@@ -47,8 +58,13 @@ export const useSetCountOnVolumeChange = (
             return;
           }
 
+          const disableVolumeButtonCounting = disableVolumeButtonCountingVar();
           if (volume > 0.5) {
-            setCount(c => ({ ...c, value: c.value + 1 }));
+            const current = countVar();
+            if (!disableVolumeButtonCounting) {
+              countVar({ ...current, value: current.value + 1 });
+              countChangeViaUserInteractionHasHappenedVar(true);
+            }
           } else if (volume < 0.5) {
             if (countValueRef.current === 0) {
               programmaticVolumeChangeRef.current = true;
@@ -56,17 +72,21 @@ export const useSetCountOnVolumeChange = (
               return;
             }
 
-            setCount(c => ({ ...c, value: c.value - 1 }));
+            const current = countVar();
+            if (!disableVolumeButtonCounting) {
+              countVar({ ...current, value: current.value - 1 });
+              countChangeViaUserInteractionHasHappenedVar(true);
+            }
           }
         });
       })();
     }
 
     return () => {
+      silentSoundRef.current?.unloadAsync();
       sub?.remove();
-      soundObj?.unloadAsync();
     };
-  }, [countingWithVolumeButtons, setCount]);
+  }, [countingWithVolumeButtons]);
 
   useEffect(() => {
     if (!didMount.current) {
@@ -92,5 +112,9 @@ export const useSetCountOnVolumeChange = (
     resetVolume();
   }, [count, countingWithVolumeButtons]);
 
-  return { count, setCount };
+  const setVolumeToMid = async () => {
+    await VolumeManager.setVolume(0.5);
+  };
+
+  return { restartSilentSound: startSilentSound, setVolumeToMid };
 };

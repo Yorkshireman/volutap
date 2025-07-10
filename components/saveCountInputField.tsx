@@ -1,13 +1,13 @@
+import { countVar } from '../reactiveVars';
 import Snackbar from 'react-native-snackbar';
+import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
-import type { Count, SetCount, SetShowSaveInputField, SetTitleToSave } from '../types';
+import type { SetShowSaveInputField, SetTitleToSave } from '../types';
 import { StyleSheet, TextInput } from 'react-native';
 import { useEffect, useRef } from 'react';
 
 interface SaveCountInputFieldProps {
-  count: Count;
-  setCount: SetCount;
   setShowSaveInputField: SetShowSaveInputField;
   setTitleToSave: SetTitleToSave;
   showSaveInputField: boolean;
@@ -15,13 +15,12 @@ interface SaveCountInputFieldProps {
 }
 
 export const SaveCountInputField = ({
-  count,
-  setCount,
   setShowSaveInputField,
   setTitleToSave,
   showSaveInputField,
   titleToSave
 }: SaveCountInputFieldProps) => {
+  const count = useReactiveVar(countVar);
   const db = useSQLiteContext();
   const saveInputFieldRef = useRef<TextInput>(null);
 
@@ -39,7 +38,8 @@ export const SaveCountInputField = ({
 
     try {
       await db.runAsync(
-        'INSERT INTO savedCounts (value, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO savedCounts (alerts, value, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        JSON.stringify(count.alerts),
         count.value,
         now,
         true,
@@ -56,8 +56,9 @@ export const SaveCountInputField = ({
       });
 
       setTitleToSave('');
-      setCount({
+      countVar({
         // dry up?
+        alerts: count.alerts,
         createdAt: now,
         currentlyCounting: true,
         id,
