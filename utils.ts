@@ -174,21 +174,11 @@ export const onSelectCount = async ({
     return;
   }
 
+  countVar({ ...count, currentlyCounting: false });
   try {
-    await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
-      false,
-      count.id || ''
-    ]);
-
-    await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
-      true,
+    const newCount = await db.getFirstAsync<DbCount>('SELECT * FROM savedCounts WHERE id = ?', [
       id || ''
     ]);
-
-    const newCount = await db.getFirstAsync<DbCount>(
-      'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
-      [true]
-    );
 
     if (!newCount) {
       console.error('No new count with currentlyCounting true found after update.');
@@ -196,9 +186,10 @@ export const onSelectCount = async ({
     }
 
     const alerts = JSON.parse(newCount.alerts);
-    countVar({ ...newCount, alerts });
+    countVar({ ...newCount, alerts, currentlyCounting: true });
     setDropdownVisible(false);
   } catch (error) {
     console.error('onSelectCount(): ', error);
+    countVar({ ...count, currentlyCounting: true });
   }
 };
