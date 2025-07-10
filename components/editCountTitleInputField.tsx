@@ -2,7 +2,6 @@ import { countVar } from '../reactiveVars';
 import type { SetShowEditInputField } from '../types';
 import Snackbar from 'react-native-snackbar';
 import { useReactiveVar } from '@apollo/client';
-import { useSQLiteContext } from 'expo-sqlite';
 import { StyleSheet, TextInput } from 'react-native';
 import { useEffect, useRef } from 'react';
 
@@ -20,7 +19,6 @@ export const EditCountTitleInputField = ({
   titleToSave
 }: EditCountTitleInputFieldProps) => {
   const count = useReactiveVar(countVar);
-  const db = useSQLiteContext();
   const editInputFieldRef = useRef<TextInput>(null);
 
   useEffect(() => {
@@ -37,20 +35,14 @@ export const EditCountTitleInputField = ({
       return;
     }
 
-    try {
-      await db.runAsync('UPDATE savedCounts SET title = ? WHERE id = ?', [trimmed, count.id]);
-      Snackbar.show({
-        backgroundColor: '#758BFD',
-        duration: Snackbar.LENGTH_LONG,
-        text: 'Saved!',
-        textColor: 'black'
-      });
-
-      setTitleToSave('');
-      countVar({ ...count, title: trimmed });
-    } catch (e) {
-      console.error('DB error: ', e);
-    }
+    countVar({ ...count, title: trimmed });
+    setTitleToSave('');
+    Snackbar.show({
+      backgroundColor: '#758BFD',
+      duration: Snackbar.LENGTH_LONG,
+      text: 'Saved!',
+      textColor: 'black'
+    });
   };
   return (
     <TextInput
