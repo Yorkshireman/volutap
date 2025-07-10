@@ -28,88 +28,28 @@ export const SetCount = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Change Count</Text>
-      <View style={styles.alertForm}>
-        <View style={styles.alertFormFirstRow}>
-          <View style={styles.alertFormFirstRowFirstColumn}>
-            <TextInput
-              maxLength={7}
-              onChangeText={v => setNewCountValue(!v ? null : parseInt(v, 10))}
-              onSubmitEditing={onSubmitCount}
-              placeholder={`Count is currently at ${count.value}`}
-              placeholderTextColor='#888'
-              returnKeyType='done'
-              keyboardType='numeric'
-              style={styles.alertAtInput}
-              value={newCountValue?.toString() || undefined}
-            />
-          </View>
-          <TouchableOpacity style={styles.addButton} onPress={onSubmitCount}>
-            <Text style={styles.addButtonText}>Set</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.form}>
+        <TextInput
+          maxLength={7}
+          onChangeText={v => setNewCountValue(!v ? null : parseInt(v, 10))}
+          onSubmitEditing={onSubmitCount}
+          placeholder={`Count is currently at ${count.value}`}
+          placeholderTextColor='#888'
+          returnKeyType='done'
+          keyboardType='numeric'
+          style={styles.input}
+          value={newCountValue?.toString() || undefined}
+        />
+        <TouchableOpacity style={styles.setButton} onPress={onSubmitCount}>
+          <Text style={styles.setButtonText}>Set</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  addButton: {
-    alignItems: 'center',
-    backgroundColor: '#27187E',
-    borderRadius: 10,
-    justifyContent: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 6
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold'
-  },
-  alertAtInput: {
-    borderColor: '#FF8600',
-    borderRadius: 8,
-    borderWidth: 3,
-    color: '#222',
-    flex: 1,
-    fontSize: 18,
-    paddingHorizontal: 5,
-    paddingVertical: 4
-  },
-  alertAtInputInfoIcon: {
-    fontSize: 18,
-    paddingTop: 1
-  },
-  alertAtInputInfoText: {
-    color: '#444',
-    flexShrink: 1,
-    fontSize: 16
-  },
-  alertAtInputInfoWrapper: {
-    flexDirection: 'row',
-    gap: 3,
-    paddingLeft: 5
-  },
-  alertAtText: {
-    fontSize: 18,
-    fontWeight: 'bold'
-  },
-  alertForm: {
-    gap: 5
-  },
-  alertFormFirstRow: {
-    flexDirection: 'row',
-    gap: 5,
-    justifyContent: 'space-between'
-  },
-  alertFormFirstRowFirstColumn: {
-    alignItems: 'center',
-    flex: 1,
-    flexDirection: 'row',
-    gap: 5
-  },
   container: {
-    alignSelf: 'stretch',
     backgroundColor: '#fff',
     borderRadius: 15,
     gap: 10,
@@ -119,21 +59,34 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8
   },
+  form: {
+    flexDirection: 'row',
+    gap: 5
+  },
   heading: {
     fontSize: 24,
     fontWeight: 'bold'
   },
-  savedAlert: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%'
+  input: {
+    borderColor: '#FF8600',
+    borderRadius: 8,
+    borderWidth: 3,
+    color: '#222',
+    flex: 1,
+    fontSize: 18,
+    paddingHorizontal: 5,
+    paddingVertical: 4
   },
-  savedAlertFirstColumn: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 5
+  setButton: {
+    backgroundColor: '#27187E',
+    borderRadius: 10,
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 6
   },
-  savedAlerts: {
-    gap: 10
+  setButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold'
   }
 });

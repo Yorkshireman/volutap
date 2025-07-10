@@ -169,7 +169,6 @@ const styles = StyleSheet.create({
     gap: 5
   },
   container: {
-    alignSelf: 'stretch',
     backgroundColor: '#fff',
     borderRadius: 15,
     gap: 10,
