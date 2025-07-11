@@ -147,26 +147,24 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
         />
       </View>
       <View style={styles.fourthRow}>
-        <View style={styles.fourthRowFirstRow}>
-          <Text style={styles.alertAtText}>Play Sound</Text>
-          <Switch
-            disabled={!alert.on}
-            onValueChange={soundOn => {
-              const newType = soundOn ? AlertType.SOUND_AND_VIBRATE : AlertType.VIBRATE;
-              const updatedAlerts = count.alerts.map(a =>
-                a.id === alert.id ? { ...a, type: newType } : a
-              );
+        <Text style={styles.alertAtText}>Play Sound</Text>
+        <Switch
+          disabled={!alert.on}
+          onValueChange={soundOn => {
+            const newType = soundOn ? AlertType.SOUND_AND_VIBRATE : AlertType.VIBRATE;
+            const updatedAlerts = count.alerts.map(a =>
+              a.id === alert.id ? { ...a, type: newType } : a
+            );
 
-              countVar({ ...count, alerts: updatedAlerts });
-            }}
-            trackColor={{ false: '#222', true: '#758BFD' }}
-            value={
-              !alert.on
-                ? false
-                : alert.type === AlertType.SOUND || alert.type === AlertType.SOUND_AND_VIBRATE
-            }
-          />
-        </View>
+            countVar({ ...count, alerts: updatedAlerts });
+          }}
+          trackColor={{ false: '#222', true: '#758BFD' }}
+          value={
+            !alert.on
+              ? false
+              : alert.type === AlertType.SOUND || alert.type === AlertType.SOUND_AND_VIBRATE
+          }
+        />
       </View>
       <TouchableOpacity
         onPress={() => router.push('/settingsTroubleshooting')}
@@ -228,9 +226,6 @@ const styles = StyleSheet.create({
     gap: 20
   },
   fourthRow: {
-    gap: 1
-  },
-  fourthRowFirstRow: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between'
