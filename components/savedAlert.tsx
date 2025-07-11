@@ -167,15 +167,6 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
             }
           />
         </View>
-        <View style={styles.infoWrapper}>
-          <Ionicons
-            name='information-circle-outline'
-            size={20}
-            color='#444'
-            style={styles.infoWrapperIcon}
-          />
-          <Text style={styles.infoWrapperText}>Ensure Silent Mode is off and the volume is up</Text>
-        </View>
       </View>
       <TouchableOpacity
         onPress={() => router.push('/settingsTroubleshooting')}
