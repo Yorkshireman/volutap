@@ -43,7 +43,7 @@ export default function MultiCount() {
     }
 
     if (id === count.id) {
-      countVar({ ...count, value: count.value + 1 });
+      countVar({ ...count, value: newValue });
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
       return;
     }
