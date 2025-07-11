@@ -1,6 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { countVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import Snackbar from 'react-native-snackbar';
 import { Alert, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { AlertType, Count } from '../types';
@@ -28,7 +29,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
   return (
     <View style={styles.container}>
       <View style={styles.firstRow}>
-        <View style={styles.firstColumn}>
+        <View style={styles.firstRowFirstColumn}>
           <Text style={styles.alertAtText}>Alert at:</Text>
           <TextInput
             keyboardType='numeric'
@@ -57,7 +58,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
             value={alertAtValue?.toString() || undefined}
           />
         </View>
-        <View style={styles.secondColumn}>
+        <View style={styles.firstRowSecondColumn}>
           <TouchableOpacity
             onPress={() => {
               Alert.alert('Delete Alert', `Are you sure?`, [
@@ -176,6 +177,13 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
           <Text style={styles.infoWrapperText}>Ensure Silent Mode is off and the volume is up</Text>
         </View>
       </View>
+      <TouchableOpacity
+        onPress={() => router.push('/settingsTroubleshooting')}
+        style={styles.fifthRow}
+      >
+        <Text style={styles.fifthRowText}>Having trouble?</Text>
+        <Ionicons name='chevron-forward' size={24} color='#758BFD' />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -202,15 +210,31 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 10
   },
-  firstColumn: {
+  fifthRow: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 5
+    justifyContent: 'space-between',
+    paddingVertical: 4
+  },
+  fifthRowText: {
+    color: '#758BFD',
+    fontSize: 16,
+    fontWeight: 'bold'
   },
   firstRow: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between'
+  },
+  firstRowFirstColumn: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 5
+  },
+  firstRowSecondColumn: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 20
   },
   fourthRow: {
     gap: 1
@@ -232,11 +256,6 @@ const styles = StyleSheet.create({
     color: '#444',
     flexShrink: 1,
     fontSize: 14
-  },
-  secondColumn: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 20
   },
   secondRow: {
     gap: 1

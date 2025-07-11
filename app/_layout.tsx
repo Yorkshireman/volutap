@@ -16,6 +16,14 @@ export default function RootLayout() {
                 name='settings'
                 options={{ headerShown: false, presentation: 'modal' }}
               />
+              <Stack.Screen
+                name='settingsTroubleshooting'
+                options={{
+                  animation: 'fade',
+                  headerShown: false,
+                  presentation: 'transparentModal'
+                }}
+              />
             </Stack>
             <StatusBar style='light' />
           </AlarmProvider>
