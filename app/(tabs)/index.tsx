@@ -1,6 +1,6 @@
 import * as Device from 'expo-device';
-import { CountingModeContext } from '../contexts';
-import { countVar } from '../reactiveVars';
+import { CountingModeContext } from '../../contexts';
+import { countVar } from '../../reactiveVars';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReactiveVar } from '@apollo/client';
 import {
@@ -10,14 +10,14 @@ import {
   EditCountTitleInputField,
   SaveCountInputField,
   SwitchCountModeButton
-} from '../components';
+} from '../../components';
 import { StyleSheet, Text, View } from 'react-native';
 import { useContext, useEffect, useState } from 'react';
 import {
   useFetchAndSetCurrentCountAndIdOnMount,
   usePersistCurrentCount,
   useSetCountOnVolumeChange
-} from '../hooks';
+} from '../../hooks';
 
 export default function Index() {
   const count = useReactiveVar(countVar);

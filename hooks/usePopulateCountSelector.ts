@@ -1,12 +1,16 @@
 import type { Count } from '../types';
+import { savedCountsVar } from '../reactiveVars';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { useEffect } from 'react';
+import { useReactiveVar } from '@apollo/client';
 
 export const usePopulateCountSelector = (
   count: Count,
   db: SQLiteDatabase,
   setCounts: React.Dispatch<React.SetStateAction<Count[] | undefined>>
 ) => {
+  const savedCounts = useReactiveVar(savedCountsVar);
+
   useEffect(() => {
     const fetchCounts = async () => {
       try {
@@ -22,5 +26,5 @@ export const usePopulateCountSelector = (
     };
 
     fetchCounts();
-  }, [count, db, setCounts]);
+  }, [count, db, savedCounts, setCounts]);
 };

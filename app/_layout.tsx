@@ -11,7 +11,7 @@ export default function RootLayout() {
         <CountingModeProvider>
           <AlarmProvider>
             <Stack>
-              <Stack.Screen name='index' options={{ headerShown: false }} />
+              <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
               <Stack.Screen
                 name='settings'
                 options={{ headerShown: false, presentation: 'modal' }}
