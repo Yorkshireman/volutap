@@ -7,6 +7,7 @@ import Snackbar from 'react-native-snackbar';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
+import { Alert, Dimensions, Share, StyleSheet, TouchableOpacity, View } from 'react-native';
 import type {
   Count,
   DbCount,
@@ -14,11 +15,11 @@ import type {
   SetShowSaveInputField,
   SetTitleToSave
 } from '../types';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { onPressDelete, onPressReset, onPressStartNewCountButton } from '../utils';
 
 const screenWidth = Dimensions.get('window').width;
-const TOOLBAR_ICON_SIZE = screenWidth < 400 ? 48 : screenWidth < 430 ? 54 : 64;
+// fix for different screen sizes
+const TOOLBAR_ICON_SIZE = screenWidth < 400 ? 48 : screenWidth < 430 ? 54 : 54;
 
 interface CountToolbarProps {
   count: Count;
@@ -77,7 +78,7 @@ export const CountToolbar = ({
       backgroundColor: '#758BFD',
       duration: Snackbar.LENGTH_INDEFINITE,
       text:
-        `Created  ${new Date(dbCount.createdAt || '').toLocaleString(undefined, {
+        `Created ${new Date(dbCount.createdAt || '').toLocaleString(undefined, {
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
@@ -115,6 +116,41 @@ export const CountToolbar = ({
     router.push('/settings');
   };
 
+  const onPressShareButton = async () => {
+    try {
+      const createdAt = `Started on ${new Date(count.createdAt || '').toLocaleString(undefined, {
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        month: 'short',
+        second: '2-digit',
+        weekday: 'short',
+        year: 'numeric'
+      })}`;
+      // get a proper app name and a link to the app store later
+      const appName = 'Counter';
+      const url = 'https://counterapp.io';
+      const result = await Share.share({
+        message: `I counted ${count.value} ${count.title}!
+        ${createdAt ? `\n${createdAt}` : ''}
+        \nGet ${appName} to keep track of your counts: ${url}
+        `
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error: any) {
+      Alert.alert(error.message);
+    }
+  };
+
   return (
     <View style={{ flexDirection: 'row', gap: 5 }}>
       {count.id && (
@@ -134,41 +170,40 @@ export const CountToolbar = ({
         <Ionicons color={'#fff'} name='settings-outline' size={TOOLBAR_ICON_SIZE} />
       </TouchableOpacity>
       {count.id && (
-        <>
-          <TouchableOpacity
-            onPress={() => onPressStartNewCountButton(count, countVar, db)}
-            style={styles.icon}
-          >
-            <Ionicons color={'#fff'} name='create-outline' size={TOOLBAR_ICON_SIZE} />
-          </TouchableOpacity>
-          <Menu
-            anchor={
-              <TouchableOpacity onPress={onPressOptionsButton} style={styles.icon}>
-                <Ionicons
-                  color={'#fff'}
-                  name='ellipsis-horizontal-circle'
-                  size={TOOLBAR_ICON_SIZE}
-                />
-              </TouchableOpacity>
-            }
-            contentStyle={styles.menuContentStyle}
-            visible={showOptionsMenu}
-            onDismiss={() => setShowOptionsMenu(false)}
-          >
-            <Menu.Item
-              leadingIcon={() => <Ionicons color='#fff' name='pencil' size={24} />}
-              onPress={onPressEditButton}
-              title='Edit Name'
-              titleStyle={styles.menuItemTitleStyle}
-            />
-            <Menu.Item
-              leadingIcon={() => <Ionicons color='#fff' name='trash-outline' size={24} />}
-              onPress={() => onPressDelete(count, countVar, db, setShowOptionsMenu)}
-              title='Delete'
-              titleStyle={styles.menuItemTitleStyle}
-            />
-          </Menu>
-        </>
+        <TouchableOpacity
+          onPress={() => onPressStartNewCountButton(count, countVar, db)}
+          style={styles.icon}
+        >
+          <Ionicons color={'#fff'} name='create-outline' size={TOOLBAR_ICON_SIZE} />
+        </TouchableOpacity>
+      )}
+      <TouchableOpacity onPress={onPressShareButton} style={styles.icon}>
+        <Ionicons color={'#fff'} name='share-outline' size={TOOLBAR_ICON_SIZE} />
+      </TouchableOpacity>
+      {count.id && (
+        <Menu
+          anchor={
+            <TouchableOpacity onPress={onPressOptionsButton} style={styles.icon}>
+              <Ionicons color={'#fff'} name='ellipsis-horizontal-circle' size={TOOLBAR_ICON_SIZE} />
+            </TouchableOpacity>
+          }
+          contentStyle={styles.menuContentStyle}
+          visible={showOptionsMenu}
+          onDismiss={() => setShowOptionsMenu(false)}
+        >
+          <Menu.Item
+            leadingIcon={() => <Ionicons color='#fff' name='pencil' size={24} />}
+            onPress={onPressEditButton}
+            title='Edit Name'
+            titleStyle={styles.menuItemTitleStyle}
+          />
+          <Menu.Item
+            leadingIcon={() => <Ionicons color='#fff' name='trash-outline' size={24} />}
+            onPress={() => onPressDelete(count, countVar, db, setShowOptionsMenu)}
+            title='Delete'
+            titleStyle={styles.menuItemTitleStyle}
+          />
+        </Menu>
       )}
     </View>
   );
