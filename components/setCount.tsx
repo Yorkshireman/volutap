@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   input: {
     borderColor: '#FF8600',
     borderRadius: 8,
-    borderWidth: 3,
+    borderWidth: 2,
     color: '#222',
     flex: 1,
     fontSize: 18,
