@@ -18,7 +18,7 @@ export const onPressDelete = (
 ) => {
   setShowOptionsMenu(false);
   Alert.alert(
-    'Delete Saved Count',
+    `Delete ${count.title}`,
     'Are you sure? This cannot be undone.',
     [
       {
