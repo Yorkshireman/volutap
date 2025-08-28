@@ -130,24 +130,15 @@ export const CountToolbar = ({
       // get a proper app name and a link to the app store later
       const appName = 'Counter';
       const url = 'https://counterapp.io';
-      const result = await Share.share({
-        message: `I counted ${count.value} ${count.title}!
+      await Share.share({
+        message: `I counted ${count.value} ${count.title?.toLowerCase()}!
         ${createdAt ? `\n${createdAt}` : ''}
         \nGet ${appName} to keep track of your counts: ${url}
         `
       });
-
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
-      }
-    } catch (error: any) {
-      Alert.alert(error.message);
+    } catch (e) {
+      console.error('countToolbar.tsx, error sharing count: ', e);
+      Alert.alert('Error', 'An unknown error occurred.');
     }
   };
 
