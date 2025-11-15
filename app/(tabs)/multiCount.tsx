@@ -18,6 +18,7 @@ export default function MultiCount() {
         const savedCounts = await db.getAllAsync<DbCount>('SELECT * FROM savedCounts');
         if (!savedCounts || !savedCounts.length) {
           console.log('No saved counts found in the database.');
+          setSavedCounts(null);
           return;
         }
 
