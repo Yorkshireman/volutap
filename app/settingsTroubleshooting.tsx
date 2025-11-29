@@ -30,14 +30,6 @@ export default function SettingsTroubleshooting() {
           <Text style={styles.bodyText}>Settings {'>'} Sounds & Haptics</Text>
           <Text style={styles.bodyText}>Ensure Silent Mode is off.</Text>
         </View>
-        <View style={styles.section}>
-          <Text style={styles.heading}>Can&apos;t toggle an alarm on?</Text>
-          <Text style={styles.bodyText}>
-            It&apos;s not possible to toggle an alert on if the current count is the same as number
-            in the &quot;Alert at&quot; box. Either change this value or increment the count up or
-            down before trying again.
-          </Text>
-        </View>
         <Button style={{ alignSelf: 'flex-end' }} onPress={navigation.goBack}>
           Okay
         </Button>

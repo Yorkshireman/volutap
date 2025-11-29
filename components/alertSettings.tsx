@@ -22,18 +22,12 @@ export const AlertSettings = () => {
 
   const onSubmitCount = () => {
     if (!alertAtValue) return;
-    if (alertAtValue === count.value) {
-      setValidationErrorMessage(
-        `Alert cannot be set to the current count value of ${count.value}. Either go back to the main screen and change the count value or choose a different value here.`
-      );
-
-      return;
-    }
 
     if (count.alerts.find(({ at }) => at === alertAtValue)) {
       setValidationErrorMessage(
         `Alert already exists for ${alertAtValue} - do you need to turn it on?`
       );
+
       return;
     }
 

@@ -92,7 +92,6 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
             />
           </TouchableOpacity>
           <Switch
-            disabled={!alert.on && alertAtValue === count.value}
             onValueChange={onToggleAlert}
             trackColor={{ false: 'red', true: '#758BFD' }}
             value={alertOnValue}
