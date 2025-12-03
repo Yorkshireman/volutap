@@ -10,9 +10,9 @@ import { useCallback, useRef } from 'react';
 
 export default function MultiCount() {
   const count = useReactiveVar(countVar);
+  const db = useSQLiteContext();
   const fetchingRef = useRef(false);
   const savedCounts = useReactiveVar(savedCountsVar);
-  const db = useSQLiteContext();
 
   useFocusEffect(
     useCallback(() => {
@@ -71,6 +71,11 @@ export default function MultiCount() {
 
       const updatedCounts = savedCounts?.map(savedCount =>
         savedCount.id === id ? { ...savedCount, lastModified: now, value: newValue } : savedCount
+      );
+
+      console.log(
+        'Count updated in DB:',
+        updatedCounts?.find(c => c.id === id)
       );
 
       savedCountsVar(updatedCounts);
