@@ -6,32 +6,25 @@ import { useSQLiteContext } from 'expo-sqlite';
 import type { Count, DbCount } from '../../types';
 import { countVar, savedCountsVar } from '../../reactiveVars';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useRef } from 'react';
 
 export default function MultiCount() {
   const count = useReactiveVar(countVar);
+  const fetchingRef = useRef(false);
+  const savedCounts = useReactiveVar(savedCountsVar);
   const db = useSQLiteContext();
-  const [savedCounts, setSavedCounts] = useState<Count[] | null>(null);
-
-  useEffect(() => {
-    if (!savedCounts) return;
-
-    const counts: Count[] = savedCounts.map(savedCount =>
-      savedCount.id === count.id ? count : savedCount
-    );
-
-    setSavedCounts(counts);
-  }, [count]);
 
   useFocusEffect(
     useCallback(() => {
       const fetchSavedCounts = async () => {
-        console.log('-------------------- fetchSavedCounts()');
+        if (fetchingRef.current) return;
+        fetchingRef.current = true;
+
         try {
           const savedCounts = await db.getAllAsync<DbCount>('SELECT * FROM savedCounts');
           if (!savedCounts || !savedCounts.length) {
             console.log('No saved counts found in the database.');
-            setSavedCounts(null);
+            savedCountsVar(null);
             return;
           }
 
@@ -42,9 +35,11 @@ export default function MultiCount() {
             };
           });
 
-          setSavedCounts(counts);
+          savedCountsVar(counts);
         } catch (error) {
           console.error('Error fetching saved counts from the database: ', error);
+        } finally {
+          fetchingRef.current = false;
         }
       };
 
@@ -78,7 +73,6 @@ export default function MultiCount() {
         savedCount.id === id ? { ...savedCount, lastModified: now, value: newValue } : savedCount
       );
 
-      setSavedCounts(updatedCounts || null);
       savedCountsVar(updatedCounts);
     } catch (error) {
       console.error('Error incrementing count:', error);
