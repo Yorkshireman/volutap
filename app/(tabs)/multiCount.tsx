@@ -1,11 +1,12 @@
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useFocusEffect } from 'expo-router';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import type { Count, DbCount } from '../../types';
 import { countVar, savedCountsVar } from '../../reactiveVars';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function MultiCount() {
   const count = useReactiveVar(countVar);
@@ -13,27 +14,43 @@ export default function MultiCount() {
   const [savedCounts, setSavedCounts] = useState<Count[] | null>(null);
 
   useEffect(() => {
-    const fetchSavedCounts = async () => {
-      try {
-        const savedCounts = await db.getAllAsync<DbCount>('SELECT * FROM savedCounts');
-        if (!savedCounts || !savedCounts.length) {
-          console.log('No saved counts found in the database.');
-          setSavedCounts(null);
-          return;
+    if (!savedCounts) return;
+
+    const counts: Count[] = savedCounts.map(savedCount =>
+      savedCount.id === count.id ? count : savedCount
+    );
+
+    setSavedCounts(counts);
+  }, [count]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchSavedCounts = async () => {
+        console.log('-------------------- fetchSavedCounts()');
+        try {
+          const savedCounts = await db.getAllAsync<DbCount>('SELECT * FROM savedCounts');
+          if (!savedCounts || !savedCounts.length) {
+            console.log('No saved counts found in the database.');
+            setSavedCounts(null);
+            return;
+          }
+
+          const counts: Count[] = savedCounts.map(c => {
+            return {
+              ...c,
+              alerts: JSON.parse(c.alerts)
+            };
+          });
+
+          setSavedCounts(counts);
+        } catch (error) {
+          console.error('Error fetching saved counts from the database: ', error);
         }
+      };
 
-        const counts: Count[] = savedCounts.map(count => ({
-          ...count,
-          alerts: JSON.parse(count.alerts)
-        }));
-
-        setSavedCounts(counts);
-      } catch (error) {
-        console.error('Error fetching saved counts from the database: ', error);
-      }
-    };
-    fetchSavedCounts();
-  }, [count, db]);
+      fetchSavedCounts();
+    }, [db])
+  );
 
   const Divider = () => <View style={styles.divider} />;
 
