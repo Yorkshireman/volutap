@@ -1,39 +1,51 @@
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useFocusEffect } from 'expo-router';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import type { Count, DbCount } from '../../types';
 import { countVar, savedCountsVar } from '../../reactiveVars';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useCallback, useRef } from 'react';
 
 export default function MultiCount() {
   const count = useReactiveVar(countVar);
   const db = useSQLiteContext();
-  const [savedCounts, setSavedCounts] = useState<Count[] | null>(null);
+  const fetchingRef = useRef(false);
+  const savedCounts = useReactiveVar(savedCountsVar);
 
-  useEffect(() => {
-    const fetchSavedCounts = async () => {
-      try {
-        const savedCounts = await db.getAllAsync<DbCount>('SELECT * FROM savedCounts');
-        if (!savedCounts || !savedCounts.length) {
-          console.log('No saved counts found in the database.');
-          setSavedCounts(null);
-          return;
+  useFocusEffect(
+    useCallback(() => {
+      const fetchSavedCounts = async () => {
+        if (fetchingRef.current) return;
+        fetchingRef.current = true;
+
+        try {
+          const savedCounts = await db.getAllAsync<DbCount>('SELECT * FROM savedCounts');
+          if (!savedCounts || !savedCounts.length) {
+            console.log('No saved counts found in the database.');
+            savedCountsVar(null);
+            return;
+          }
+
+          const counts: Count[] = savedCounts.map(c => {
+            return {
+              ...c,
+              alerts: JSON.parse(c.alerts)
+            };
+          });
+
+          savedCountsVar(counts);
+        } catch (error) {
+          console.error('Error fetching saved counts from the database: ', error);
+        } finally {
+          fetchingRef.current = false;
         }
+      };
 
-        const counts: Count[] = savedCounts.map(count => ({
-          ...count,
-          alerts: JSON.parse(count.alerts)
-        }));
-
-        setSavedCounts(counts);
-      } catch (error) {
-        console.error('Error fetching saved counts from the database: ', error);
-      }
-    };
-    fetchSavedCounts();
-  }, [count, db]);
+      fetchSavedCounts();
+    }, [db])
+  );
 
   const Divider = () => <View style={styles.divider} />;
 
@@ -61,7 +73,11 @@ export default function MultiCount() {
         savedCount.id === id ? { ...savedCount, lastModified: now, value: newValue } : savedCount
       );
 
-      setSavedCounts(updatedCounts || null);
+      console.log(
+        'Count updated in DB:',
+        updatedCounts?.find(c => c.id === id)
+      );
+
       savedCountsVar(updatedCounts);
     } catch (error) {
       console.error('Error incrementing count:', error);
