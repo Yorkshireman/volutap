@@ -5,7 +5,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 export const useSetCountValue = () => {
   const db = useSQLiteContext();
 
-  const setCount = useCallback(
+  return useCallback(
     async (desiredValue: number) => {
       const count = countVar();
       const initialValue = count.value;
@@ -29,6 +29,4 @@ export const useSetCountValue = () => {
     },
     [db]
   );
-
-  return setCount;
 };
