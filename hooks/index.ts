@@ -2,6 +2,6 @@ export { useFetchAndSetCurrentCountAndIdOnMount } from './useFetchAndSetCurrentC
 export { usePersistCurrentCount } from './usePersistCurrentCount';
 export { usePlaySound } from './usePlaySound';
 export { useSetCountOnVolumeChange } from './useSetCountOnVolumeChange';
-export { useSetCountValue } from './useSetCountValue';
+export { useSetSavedCountValue } from './useSetSavedCountValue';
 export { useUpdateSavedCountOnCountChange } from './useUpdateSavedCountOnCountChange';
 export { useVibrate } from './useVibrate';

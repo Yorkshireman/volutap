@@ -32,6 +32,10 @@ export type DbCount = {
   value: number;
 };
 
+export type SavedCount = Omit<DbCount, 'alerts'> & {
+  alerts: Alert[] | [];
+};
+
 export type SetDropdownVisible = React.Dispatch<React.SetStateAction<boolean>>;
 export type SetShowEditInputField = React.Dispatch<React.SetStateAction<boolean>>;
 export type SetShowOptionsMenu = React.Dispatch<React.SetStateAction<boolean>>;

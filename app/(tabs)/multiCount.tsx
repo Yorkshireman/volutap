@@ -2,9 +2,9 @@ import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from 'expo-router';
 import { useReactiveVar } from '@apollo/client';
-import { useSetCountValue } from '../../hooks';
+import { useSetSavedCountValue } from '../../hooks';
 import { useSQLiteContext } from 'expo-sqlite';
-import type { Count, DbCount } from '../../types';
+import type { Count, DbCount, SavedCount } from '../../types';
 import { countVar, savedCountsVar } from '../../reactiveVars';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useCallback, useRef } from 'react';
@@ -14,7 +14,7 @@ export default function MultiCount() {
   const db = useSQLiteContext();
   const fetchingRef = useRef(false);
   const savedCounts = useReactiveVar(savedCountsVar);
-  const setCountValue = useSetCountValue();
+  const setSavedCountValue = useSetSavedCountValue();
 
   useFocusEffect(
     useCallback(() => {
@@ -23,14 +23,17 @@ export default function MultiCount() {
         fetchingRef.current = true;
 
         try {
-          const savedCounts = await db.getAllAsync<DbCount>('SELECT * FROM savedCounts');
+          const savedCounts = await db.getAllAsync<DbCount>(
+            'SELECT * FROM savedCounts ORDER BY createdAt DESC'
+          );
+
           if (!savedCounts || !savedCounts.length) {
             console.log('No saved counts found in the database.');
             savedCountsVar(null);
             return;
           }
 
-          const counts: Count[] = savedCounts.map(c => {
+          const counts: SavedCount[] = savedCounts.map(c => {
             return {
               ...c,
               alerts: JSON.parse(c.alerts)
@@ -51,47 +54,6 @@ export default function MultiCount() {
 
   const Divider = () => <View style={styles.divider} />;
 
-  const incrementCount = async (id: Count['id'], newValue: number) => {
-    if (!id) {
-      console.error('No ID provided for incrementing count.');
-      return;
-    }
-
-    if (id === count.id) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      setCountValue(newValue);
-      return;
-    }
-
-    const updatedSavedCounts = savedCounts?.map(savedCount =>
-      savedCount.id === id ? { ...savedCount, value: newValue } : savedCount
-    );
-
-    savedCountsVar(updatedSavedCounts);
-
-    try {
-      const now = new Date().toISOString();
-      await db.runAsync(`UPDATE savedCounts SET lastModified = ?, value = ? WHERE id = ?`, [
-        now,
-        newValue,
-        id
-      ]);
-
-      const updatedCounts = savedCounts?.map(savedCount =>
-        savedCount.id === id ? { ...savedCount, lastModified: now, value: newValue } : savedCount
-      );
-
-      console.log(
-        'Count updated in DB:',
-        updatedCounts?.find(c => c.id === id)
-      );
-    } catch (error) {
-      console.error('Error incrementing count:', error);
-    }
-
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-  };
-
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
       {!savedCounts?.length && (
@@ -110,7 +72,7 @@ export default function MultiCount() {
                 <TouchableOpacity
                   onPress={() => {
                     if (value === 0) return;
-                    incrementCount(id, value - 1);
+                    setSavedCountValue(value - 1, id);
                   }}
                   disabled={value === 0}
                   style={styles.countButtonWrapper}
@@ -139,7 +101,7 @@ export default function MultiCount() {
                   </View>
                 </View>
                 <TouchableOpacity
-                  onPress={() => incrementCount(id, value + 1)}
+                  onPress={() => setSavedCountValue(value + 1, id)}
                   style={styles.countButtonWrapper}
                 >
                   <Ionicons color={'#fff'} name='add-circle' style={styles.countButton} />
