@@ -9,7 +9,8 @@ export const useSetCountValue = () => {
     async (desiredValue: number) => {
       const count = countVar();
       const initialValue = count.value;
-      countVar({ ...count, value: desiredValue });
+      const now = new Date().toISOString();
+      countVar({ ...count, lastModified: now, value: desiredValue });
 
       if (!count.id) return;
 
