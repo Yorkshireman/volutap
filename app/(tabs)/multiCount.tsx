@@ -1,56 +1,14 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { savedCountsVar } from '../../reactiveVars';
-import { useFocusEffect } from 'expo-router';
 import { useReactiveVar } from '@apollo/client';
 import { useSetSavedCountValue } from '../../hooks';
-import { useSQLiteContext } from 'expo-sqlite';
-import type { DbCount, SavedCount } from '../../types';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useCallback, useRef } from 'react';
+
+const Divider = () => <View style={styles.divider} />;
 
 export default function MultiCount() {
-  const db = useSQLiteContext();
-  const fetchingRef = useRef(false);
   const savedCounts = useReactiveVar(savedCountsVar);
   const setSavedCountValue = useSetSavedCountValue();
-
-  useFocusEffect(
-    useCallback(() => {
-      const fetchSavedCounts = async () => {
-        if (fetchingRef.current) return;
-        fetchingRef.current = true;
-
-        try {
-          const savedCounts = await db.getAllAsync<DbCount>(
-            'SELECT * FROM savedCounts ORDER BY createdAt DESC'
-          );
-
-          if (!savedCounts || !savedCounts.length) {
-            console.log('No saved counts found in the database.');
-            savedCountsVar(null);
-            return;
-          }
-
-          const counts: SavedCount[] = savedCounts.map(c => {
-            return {
-              ...c,
-              alerts: JSON.parse(c.alerts)
-            };
-          });
-
-          savedCountsVar(counts);
-        } catch (error) {
-          console.error('Error fetching saved counts from the database: ', error);
-        } finally {
-          fetchingRef.current = false;
-        }
-      };
-
-      fetchSavedCounts();
-    }, [db])
-  );
-
-  const Divider = () => <View style={styles.divider} />;
 
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
