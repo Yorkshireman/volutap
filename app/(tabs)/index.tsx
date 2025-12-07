@@ -15,6 +15,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useContext, useEffect, useState } from 'react';
 import {
   useFetchAndSetCurrentCountAndIdOnMount,
+  useFetchAndSetSavedCountsOnMount,
   usePersistCurrentCount,
   useSetCountOnVolumeChange
 } from '../../hooks';
@@ -27,6 +28,7 @@ export default function Index() {
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, setTitleToSave] = useState('');
   useFetchAndSetCurrentCountAndIdOnMount();
+  useFetchAndSetSavedCountsOnMount();
   usePersistCurrentCount();
   useSetCountOnVolumeChange(countingWithVolumeButtons);
 
