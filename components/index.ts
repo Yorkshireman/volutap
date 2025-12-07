@@ -6,6 +6,7 @@ export { CountingModeProvider } from './countingModeProvider';
 export { CountSelector } from './countSelector';
 export { CountSelectorDropdownItem } from './countSelectorDropdownItem';
 export { CountToolbar } from './countToolbar';
+export { DataSetter } from './dataSetter';
 export { EditCountTitleInputField } from './editCountTitleInputField';
 export { SaveCountInputField } from './saveCountInputField';
 export { SavedAlert } from './savedAlert';

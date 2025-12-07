@@ -1,33 +1,35 @@
 import { PaperProvider } from 'react-native-paper';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { AlarmProvider, CountingModeProvider } from '../components';
+import { AlarmProvider, CountingModeProvider, DataSetter } from '../components';
 import { type SQLiteDatabase, SQLiteProvider } from 'expo-sqlite';
 
 export default function RootLayout() {
   return (
     <PaperProvider>
       <SQLiteProvider databaseName='counter.db' onInit={migrateDbIfNeeded}>
-        <CountingModeProvider>
-          <AlarmProvider>
-            <Stack>
-              <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-              <Stack.Screen
-                name='settings'
-                options={{ headerShown: false, presentation: 'modal' }}
-              />
-              <Stack.Screen
-                name='settingsTroubleshooting'
-                options={{
-                  animation: 'fade',
-                  headerShown: false,
-                  presentation: 'transparentModal'
-                }}
-              />
-            </Stack>
-            <StatusBar style='light' />
-          </AlarmProvider>
-        </CountingModeProvider>
+        <DataSetter>
+          <CountingModeProvider>
+            <AlarmProvider>
+              <Stack>
+                <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+                <Stack.Screen
+                  name='settings'
+                  options={{ headerShown: false, presentation: 'modal' }}
+                />
+                <Stack.Screen
+                  name='settingsTroubleshooting'
+                  options={{
+                    animation: 'fade',
+                    headerShown: false,
+                    presentation: 'transparentModal'
+                  }}
+                />
+              </Stack>
+              <StatusBar style='light' />
+            </AlarmProvider>
+          </CountingModeProvider>
+        </DataSetter>
       </SQLiteProvider>
     </PaperProvider>
   );

@@ -3,6 +3,7 @@ import { CountingModeContext } from '../../contexts';
 import { countVar } from '../../reactiveVars';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReactiveVar } from '@apollo/client';
+import { useSetCountOnVolumeChange } from '../../hooks';
 import {
   CountingButtons,
   CountSelector,
@@ -13,12 +14,6 @@ import {
 } from '../../components';
 import { StyleSheet, Text, View } from 'react-native';
 import { useContext, useEffect, useState } from 'react';
-import {
-  useFetchAndSetCurrentCountAndIdOnMount,
-  useFetchAndSetSavedCountsOnMount,
-  usePersistCurrentCount,
-  useSetCountOnVolumeChange
-} from '../../hooks';
 
 export default function Index() {
   const count = useReactiveVar(countVar);
@@ -27,9 +22,6 @@ export default function Index() {
   const [showEditInputField, setShowEditInputField] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, setTitleToSave] = useState('');
-  useFetchAndSetCurrentCountAndIdOnMount();
-  useFetchAndSetSavedCountsOnMount();
-  usePersistCurrentCount();
   useSetCountOnVolumeChange(countingWithVolumeButtons);
 
   useEffect(() => {
