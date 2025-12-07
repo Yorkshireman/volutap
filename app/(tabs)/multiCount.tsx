@@ -2,6 +2,7 @@ import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from 'expo-router';
 import { useReactiveVar } from '@apollo/client';
+import { useSetCountValue } from '../../hooks';
 import { useSQLiteContext } from 'expo-sqlite';
 import type { Count, DbCount } from '../../types';
 import { countVar, savedCountsVar } from '../../reactiveVars';
@@ -13,6 +14,7 @@ export default function MultiCount() {
   const db = useSQLiteContext();
   const fetchingRef = useRef(false);
   const savedCounts = useReactiveVar(savedCountsVar);
+  const setCountValue = useSetCountValue();
 
   useFocusEffect(
     useCallback(() => {
@@ -56,13 +58,19 @@ export default function MultiCount() {
     }
 
     if (id === count.id) {
-      countVar({ ...count, value: newValue });
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      setCountValue(newValue);
       return;
     }
 
-    const now = new Date().toISOString();
+    const updatedSavedCounts = savedCounts?.map(savedCount =>
+      savedCount.id === id ? { ...savedCount, value: newValue } : savedCount
+    );
+
+    savedCountsVar(updatedSavedCounts);
+
     try {
+      const now = new Date().toISOString();
       await db.runAsync(`UPDATE savedCounts SET lastModified = ?, value = ? WHERE id = ?`, [
         now,
         newValue,
@@ -77,8 +85,6 @@ export default function MultiCount() {
         'Count updated in DB:',
         updatedCounts?.find(c => c.id === id)
       );
-
-      savedCountsVar(updatedCounts);
     } catch (error) {
       console.error('Error incrementing count:', error);
     }
