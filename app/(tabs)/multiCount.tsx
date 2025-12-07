@@ -1,16 +1,14 @@
-import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { savedCountsVar } from '../../reactiveVars';
 import { useFocusEffect } from 'expo-router';
 import { useReactiveVar } from '@apollo/client';
 import { useSetSavedCountValue } from '../../hooks';
 import { useSQLiteContext } from 'expo-sqlite';
-import type { Count, DbCount, SavedCount } from '../../types';
-import { countVar, savedCountsVar } from '../../reactiveVars';
+import type { DbCount, SavedCount } from '../../types';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useCallback, useRef } from 'react';
 
 export default function MultiCount() {
-  const count = useReactiveVar(countVar);
   const db = useSQLiteContext();
   const fetchingRef = useRef(false);
   const savedCounts = useReactiveVar(savedCountsVar);
