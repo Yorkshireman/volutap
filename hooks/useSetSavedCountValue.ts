@@ -1,7 +1,11 @@
 import * as Haptics from 'expo-haptics';
 import { useCallback } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
-import { countVar, savedCountsVar } from '../reactiveVars';
+import {
+  countChangeViaUserInteractionHasHappenedVar,
+  countVar,
+  savedCountsVar
+} from '../reactiveVars';
 
 export const useSetSavedCountValue = () => {
   const db = useSQLiteContext();
@@ -41,6 +45,8 @@ export const useSetSavedCountValue = () => {
           desiredValue,
           id
         ]);
+
+        countChangeViaUserInteractionHasHappenedVar(true);
 
         console.log(
           'Count updated in DB: ',

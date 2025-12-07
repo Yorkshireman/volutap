@@ -18,7 +18,6 @@ export const CountingButtons = () => {
       countChangeViaUserInteractionHasHappenedVar(true);
     } else {
       setSavedCountValue(newValue, count.id);
-      countChangeViaUserInteractionHasHappenedVar(true);
     }
   };
 
