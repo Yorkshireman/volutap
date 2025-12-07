@@ -17,3 +17,7 @@ Once built (`development` build) it should install the app on the phone and star
 Code changes will be reflected on device but dependency changes will not be - those need fresh builds.
 
 NB not possible to run in Expo Go due to `react-native-volume-manager` dependency
+
+### Troubleshooting
+
+If struggling to run the app on your phone via scanning the QR Code, try turning off any VPNs on laptop and device. Once successfully loaded the first time you can then usually switch the VPNs back on and the app will still reload and hot reload.
