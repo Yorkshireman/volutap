@@ -15,9 +15,10 @@ export type Alert = {
 export type Count = {
   alerts: Alert[] | [];
   createdAt?: string;
-  currentlyCounting?: boolean;
-  id?: string;
+  currentlyCounting: boolean;
+  id: string;
   lastModified?: string;
+  saved: boolean;
   title?: string;
   value: number;
 };
@@ -28,6 +29,7 @@ export type DbCount = {
   currentlyCounting: boolean;
   id: string;
   lastModified: string;
+  saved: true;
   title: string;
   value: number;
 };

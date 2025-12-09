@@ -1,6 +1,6 @@
 import * as Device from 'expo-device';
 import { CountingModeContext } from '../../contexts';
-import { countVar } from '../../reactiveVars';
+import { countsVar } from '../../reactiveVars';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReactiveVar } from '@apollo/client';
 import {
@@ -14,25 +14,31 @@ import {
 import { StyleSheet, Text, View } from 'react-native';
 import { useContext, useEffect, useState } from 'react';
 import {
-  useFetchAndSetCurrentCountAndIdOnMount,
+  useFetchAndSetCountsOnMount,
   usePersistCurrentCount,
   useSetCountOnVolumeChange
 } from '../../hooks';
 
 export default function Index() {
-  const count = useReactiveVar(countVar);
+  const counts = useReactiveVar(countsVar);
   const { countingWithVolumeButtons } = useContext(CountingModeContext);
   const [isIpad, setIsIpad] = useState(false);
   const [showEditInputField, setShowEditInputField] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, setTitleToSave] = useState('');
-  useFetchAndSetCurrentCountAndIdOnMount();
-  usePersistCurrentCount();
-  useSetCountOnVolumeChange(countingWithVolumeButtons);
+  useFetchAndSetCountsOnMount();
+  // usePersistCurrentCount();
+  // useSetCountOnVolumeChange(countingWithVolumeButtons);
 
   useEffect(() => {
     setIsIpad(Device.deviceType === Device.DeviceType.TABLET);
   }, []);
+
+  console.log('========== counts ==========');
+  console.log(JSON.stringify(counts, null, 2));
+  console.log('========== end ===========');
+  const currentCount = counts.find(count => count.currentlyCounting);
+  if (!currentCount) return null;
 
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
@@ -42,34 +48,34 @@ export default function Index() {
           justifyContent: countingWithVolumeButtons ? 'center' : 'space-between'
         }}
       >
-        {!showSaveInputField && !showEditInputField && (
+        {/* {!showSaveInputField && !showEditInputField && (
           <CountSelector setShowSaveInputField={setShowSaveInputField} />
-        )}
-        <SaveCountInputField
+        )} */}
+        {/* <SaveCountInputField
           setShowSaveInputField={setShowSaveInputField}
           setTitleToSave={setTitleToSave}
           showSaveInputField={showSaveInputField}
           titleToSave={titleToSave}
-        />
-        <EditCountTitleInputField
+        /> */}
+        {/* <EditCountTitleInputField
           setShowEditInputField={setShowEditInputField}
           setTitleToSave={setTitleToSave}
           showEditInputField={showEditInputField}
           titleToSave={titleToSave}
-        />
+        /> */}
         <Text
           adjustsFontSizeToFit={isIpad ? false : true}
           numberOfLines={1}
           style={{ ...styles.count, fontSize: isIpad ? 300 : 200 }}
         >
-          {count.value}
+          {currentCount.value}
         </Text>
-        <CountToolbar
-          count={count}
+        {/* <CountToolbar
+          count={currentCount}
           setShowEditInputField={setShowEditInputField}
           setShowSaveInputField={setShowSaveInputField}
           setTitleToSave={setTitleToSave}
-        />
+        /> */}
         <SwitchCountModeButton />
         {!countingWithVolumeButtons && <CountingButtons />}
       </View>

@@ -1,4 +1,4 @@
-export { useFetchAndSetCurrentCountAndIdOnMount } from './useFetchAndSetCurrentCountAndIdOnMount';
+export { useFetchAndSetCountsOnMount } from './useFetchAndSetCountsOnMount';
 export { usePersistCurrentCount } from './usePersistCurrentCount';
 export { usePlaySound } from './usePlaySound';
 export { usePopulateCountSelector } from './usePopulateCountSelector';

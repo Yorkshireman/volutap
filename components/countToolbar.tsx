@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { countVar } from '../reactiveVars';
+import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Menu } from 'react-native-paper';
 import { router } from 'expo-router';
@@ -32,10 +32,13 @@ export const CountToolbar = ({
   setShowSaveInputField,
   setTitleToSave
 }: CountToolbarProps) => {
-  const count = useReactiveVar(countVar);
+  const counts = useReactiveVar(countsVar);
   const db = useSQLiteContext();
   const [infoSnackbarIsOpen, setInfoSnackbarIsOpen] = useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+
+  const count = counts.find(c => c.currentlyCounting);
+  if (!count) return null;
 
   const onPressEditButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

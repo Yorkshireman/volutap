@@ -56,6 +56,7 @@ const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
         currentlyCounting INTEGER NOT NULL DEFAULT 1,
         id                TEXT    PRIMARY KEY NOT NULL,
         lastModified      TEXT    NOT NULL,
+        saved             INTEGER NOT NULL DEFAULT 1,
         title             TEXT    NOT NULL,
         value             INTEGER NOT NULL DEFAULT 0
       );

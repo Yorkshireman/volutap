@@ -2,59 +2,61 @@ import { Alarm } from './alarm';
 import { useReactiveVar } from '@apollo/client';
 import { useUpdateSavedCountOnCountChange } from '../hooks';
 import { Alert, Count } from '../types';
-import { countChangeViaUserInteractionHasHappenedVar, countVar } from '../reactiveVars';
+import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
 import { useEffect, useRef, useState } from 'react';
 
 export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const count = useReactiveVar(countVar);
-  const countChangeViaUserInteractionHasHappened = useReactiveVar(
-    countChangeViaUserInteractionHasHappenedVar
-  );
+  // const count = useReactiveVar(countVar);
+  // const countChangeViaUserInteractionHasHappened = useReactiveVar(
+  //   countChangeViaUserInteractionHasHappenedVar
+  // );
 
-  const prevCountValueRef = useRef<number | undefined>(undefined);
-  useUpdateSavedCountOnCountChange();
-  const [triggeredAlert, setTriggeredAlert] = useState<Alert | null>(null);
-  const triggerCountValues: Count['value'][] = count.alerts
-    .filter(alert => alert.on)
-    .map(alert => alert.at);
+  // const prevCountValueRef = useRef<number | undefined>(undefined);
+  // useUpdateSavedCountOnCountChange();
+  // const [triggeredAlert, setTriggeredAlert] = useState<Alert | null>(null);
+  // const triggerCountValues: Count['value'][] = count.alerts
+  //   .filter(alert => alert.on)
+  //   .map(alert => alert.at);
 
-  const countTriggerReached = triggerCountValues.includes(count.value);
+  // const countTriggerReached = triggerCountValues.includes(count.value);
 
-  useEffect(() => {
-    if (prevCountValueRef.current === count.value) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (prevCountValueRef.current === count.value) {
+  //     return;
+  //   }
 
-    if (!countChangeViaUserInteractionHasHappened) {
-      console.log(
-        'AlarmProvider: No user interaction has changed the count, skipping alert check.'
-      );
+  //   if (!countChangeViaUserInteractionHasHappened) {
+  //     console.log(
+  //       'AlarmProvider: No user interaction has changed the count, skipping alert check.'
+  //     );
 
-      return;
-    }
+  //     return;
+  //   }
 
-    if (countTriggerReached) {
-      const triggeredAlert = count.alerts.find(alert => alert.at === count.value);
-      setTriggeredAlert(triggeredAlert || null);
+  //   if (countTriggerReached) {
+  //     const triggeredAlert = count.alerts.find(alert => alert.at === count.value);
+  //     setTriggeredAlert(triggeredAlert || null);
 
-      if (triggeredAlert && !triggeredAlert.repeat) {
-        const updatedAlert = { ...triggeredAlert, on: false };
-        countVar({
-          ...count,
-          alerts: count.alerts.map(alert => (alert.id === updatedAlert.id ? updatedAlert : alert))
-        });
-      }
-    }
+  //     if (triggeredAlert && !triggeredAlert.repeat) {
+  //       const updatedAlert = { ...triggeredAlert, on: false };
+  //       countVar({
+  //         ...count,
+  //         alerts: count.alerts.map(alert => (alert.id === updatedAlert.id ? updatedAlert : alert))
+  //       });
+  //     }
+  //   }
 
-    prevCountValueRef.current = count.value;
-  }, [count, countChangeViaUserInteractionHasHappened, countTriggerReached]);
+  //   prevCountValueRef.current = count.value;
+  // }, [count, countChangeViaUserInteractionHasHappened, countTriggerReached]);
 
-  return (
-    <>
-      {triggeredAlert && (
-        <Alarm triggeredAlert={triggeredAlert} setTriggeredAlert={setTriggeredAlert} />
-      )}
-      {children}
-    </>
-  );
+  // return (
+  //   <>
+  //     {triggeredAlert && (
+  //       <Alarm triggeredAlert={triggeredAlert} setTriggeredAlert={setTriggeredAlert} />
+  //     )}
+  //     {children}
+  //   </>
+  // );
+
+  return <>{children}</>;
 };

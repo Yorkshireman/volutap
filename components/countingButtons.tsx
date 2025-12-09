@@ -1,25 +1,39 @@
 import * as Haptics from 'expo-haptics';
+import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useReactiveVar } from '@apollo/client';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
-import { countChangeViaUserInteractionHasHappenedVar, countVar } from '../reactiveVars';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export const CountingButtons = () => {
   const [buttonHeight, setButtonHeight] = useState(0);
-  const count = useReactiveVar(countVar);
+  const counts = useReactiveVar(countsVar);
+  const db = useSQLiteContext();
 
-  const onPressDecrementButton = () => {
-    if (count.value === 0) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    countVar({ ...count, value: count.value - 1 });
-    countChangeViaUserInteractionHasHappenedVar(true);
-  };
+  const count = counts.find(c => c.currentlyCounting);
 
-  const onPressIncrementButton = () => {
+  if (!count) return null;
+
+  const incrementCount = async (newValue: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    countVar({ ...count, value: count.value + 1 });
-    countChangeViaUserInteractionHasHappenedVar(true);
+    const updatedCount = { ...count, lastModified: new Date().toISOString(), value: newValue };
+    const updatedCounts = counts.map(c => (c.id === count.id ? updatedCount : c));
+    countsVar(updatedCounts);
+
+    if (updatedCount.saved) {
+      try {
+        await db.runAsync(`UPDATE savedCounts SET lastModified = ?, value = ? WHERE id = ?`, [
+          updatedCount.lastModified,
+          updatedCount.value,
+          updatedCount.id
+        ]);
+
+        console.log('incrementCount(): Count updated in DB: ', updatedCount);
+      } catch (error) {
+        console.error('incrementCount(): Error incrementing count: ', error);
+      }
+    }
   };
 
   return (
@@ -27,14 +41,20 @@ export const CountingButtons = () => {
       style={styles.countButtonsWrapper}
       onLayout={e => setButtonHeight(e.nativeEvent.layout.height)}
     >
-      <TouchableOpacity onPress={onPressDecrementButton} style={styles.countButton}>
+      <TouchableOpacity
+        onPress={() => {
+          if (count.value === 0) return;
+          incrementCount(count.value - 1);
+        }}
+        style={styles.countButton}
+      >
         <Ionicons
           color={'#fff'}
           name='remove-outline'
           size={Math.min(buttonHeight ? buttonHeight * 0.4 : 72, 72)}
         />
       </TouchableOpacity>
-      <TouchableOpacity onPress={onPressIncrementButton} style={styles.countButton}>
+      <TouchableOpacity onPress={() => incrementCount(count.value + 1)} style={styles.countButton}>
         <Ionicons
           color={'#fff'}
           name='add-outline'
