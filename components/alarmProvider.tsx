@@ -18,6 +18,7 @@ const findValueChangedSavedCount = (
   for (let i = 0; i < currentSavedCounts.length; i++) {
     const prevSavedCount = prevSavedCounts.find(sc => sc.id === currentSavedCounts[i].id);
     if (prevSavedCount && prevSavedCount.value !== currentSavedCounts[i].value) {
+      console.log('valueChangedSavedCount: ', currentSavedCounts[i]);
       return currentSavedCounts[i];
     }
   }
@@ -39,6 +40,12 @@ export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     .map(alert => alert.at);
 
   const countTriggerReached = triggerCountValues.includes(count.value);
+
+  useEffect(() => {
+    if (!prevSavedCountsRef.current) {
+      prevSavedCountsRef.current = savedCounts;
+    }
+  }, [savedCounts]);
 
   useEffect(() => {
     if (prevCountValueRef.current === count.value) {
@@ -122,11 +129,13 @@ export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
 
       const updatedSavedCount = { ...valueChangedSavedCount, alerts: updatedAlerts };
-      savedCountsVar(
-        savedCounts?.map(savedCount =>
-          savedCount.id === updatedSavedCount.id ? updatedSavedCount : savedCount
-        )
+      const updatedSavedCounts = savedCounts?.map(savedCount =>
+        savedCount.id === updatedSavedCount.id ? updatedSavedCount : savedCount
       );
+
+      savedCountsVar(updatedSavedCounts);
+      prevSavedCountsRef.current = updatedSavedCounts;
+      return;
     }
 
     prevSavedCountsRef.current = savedCounts;

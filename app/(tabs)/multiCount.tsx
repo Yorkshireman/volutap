@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { savedCountsVar } from '../../reactiveVars';
+import { countChangeViaUserInteractionHasHappenedVar, savedCountsVar } from '../../reactiveVars';
 import { useReactiveVar } from '@apollo/client';
 import { useSetSavedCountValue } from '../../hooks';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -28,6 +28,7 @@ export default function MultiCount() {
                 <TouchableOpacity
                   onPress={() => {
                     if (value === 0) return;
+                    countChangeViaUserInteractionHasHappenedVar(true);
                     setSavedCountValue(value - 1, id);
                   }}
                   disabled={value === 0}
@@ -57,7 +58,10 @@ export default function MultiCount() {
                   </View>
                 </View>
                 <TouchableOpacity
-                  onPress={() => setSavedCountValue(value + 1, id)}
+                  onPress={() => {
+                    countChangeViaUserInteractionHasHappenedVar(true);
+                    setSavedCountValue(value + 1, id);
+                  }}
                   style={styles.countButtonWrapper}
                 >
                   <Ionicons color={'#fff'} name='add-circle' style={styles.countButton} />

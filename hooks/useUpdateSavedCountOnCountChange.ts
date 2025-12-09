@@ -56,7 +56,7 @@ export const useUpdateSavedCountOnCountChange = () => {
           ]
         );
 
-        console.log('Count updated in DB:', count);
+        console.log('useUpdateSavedCountOnCountChange(): Count updated in DB:', count);
         const prevCounts = savedCountsVar();
         if (prevCounts?.length) {
           savedCountsVar(
