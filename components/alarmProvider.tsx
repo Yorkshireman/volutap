@@ -52,6 +52,8 @@ export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
+    if (count.id) return;
+
     if (!countChangeViaUserInteractionHasHappenedVar()) {
       console.log(
         'AlarmProvider: No user interaction has changed the count, skipping alert check.'
