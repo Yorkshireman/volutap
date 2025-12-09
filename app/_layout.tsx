@@ -1,42 +1,57 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { countsVar } from '../reactiveVars';
 import { PaperProvider } from 'react-native-paper';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFetchAndSetCountsOnMount } from '../hooks';
+import { useReactiveVar } from '@apollo/client';
 import { AlarmProvider, CountingModeProvider } from '../components';
 import { type SQLiteDatabase, SQLiteProvider } from 'expo-sqlite';
+import { Suspense, useEffect } from 'react';
 
 const DataSetter: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const counts = useReactiveVar(countsVar);
   useFetchAndSetCountsOnMount();
+
+  useEffect(() => {
+    AsyncStorage.setItem(
+      'currentCount',
+      JSON.stringify(countsVar().find(c => c.currentlyCounting))
+    );
+  }, [counts]);
+
   return <>{children}</>;
 };
 
 export default function RootLayout() {
   return (
     <PaperProvider>
-      <SQLiteProvider databaseName='counter.db' onInit={migrateDbIfNeeded}>
-        <DataSetter>
-          <CountingModeProvider>
-            <AlarmProvider>
-              <Stack>
-                <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-                <Stack.Screen
-                  name='settings'
-                  options={{ headerShown: false, presentation: 'modal' }}
-                />
-                <Stack.Screen
-                  name='settingsTroubleshooting'
-                  options={{
-                    animation: 'fade',
-                    headerShown: false,
-                    presentation: 'transparentModal'
-                  }}
-                />
-              </Stack>
-              <StatusBar style='light' />
-            </AlarmProvider>
-          </CountingModeProvider>
-        </DataSetter>
-      </SQLiteProvider>
+      <Suspense fallback={null}>
+        <SQLiteProvider databaseName='counter.db' onInit={migrateDbIfNeeded} useSuspense>
+          <DataSetter>
+            <CountingModeProvider>
+              <AlarmProvider>
+                <Stack>
+                  <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+                  <Stack.Screen
+                    name='settings'
+                    options={{ headerShown: false, presentation: 'modal' }}
+                  />
+                  <Stack.Screen
+                    name='settingsTroubleshooting'
+                    options={{
+                      animation: 'fade',
+                      headerShown: false,
+                      presentation: 'transparentModal'
+                    }}
+                  />
+                </Stack>
+                <StatusBar style='light' />
+              </AlarmProvider>
+            </CountingModeProvider>
+          </DataSetter>
+        </SQLiteProvider>
+      </Suspense>
     </PaperProvider>
   );
 }

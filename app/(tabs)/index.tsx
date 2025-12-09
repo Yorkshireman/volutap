@@ -34,9 +34,6 @@ export default function Index() {
     setIsIpad(Device.deviceType === Device.DeviceType.TABLET);
   }, []);
 
-  console.log('========== counts ==========');
-  console.log(JSON.stringify(counts, null, 2));
-  console.log('========== end ===========');
   const currentCount = counts.find(count => count.currentlyCounting);
   if (!currentCount) return null;
 

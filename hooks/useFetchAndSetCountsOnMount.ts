@@ -23,17 +23,27 @@ const logMessage = (message: string, data?: any) => {
 
 const isNotValidStoredCount = (obj: any) => !obj.alerts || !obj.currentlyCounting || !obj.id;
 
+const parseDbCounts = (dbCounts: DbCount[]): Count[] => {
+  return dbCounts.map(dbCount => ({
+    ...dbCount,
+    alerts: JSON.parse(dbCount.alerts)
+  }));
+};
+
 export const useFetchAndSetCountsOnMount = () => {
   const db = useSQLiteContext();
 
   useEffect(() => {
     (async () => {
       try {
-        const dbCounts = await db.getAllAsync<DbCount>('SELECT * FROM savedCounts');
+        const dbCounts = await db.getAllAsync<DbCount>(
+          'SELECT * FROM savedCounts ORDER BY lastModified DESC'
+        );
+        const parsedDbCounts = parseDbCounts(dbCounts);
+        const storedCount = await AsyncStorage.getItem('currentCount');
 
-        if (!dbCounts.length) {
+        if (!parsedDbCounts.length) {
           logMessage('No counts found in database.');
-          const storedCount = await AsyncStorage.getItem('currentCount');
 
           if (!storedCount) {
             logMessage('No stored count found in AsyncStorage.');
@@ -48,50 +58,77 @@ export const useFetchAndSetCountsOnMount = () => {
             : countsVar([parsedStoredCount]);
         }
 
-        // counts in db but none currentlyCounting
-        // counts in db and more than one is currentlyCounting (throw error)
-        // counts in db and one is currentlyCounting
+        const dbCurrentlyCountingCount = parsedDbCounts.find(c => c.currentlyCounting);
+        if (!dbCurrentlyCountingCount && storedCount) {
+          logMessage(
+            'No currentlyCounting count in DB, but found stored count in AsyncStorage.',
+            storedCount
+          );
 
-        // console.log(
-        //   'useFetchAndSetCurrentCountAndIdOnMount(): Querying DB for a Count that has currentlyCounting true.'
-        // );
+          const parsedStoredCount = JSON.parse(storedCount);
+          return isNotValidStoredCount(parsedStoredCount)
+            ? countsVar([buildNewCount(), ...parsedDbCounts])
+            : countsVar([parsedStoredCount, ...parsedDbCounts]);
+        }
 
-        // const dbCurrentlyCountingCount = await db.getFirstAsync<DbCount>(
-        //   'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
-        //   [true]
-        // );
+        if (!dbCurrentlyCountingCount && !storedCount) {
+          logMessage(
+            'No currentlyCounting count in DB, and no stored count in AsyncStorage. Setting most recently modified DB count to currentlyCounting.'
+          );
 
-        // if (!dbCurrentlyCountingCount) {
-        //   console.log(
-        //     'useFetchAndSetCurrentCountAndIdOnMount(): No current count found in database, building using AsyncStorage count value.'
-        //   );
+          const mostRecentDbCount = parsedDbCounts[0];
+          const updatedMostRecentDbCount: Count = {
+            ...mostRecentDbCount,
+            currentlyCounting: true
+          };
 
-        //   const storedCount = await AsyncStorage.getItem('currentCount');
-        //   if (!storedCount) {
-        //     console.log(
-        //       'useFetchAndSetCurrentCountAndIdOnMount(): No stored count found in AsyncStorage.'
-        //     );
+          const otherDbCounts = parsedDbCounts.slice(1);
 
-        //     return;
-        //   }
+          try {
+            await db.runAsync(`UPDATE savedCounts SET currentlyCounting = ?, WHERE id = ?`, [
+              1,
+              updatedMostRecentDbCount.id
+            ]);
 
-        //   console.log(
-        //     'useFetchAndSetCurrentCountAndIdOnMount(): Stored count from AsyncStorage: ',
-        //     storedCount
-        //   );
+            logMessage(
+              'Updated most recently modified DB count to currentlyCounting true in DB.',
+              updatedMostRecentDbCount
+            );
+          } catch (e) {
+            console.error('useFetchAndSetCountsOnMount() Error updating DB: ', e);
+          }
 
-        //   const parsedStoredCount: Count = storedCount ? JSON.parse(storedCount) : null;
-        //   countVar(parsedStoredCount);
-        //   return;
-        // }
+          countsVar([updatedMostRecentDbCount, ...otherDbCounts]);
+          return;
+        }
 
-        // console.log(
-        //   'useFetchAndSetCurrentCountAndIdOnMount(): Current count found in database: ',
-        //   JSON.stringify(dbCurrentlyCountingCount)
-        // );
+        if (parsedDbCounts.filter(c => c.currentlyCounting).length > 1) {
+          console.error(
+            'useFetchAndSetCountsOnMount(): More than one DB Count has currentlyCounting true. Setting second most recently modified one to currentlyCounting false.'
+          );
 
-        // const alerts = JSON.parse(dbCurrentlyCountingCount.alerts);
-        // countVar({ ...dbCurrentlyCountingCount, alerts });
+          const updatedCount = { ...parsedDbCounts[1], currentlyCounting: false };
+
+          try {
+            await db.runAsync(`UPDATE savedCounts SET currentlyCounting = ?, WHERE id = ?`, [
+              0,
+              updatedCount.id
+            ]);
+
+            logMessage('Updated second most recently modified count to currentlyCounting false.');
+          } catch (e) {
+            console.error('useFetchAndSetCountsOnMount() Error updating DB: ', e);
+          }
+
+          const updatedCounts = parsedDbCounts.map(c =>
+            c.id === updatedCount.id ? updatedCount : c
+          );
+
+          countsVar(updatedCounts);
+          return;
+        }
+
+        countsVar(parsedDbCounts);
       } catch (e) {
         console.error('Error fetching current Count from database: ', e);
       }
