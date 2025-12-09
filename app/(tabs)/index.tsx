@@ -26,7 +26,7 @@ export default function Index() {
   const [showEditInputField, setShowEditInputField] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, setTitleToSave] = useState('');
-  useFetchAndSetCountsOnMount();
+  // useFetchAndSetCountsOnMount();
   // usePersistCurrentCount();
   // useSetCountOnVolumeChange(countingWithVolumeButtons);
 
