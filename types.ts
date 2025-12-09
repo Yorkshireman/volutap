@@ -25,7 +25,7 @@ export type Count = {
 export type DbCount = {
   alerts: string; // JSON stringified array of alerts
   createdAt: string;
-  currentlyCounting: boolean;
+  currentlyCounting: boolean; // number?
   id: string;
   lastModified: string;
   title: string;

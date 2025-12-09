@@ -1,9 +1,9 @@
-import { countVar } from '../reactiveVars';
 import Snackbar from 'react-native-snackbar';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
-import type { SetShowSaveInputField, SetTitleToSave } from '../types';
+import { countVar, savedCountsVar } from '../reactiveVars';
+import type { SavedCount, SetShowSaveInputField, SetTitleToSave } from '../types';
 import { StyleSheet, TextInput } from 'react-native';
 import { useEffect, useRef } from 'react';
 
@@ -22,6 +22,7 @@ export const SaveCountInputField = ({
 }: SaveCountInputFieldProps) => {
   const count = useReactiveVar(countVar);
   const db = useSQLiteContext();
+  const savedCounts = useReactiveVar(savedCountsVar);
   const saveInputFieldRef = useRef<TextInput>(null);
 
   useEffect(() => {
@@ -35,17 +36,26 @@ export const SaveCountInputField = ({
 
     const id = uuid.v4();
     const now = new Date().toISOString();
+    const updatedCount: SavedCount = {
+      alerts: count.alerts,
+      createdAt: now,
+      currentlyCounting: true,
+      id,
+      lastModified: now,
+      title: trimmed,
+      value: count.value
+    };
 
     try {
       await db.runAsync(
         'INSERT INTO savedCounts (alerts, value, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?, ?, ?)',
         JSON.stringify(count.alerts),
-        count.value,
-        now,
-        true,
-        id,
-        now,
-        trimmed
+        updatedCount.value,
+        updatedCount.createdAt,
+        updatedCount.currentlyCounting,
+        updatedCount.id,
+        updatedCount.lastModified,
+        updatedCount.title
       );
 
       Snackbar.show({
@@ -56,16 +66,8 @@ export const SaveCountInputField = ({
       });
 
       setTitleToSave('');
-      countVar({
-        // dry up?
-        alerts: count.alerts,
-        createdAt: now,
-        currentlyCounting: true,
-        id,
-        lastModified: now,
-        title: trimmed,
-        value: count.value
-      });
+      countVar(updatedCount);
+      savedCountsVar([...(savedCounts || []), updatedCount]);
     } catch (e) {
       console.error('DB error: ', e);
     }
