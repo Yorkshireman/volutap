@@ -1,15 +1,23 @@
 import * as Haptics from 'expo-haptics';
-import { countVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import Snackbar from 'react-native-snackbar';
+import { useReactiveVar } from '@apollo/client';
 import { Alert, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { AlertType, Count } from '../types';
+import { AlertType, Count, SavedCount } from '../types';
+import { countVar, savedCountsVar } from '../reactiveVars';
 import { useEffect, useState } from 'react';
+
+const buildUpdatedSavedCounts = (savedCounts: SavedCount[], updatedCount: SavedCount) => {
+  return savedCounts?.map(savedCount =>
+    savedCount.id === updatedCount.id ? (updatedCount as SavedCount) : savedCount
+  );
+};
 
 export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; count: Count }) => {
   const [alertAtValue, setAlertAtValue] = useState<number | null>(null);
   const [alertOnValue, setAlertOnValue] = useState<boolean>(alert.on);
+  const savedCounts = useReactiveVar(savedCountsVar);
 
   useEffect(() => {
     setAlertAtValue(alert.at);
@@ -69,7 +77,18 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
                 {
                   onPress: () => {
                     const updatedAlerts = count.alerts.filter(a => a.id !== alert.id);
-                    countVar({ ...count, alerts: updatedAlerts });
+                    const updatedCount = { ...count, alerts: updatedAlerts };
+                    countVar(updatedCount);
+
+                    if (updatedCount.id && savedCounts) {
+                      const updatedSavedCounts = buildUpdatedSavedCounts(
+                        savedCounts,
+                        updatedCount as SavedCount
+                      );
+
+                      savedCountsVar(updatedSavedCounts);
+                    }
+
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     Snackbar.show({
                       backgroundColor: '#0CCE6B',
@@ -107,7 +126,18 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
               const updatedAlerts = count.alerts.map(a =>
                 a.id === alert.id ? { ...a, repeat } : a
               );
-              countVar({ ...count, alerts: updatedAlerts });
+
+              const updatedCount = { ...count, alerts: updatedAlerts };
+              countVar(updatedCount);
+
+              if (updatedCount.id && savedCounts) {
+                const updatedSavedCounts = buildUpdatedSavedCounts(
+                  savedCounts,
+                  updatedCount as SavedCount
+                );
+
+                savedCountsVar(updatedSavedCounts);
+              }
             }}
             trackColor={{ false: '#222', true: '#758BFD' }}
             value={alert.on ? alert.repeat : false}
@@ -135,7 +165,17 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
               a.id === alert.id ? { ...a, type: newType } : a
             );
 
-            countVar({ ...count, alerts: updatedAlerts });
+            const updatedCount = { ...count, alerts: updatedAlerts };
+            countVar(updatedCount);
+
+            if (updatedCount.id && savedCounts) {
+              const updatedSavedCounts = buildUpdatedSavedCounts(
+                savedCounts,
+                updatedCount as SavedCount
+              );
+
+              savedCountsVar(updatedSavedCounts);
+            }
           }}
           trackColor={{ false: '#222', true: '#758BFD' }}
           value={
@@ -155,7 +195,17 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
               a.id === alert.id ? { ...a, type: newType } : a
             );
 
-            countVar({ ...count, alerts: updatedAlerts });
+            const updatedCount = { ...count, alerts: updatedAlerts };
+            countVar(updatedCount);
+
+            if (updatedCount.id && savedCounts) {
+              const updatedSavedCounts = buildUpdatedSavedCounts(
+                savedCounts,
+                updatedCount as SavedCount
+              );
+
+              savedCountsVar(updatedSavedCounts);
+            }
           }}
           trackColor={{ false: '#222', true: '#758BFD' }}
           value={
