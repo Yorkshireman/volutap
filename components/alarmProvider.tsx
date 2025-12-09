@@ -78,6 +78,7 @@ export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [count, countTriggerReached]);
 
   useEffect(() => {
+    if (!savedCounts) return;
     if (!countChangeViaUserInteractionHasHappenedVar()) {
       console.log(
         'AlarmProvider: No user interaction has changed the count, skipping alert check.'
@@ -121,6 +122,7 @@ export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const triggeredAlert = triggeredAlerts[0];
     setTriggeredAlert(triggeredAlert);
     countChangeViaUserInteractionHasHappenedVar(false);
+    prevSavedCountsRef.current = savedCounts;
 
     if (!triggeredAlert.repeat) {
       const updatedAlert = { ...triggeredAlert, on: false };
@@ -129,16 +131,13 @@ export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
 
       const updatedSavedCount = { ...valueChangedSavedCount, alerts: updatedAlerts };
-      const updatedSavedCounts = savedCounts?.map(savedCount =>
+      const updatedSavedCounts = savedCounts.map(savedCount =>
         savedCount.id === updatedSavedCount.id ? updatedSavedCount : savedCount
       );
 
       savedCountsVar(updatedSavedCounts);
       prevSavedCountsRef.current = updatedSavedCounts;
-      return;
     }
-
-    prevSavedCountsRef.current = savedCounts;
   }, [savedCounts]);
 
   return (

@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { countChangeViaUserInteractionHasHappenedVar, savedCountsVar } from '../../reactiveVars';
 import { useReactiveVar } from '@apollo/client';
 import { useSetSavedCountValue } from '../../hooks';
+import { countChangeViaUserInteractionHasHappenedVar, savedCountsVar } from '../../reactiveVars';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const Divider = () => <View style={styles.divider} />;

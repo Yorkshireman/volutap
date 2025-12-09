@@ -12,10 +12,11 @@ export const CountingButtons = () => {
   const setSavedCountValue = useSetSavedCountValue();
 
   const incrementCount = (newValue: number) => {
+    countChangeViaUserInteractionHasHappenedVar(true);
     if (!count.id) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      countVar({ ...count, value: newValue });
-      countChangeViaUserInteractionHasHappenedVar(true);
+      const updatedCount = { ...count, value: newValue };
+      countVar(updatedCount);
     } else {
       setSavedCountValue(newValue, count.id);
     }

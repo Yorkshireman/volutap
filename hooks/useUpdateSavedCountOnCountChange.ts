@@ -1,7 +1,7 @@
 import type { Count } from '../types';
+import { countVar } from '../reactiveVars';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
-import { countVar, savedCountsVar } from '../reactiveVars';
 import { useEffect, useRef } from 'react';
 
 const countIsMissingRequiredFields = (count: Count): boolean => {
@@ -57,12 +57,6 @@ export const useUpdateSavedCountOnCountChange = () => {
         );
 
         console.log('useUpdateSavedCountOnCountChange(): Count updated in DB:', count);
-        const prevCounts = savedCountsVar();
-        if (prevCounts?.length) {
-          savedCountsVar(
-            prevCounts.map(savedCount => (savedCount.id === count.id ? count : savedCount))
-          );
-        }
       } catch (error) {
         console.error('Error updating count in DB:', error);
       }
