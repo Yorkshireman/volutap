@@ -117,7 +117,7 @@ export const CountToolbar = ({
       <TouchableOpacity onPress={onPressSettingsButton} style={styles.icon}>
         <Ionicons color={'#fff'} name='settings-outline' size={TOOLBAR_ICON_SIZE} />
       </TouchableOpacity>
-      {count.id && (
+      {count.saved && (
         <>
           <TouchableOpacity
             onPress={() => onPressStartNewCountButton(count, countVar, db)}
