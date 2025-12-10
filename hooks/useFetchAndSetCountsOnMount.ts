@@ -7,8 +7,10 @@ import type { Count, DbCount } from '../types';
 
 const buildNewCount = (): Count => ({
   alerts: [],
+  createdAt: new Date().toISOString(),
   currentlyCounting: true,
   id: uuid.v4(),
+  lastModified: new Date().toISOString(),
   saved: false,
   value: 0
 });
@@ -39,6 +41,7 @@ export const useFetchAndSetCountsOnMount = () => {
         const dbCounts = await db.getAllAsync<DbCount>(
           'SELECT * FROM savedCounts ORDER BY lastModified DESC'
         );
+
         const parsedDbCounts = parseDbCounts(dbCounts);
         const storedCount = await AsyncStorage.getItem('currentCount');
 

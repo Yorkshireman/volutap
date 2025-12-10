@@ -67,12 +67,11 @@ export default function Index() {
         >
           {currentCount.value}
         </Text>
-        {/* <CountToolbar
-          count={currentCount}
+        <CountToolbar
           setShowEditInputField={setShowEditInputField}
           setShowSaveInputField={setShowSaveInputField}
           setTitleToSave={setTitleToSave}
-        /> */}
+        />
         <SwitchCountModeButton />
         {!countingWithVolumeButtons && <CountingButtons />}
       </View>

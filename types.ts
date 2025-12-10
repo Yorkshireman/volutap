@@ -14,10 +14,10 @@ export type Alert = {
 
 export type Count = {
   alerts: Alert[] | [];
-  createdAt?: string;
+  createdAt: string;
   currentlyCounting: boolean;
   id: string;
-  lastModified?: string;
+  lastModified: string;
   saved: boolean;
   title?: string;
   value: number;

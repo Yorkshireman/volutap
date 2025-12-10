@@ -7,13 +7,7 @@ import Snackbar from 'react-native-snackbar';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
-import type {
-  Count,
-  DbCount,
-  SetShowEditInputField,
-  SetShowSaveInputField,
-  SetTitleToSave
-} from '../types';
+import type { Count, SetShowEditInputField, SetShowSaveInputField, SetTitleToSave } from '../types';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { onPressDelete, onPressReset, onPressStartNewCountButton } from '../utils';
 
@@ -21,7 +15,6 @@ const screenWidth = Dimensions.get('window').width;
 const TOOLBAR_ICON_SIZE = screenWidth < 400 ? 48 : screenWidth < 430 ? 54 : 64;
 
 interface CountToolbarProps {
-  count: Count;
   setShowEditInputField: SetShowEditInputField;
   setShowSaveInputField: SetShowSaveInputField;
   setTitleToSave: SetTitleToSave;
@@ -56,18 +49,6 @@ export const CountToolbar = ({
       return;
     }
 
-    if (!id) {
-      console.error('onPressInfo(): No ID provided for count info.');
-      return;
-    }
-
-    const dbCount = await db.getFirstAsync<DbCount>('SELECT * FROM savedCounts WHERE id = ?', [id]);
-
-    if (!dbCount) {
-      console.error(`onPressInfo(): No count found with ID ${id}.`);
-      return;
-    }
-
     Snackbar.show({
       action: {
         onPress: () => {
@@ -80,7 +61,7 @@ export const CountToolbar = ({
       backgroundColor: '#758BFD',
       duration: Snackbar.LENGTH_INDEFINITE,
       text:
-        `Created  ${new Date(dbCount.createdAt || '').toLocaleString(undefined, {
+        `Created  ${new Date(count.createdAt).toLocaleString(undefined, {
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
@@ -89,7 +70,7 @@ export const CountToolbar = ({
           weekday: 'short',
           year: 'numeric'
         })}\n` +
-        `Updated ${new Date(dbCount.lastModified || '').toLocaleString(undefined, {
+        `Updated ${new Date(count.lastModified).toLocaleString(undefined, {
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
