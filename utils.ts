@@ -73,34 +73,8 @@ export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: 
 
           const updatedCounts = counts.map(c => (c.id === count.id ? updatedCount : c));
           countsVar(updatedCounts);
-
-          if (count.saved) {
-            try {
-              await db.runAsync(
-                `UPDATE savedCounts SET
-                  alerts = ?,
-                  createdAt = ?,
-                  currentlyCounting = ?,
-                  lastModified = ?,
-                  saved = ?,
-                  title = ?,
-                  value = ?
-                  WHERE id = ?`,
-                [
-                  JSON.stringify(count.alerts),
-                  count.createdAt,
-                  count.currentlyCounting,
-                  count.lastModified,
-                  count.saved ? 1 : 0,
-                  count.title as DbCount['title'],
-                  count.value,
-                  count.id
-                ]
-              );
-            } catch (e) {
-              console.error('Error updating count in database: ', e);
-            }
-          }
+          if (!count.saved) return;
+          updateCountInDb(updatedCount, db);
         },
         text: 'OK'
       }
@@ -227,5 +201,33 @@ export const onSelectCount = async ({
   } catch (error) {
     console.error('onSelectCount(): ', error);
     countVar({ ...count, currentlyCounting: true });
+  }
+};
+
+export const updateCountInDb = async (updatedCount: Count, db: SQLiteDatabase) => {
+  try {
+    await db.runAsync(
+      `UPDATE savedCounts SET
+        alerts = ?,
+        createdAt = ?,
+        currentlyCounting = ?,
+        lastModified = ?,
+        saved = ?,
+        title = ?,
+        value = ?
+        WHERE id = ?`,
+      [
+        JSON.stringify(updatedCount.alerts),
+        updatedCount.createdAt,
+        updatedCount.currentlyCounting,
+        updatedCount.lastModified,
+        updatedCount.saved ? 1 : 0,
+        updatedCount.title as DbCount['title'],
+        updatedCount.value,
+        updatedCount.id
+      ]
+    );
+  } catch (e) {
+    console.error('Error updating count in database: ', e);
   }
 };
