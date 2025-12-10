@@ -31,7 +31,7 @@ export const CountingButtons = () => {
 
         console.log('incrementCount(): Count updated in DB: ', updatedCount);
       } catch (error) {
-        console.error('incrementCount(): Error incrementing count: ', error);
+        console.error('incrementCount(): Error updating count in DB: ', error);
       }
     }
   };
