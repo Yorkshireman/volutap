@@ -40,7 +40,7 @@ export const CountToolbar = ({
     setTitleToSave(count.title || 'Name');
   };
 
-  const onPressInfo = async (id: Count['id']) => {
+  const onPressInfo = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     if (infoSnackbarIsOpen) {
