@@ -50,12 +50,12 @@ export const onPressDelete = (
   );
 };
 
-export const onPressReset = (count: Count, countVar: ReactiveVar<Count>) => {
+export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: SQLiteDatabase) => {
   if (count.value === 0) return;
 
   Alert.alert(
     'Reset',
-    'Are you sure you want to reset the counter to zero? This cannot be undone.',
+    'Are you sure you want to reset the counter to zero?',
     [
       {
         style: 'cancel',
@@ -63,8 +63,44 @@ export const onPressReset = (count: Count, countVar: ReactiveVar<Count>) => {
       },
       {
         onPress: async () => {
-          countVar({ ...count, value: 0 });
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          const counts = countsVar();
+          const updatedCount: Count = {
+            ...count,
+            lastModified: new Date().toISOString(),
+            value: 0
+          };
+
+          const updatedCounts = counts.map(c => (c.id === count.id ? updatedCount : c));
+          countsVar(updatedCounts);
+
+          if (count.saved) {
+            try {
+              await db.runAsync(
+                `UPDATE savedCounts SET
+                  alerts = ?,
+                  createdAt = ?,
+                  currentlyCounting = ?,
+                  lastModified = ?,
+                  saved = ?,
+                  title = ?,
+                  value = ?
+                  WHERE id = ?`,
+                [
+                  JSON.stringify(count.alerts),
+                  count.createdAt,
+                  count.currentlyCounting,
+                  count.lastModified,
+                  count.saved ? 1 : 0,
+                  count.title as DbCount['title'],
+                  count.value,
+                  count.id
+                ]
+              );
+            } catch (e) {
+              console.error('Error updating count in database: ', e);
+            }
+          }
         },
         text: 'OK'
       }

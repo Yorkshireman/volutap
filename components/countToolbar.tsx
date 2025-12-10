@@ -106,7 +106,7 @@ export const CountToolbar = ({
           <Ionicons color={'#fff'} name='information-circle-outline' size={TOOLBAR_ICON_SIZE} />
         </TouchableOpacity>
       )}
-      <TouchableOpacity onPress={() => onPressReset(count, countVar)} style={styles.icon}>
+      <TouchableOpacity onPress={() => onPressReset(count, countsVar, db)} style={styles.icon}>
         <Ionicons color={'#fff'} name='refresh-outline' size={TOOLBAR_ICON_SIZE} />
       </TouchableOpacity>
       {!count.id && (
@@ -120,7 +120,7 @@ export const CountToolbar = ({
       {count.saved && (
         <>
           <TouchableOpacity
-            onPress={() => onPressStartNewCountButton(count, countVar, db)}
+            onPress={() => onPressStartNewCountButton(count, countsVar, db)}
             style={styles.icon}
           >
             <Ionicons color={'#fff'} name='create-outline' size={TOOLBAR_ICON_SIZE} />
