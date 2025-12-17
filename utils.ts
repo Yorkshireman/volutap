@@ -119,7 +119,11 @@ export const onPressStartNewCountButton = async (
               count.id
             ]);
 
-            countsVar([buildNewCount(), ...countsVar().map(c => ({ ...c, currentlyCounting: 0 }))]);
+            countsVar([
+              buildNewCount(),
+              ...countsVar().map(c => ({ ...c, currentlyCounting: 0 as const }))
+            ]);
+
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           } catch (e) {
             console.error('Error updating currentlyCounting in database: ', e);
@@ -133,51 +137,43 @@ export const onPressStartNewCountButton = async (
 };
 
 export const onSelectCount = async ({
-  count,
-  countVar,
+  countsVar,
+  currentCount,
   db,
   id,
   setDropdownVisible,
   setShowSaveInputField
 }: {
-  count: Count;
-  countVar: ReactiveVar<Count>;
+  countsVar: ReactiveVar<Count[]>;
+  currentCount: Count;
   db: SQLiteDatabase;
   id: Count['id'];
   setDropdownVisible: SetDropdownVisible;
   setShowSaveInputField: SetShowSaveInputField;
 }) => {
   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  const currentCounts = countsVar();
+  const selectedCount = currentCounts.find(c => c.id === id);
 
-  if (!count.id && count.value) {
+  if (!selectedCount) {
+    console.error('onSelectCount(): No count found with the selected id.');
+    return;
+  }
+
+  if (!currentCount.saved) {
     Alert.alert(
       'Save Current Count?',
       'You have a count in progress. Do you want to save it before switching?',
       [
         {
           onPress: async () => {
-            if (!id) {
-              console.error('No count ID provided.');
-              return;
-            }
+            const newSelectedCount = { ...selectedCount, currentlyCounting: 1 as const };
+            const newCounts = currentCounts
+              .map(c => (c.id === selectedCount?.id ? newSelectedCount : c))
+              .filter(c => c.id !== currentCount?.id);
 
-            await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
-              true,
-              id
-            ]);
-
-            const newCount = await db.getFirstAsync<DbCount>(
-              'SELECT * FROM savedCounts WHERE currentlyCounting = ?',
-              [true]
-            );
-
-            if (!newCount) {
-              console.error('No new count with currentlyCounting true found after update.');
-              return;
-            }
-
-            const alerts = JSON.parse(newCount.alerts);
-            countVar({ ...newCount, alerts });
+            await updateCountInDb(newSelectedCount, db);
+            countsVar(newCounts);
             setDropdownVisible(false);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           },
@@ -196,23 +192,28 @@ export const onSelectCount = async ({
     return;
   }
 
-  countVar({ ...count, currentlyCounting: 0 });
   try {
-    const newCount = await db.getFirstAsync<DbCount>('SELECT * FROM savedCounts WHERE id = ?', [
-      id || ''
-    ]);
-
-    if (!newCount) {
-      console.error('No new count with currentlyCounting true found after update.');
-      return;
-    }
-
-    const alerts = JSON.parse(newCount.alerts);
-    countVar({ ...newCount, alerts, currentlyCounting: 1 });
+    const newCurrentCount = { ...currentCount, currentlyCounting: 0 as const };
+    await updateCountInDb(newCurrentCount, db);
+    const newCounts = currentCounts.map(c => (c.id === currentCount.id ? newCurrentCount : c));
+    countsVar(newCounts);
     setDropdownVisible(false);
   } catch (error) {
     console.error('onSelectCount(): ', error);
-    countVar({ ...count, currentlyCounting: 1 });
+    countsVar(currentCounts);
+    setDropdownVisible(false);
+  }
+
+  const currentCountsAfterFirstUpdate = countsVar();
+
+  try {
+    const newSelectedCount = { ...selectedCount, currentlyCounting: 1 as const };
+    await updateCountInDb(newSelectedCount, db);
+    const newCounts = countsVar().map(c => (c.id === selectedCount.id ? newSelectedCount : c));
+    countsVar(newCounts);
+  } catch (error) {
+    console.error('onSelectCount(): ', error);
+    countsVar(currentCountsAfterFirstUpdate);
   }
 };
 

@@ -37,7 +37,11 @@ export default function Index() {
   const currentCount = counts.find(count => count.currentlyCounting);
 
   if (!currentCount) return null;
-
+  console.log('========== counts ==========');
+  console.log(JSON.stringify(counts, null, 2));
+  console.log('========== end ===========');
+  console.log({ showSaveInputField });
+  console.log({ showEditInputField });
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
       <View
