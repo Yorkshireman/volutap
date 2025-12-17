@@ -18,7 +18,10 @@ export const CountingButtons = () => {
   const incrementCount = async (newValue: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     const updatedCount = { ...count, lastModified: new Date().toISOString(), value: newValue };
-    const updatedCounts = counts.map(c => (c.id === count.id ? updatedCount : c));
+    const updatedCounts = counts
+      .map(c => (c.id === count.id ? updatedCount : c))
+      .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
+
     countsVar(updatedCounts);
 
     if (updatedCount.saved) {

@@ -56,7 +56,11 @@ export const SaveCountInputField = ({
 
     setTitleToSave('');
     const updatedCounts = [updatedCount, ...counts.filter(c => c.id !== count.id)];
-    countsVar(updatedCounts);
+    const sortedUpdatedCounts = updatedCounts.sort((a, b) =>
+      a.lastModified > b.lastModified ? -1 : 1
+    );
+
+    countsVar(sortedUpdatedCounts);
     setShowSaveInputField(false);
   };
 
