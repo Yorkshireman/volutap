@@ -72,7 +72,7 @@ export const useFetchAndSetCountsOnMount = () => {
           const mostRecentDbCount = parsedDbCounts[0];
           const updatedMostRecentDbCount: Count = {
             ...mostRecentDbCount,
-            currentlyCounting: true
+            currentlyCounting: 1
           };
 
           const otherDbCounts = parsedDbCounts.slice(1);
@@ -100,7 +100,7 @@ export const useFetchAndSetCountsOnMount = () => {
             'useFetchAndSetCountsOnMount(): More than one DB Count has currentlyCounting true. Setting second most recently modified one to currentlyCounting false.'
           );
 
-          const updatedCount = { ...parsedDbCounts[1], currentlyCounting: false };
+          const updatedCount = { ...parsedDbCounts[1], currentlyCounting: 0 as const };
 
           try {
             await db.runAsync(`UPDATE savedCounts SET currentlyCounting = ?, WHERE id = ?`, [

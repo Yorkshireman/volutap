@@ -22,7 +22,6 @@ export const CountSelector = ({
   setShowSaveInputField: SetShowSaveInputField;
 }) => {
   const counts = useReactiveVar(countsVar);
-  // const [counts, setCounts] = useState<Count[]>();
   const db = useSQLiteContext();
   const dropdownIconRotationAnim = useAnimatedValue(0);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
