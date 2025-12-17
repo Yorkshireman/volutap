@@ -35,6 +35,7 @@ export default function Index() {
   }, []);
 
   const currentCount = counts.find(count => count.currentlyCounting);
+
   if (!currentCount) return null;
 
   return (
@@ -45,21 +46,21 @@ export default function Index() {
           justifyContent: countingWithVolumeButtons ? 'center' : 'space-between'
         }}
       >
-        {/* {!showSaveInputField && !showEditInputField && (
+        {!showSaveInputField && !showEditInputField && (
           <CountSelector setShowSaveInputField={setShowSaveInputField} />
-        )} */}
-        {/* <SaveCountInputField
+        )}
+        <SaveCountInputField
           setShowSaveInputField={setShowSaveInputField}
           setTitleToSave={setTitleToSave}
           showSaveInputField={showSaveInputField}
           titleToSave={titleToSave}
-        /> */}
-        {/* <EditCountTitleInputField
+        />
+        <EditCountTitleInputField
           setShowEditInputField={setShowEditInputField}
           setTitleToSave={setTitleToSave}
           showEditInputField={showEditInputField}
           titleToSave={titleToSave}
-        /> */}
+        />
         <Text
           adjustsFontSizeToFit={isIpad ? false : true}
           numberOfLines={1}

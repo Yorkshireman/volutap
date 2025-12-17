@@ -29,7 +29,10 @@ export const CountingButtons = () => {
           updatedCount.id
         ]);
 
-        console.log('incrementCount(): Count updated in DB: ', updatedCount);
+        console.log(
+          'incrementCount(): Count updated in DB: ',
+          JSON.stringify(updatedCount, null, 2)
+        );
       } catch (error) {
         console.error('incrementCount(): Error updating count in DB: ', error);
       }

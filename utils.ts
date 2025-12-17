@@ -2,6 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
 import type { ReactiveVar } from '@apollo/client';
 import { SQLiteDatabase } from 'expo-sqlite';
+import uuid from 'react-native-uuid';
 import type {
   Count,
   DbCount,
@@ -10,9 +11,19 @@ import type {
   SetShowSaveInputField
 } from './types';
 
+export const buildNewCount = (): Count => ({
+  alerts: [],
+  createdAt: new Date().toISOString(),
+  currentlyCounting: 1,
+  id: uuid.v4(),
+  lastModified: new Date().toISOString(),
+  saved: 0,
+  value: 0
+});
+
 export const onPressDelete = (
   count: Count,
-  countVar: ReactiveVar<Count>,
+  countsVar: ReactiveVar<Count[]>,
   db: SQLiteDatabase,
   setShowOptionsMenu: SetShowOptionsMenu
 ) => {
@@ -39,7 +50,8 @@ export const onPressDelete = (
             return;
           }
 
-          countVar({ alerts: [], value: 0 });
+          const updatedCounts = [buildNewCount(), ...countsVar().filter(c => c.id !== count.id)];
+          countsVar(updatedCounts);
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
         style: 'destructive',
@@ -85,7 +97,7 @@ export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: 
 
 export const onPressStartNewCountButton = async (
   count: Count,
-  countVar: ReactiveVar<Count>,
+  countsVar: ReactiveVar<Count[]>,
   db: SQLiteDatabase
 ) => {
   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -103,11 +115,11 @@ export const onPressStartNewCountButton = async (
 
           try {
             await db.runAsync('UPDATE savedCounts SET currentlyCounting = ? WHERE id = ?', [
-              false,
+              0,
               count.id
             ]);
 
-            countVar({ alerts: [], value: 0 });
+            countsVar([buildNewCount(), ...countsVar().map(c => ({ ...c, currentlyCounting: 0 }))]);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           } catch (e) {
             console.error('Error updating currentlyCounting in database: ', e);
@@ -184,7 +196,7 @@ export const onSelectCount = async ({
     return;
   }
 
-  countVar({ ...count, currentlyCounting: false });
+  countVar({ ...count, currentlyCounting: 0 });
   try {
     const newCount = await db.getFirstAsync<DbCount>('SELECT * FROM savedCounts WHERE id = ?', [
       id || ''
@@ -196,11 +208,30 @@ export const onSelectCount = async ({
     }
 
     const alerts = JSON.parse(newCount.alerts);
-    countVar({ ...newCount, alerts, currentlyCounting: true });
+    countVar({ ...newCount, alerts, currentlyCounting: 1 });
     setDropdownVisible(false);
   } catch (error) {
     console.error('onSelectCount(): ', error);
-    countVar({ ...count, currentlyCounting: true });
+    countVar({ ...count, currentlyCounting: 1 });
+  }
+};
+
+export const saveCountToDb = async (count: Count, db: SQLiteDatabase) => {
+  try {
+    await db.runAsync(
+      'INSERT INTO savedCounts (alerts, value, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      JSON.stringify(count.alerts),
+      count.value,
+      count.createdAt,
+      count.currentlyCounting,
+      count.id,
+      count.lastModified,
+      count.title as DbCount['title']
+    );
+
+    console.log('saveCountToDb(): Count saved successfully:', JSON.stringify(count, null, 2));
+  } catch (e) {
+    console.error('Error saving count to database: ', e);
   }
 };
 
@@ -226,6 +257,11 @@ export const updateCountInDb = async (updatedCount: Count, db: SQLiteDatabase) =
         updatedCount.value,
         updatedCount.id
       ]
+    );
+
+    console.log(
+      'updateCountInDb(): Count updated successfully:',
+      JSON.stringify(updatedCount, null, 2)
     );
   } catch (e) {
     console.error('Error updating count in database: ', e);

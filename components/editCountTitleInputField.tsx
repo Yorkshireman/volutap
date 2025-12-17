@@ -1,7 +1,9 @@
-import { countVar } from '../reactiveVars';
+import { countsVar } from '../reactiveVars';
 import type { SetShowEditInputField } from '../types';
 import Snackbar from 'react-native-snackbar';
+import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
+import { useSQLiteContext } from 'expo-sqlite';
 import { StyleSheet, TextInput } from 'react-native';
 import { useEffect, useRef } from 'react';
 
@@ -18,13 +20,17 @@ export const EditCountTitleInputField = ({
   showEditInputField,
   titleToSave
 }: EditCountTitleInputFieldProps) => {
-  const count = useReactiveVar(countVar);
+  const counts = useReactiveVar(countsVar);
+  const db = useSQLiteContext();
   const editInputFieldRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (!showEditInputField) return;
     editInputFieldRef.current?.focus();
   }, [showEditInputField]);
+
+  const count = counts.find(c => c.currentlyCounting);
+  if (!count) return null;
 
   const onSubmit = async () => {
     const trimmed = titleToSave.trim();
@@ -35,7 +41,10 @@ export const EditCountTitleInputField = ({
       return;
     }
 
-    countVar({ ...count, title: trimmed });
+    const updatedCount = { ...count, title: trimmed };
+    const updatedCounts = counts.map(c => (c.id === count.id ? updatedCount : c));
+    await updateCountInDb(updatedCount, db);
+    countsVar(updatedCounts);
     setTitleToSave('');
     Snackbar.show({
       backgroundColor: '#758BFD',
@@ -44,6 +53,7 @@ export const EditCountTitleInputField = ({
       textColor: 'black'
     });
   };
+
   return (
     <TextInput
       maxLength={36}

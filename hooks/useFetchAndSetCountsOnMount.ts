@@ -1,19 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { buildNewCount } from '../utils';
 import { countsVar } from '../reactiveVars';
 import { useEffect } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
-import uuid from 'react-native-uuid';
 import type { Count, DbCount } from '../types';
-
-const buildNewCount = (): Count => ({
-  alerts: [],
-  createdAt: new Date().toISOString(),
-  currentlyCounting: true,
-  id: uuid.v4(),
-  lastModified: new Date().toISOString(),
-  saved: false,
-  value: 0
-});
 
 const logMessage = (message: string, data?: any) => {
   if (data) {

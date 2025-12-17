@@ -1,8 +1,8 @@
 import { CountSelectorDropdownItem } from './countSelectorDropdownItem';
-import { countVar } from '../reactiveVars';
+import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { onSelectCount } from '../utils';
-import { usePopulateCountSelector } from '../hooks';
+// import { usePopulateCountSelector } from '../hooks';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
@@ -22,12 +22,12 @@ export const CountSelector = ({
 }: {
   setShowSaveInputField: SetShowSaveInputField;
 }) => {
-  const count = useReactiveVar(countVar);
-  const [counts, setCounts] = useState<Count[]>();
+  const counts = useReactiveVar(countsVar);
+  // const [counts, setCounts] = useState<Count[]>();
   const db = useSQLiteContext();
   const dropdownIconRotationAnim = useAnimatedValue(0);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-  usePopulateCountSelector(count, db, setCounts);
+  // usePopulateCountSelector(count, db, setCounts);
 
   const rotate = dropdownIconRotationAnim.interpolate({
     inputRange: [0, 180],
@@ -44,11 +44,13 @@ export const CountSelector = ({
     };
 
     rotateDropdownIconUp();
-  }, [dropdownIconRotationAnim, isDropdownVisible, count.id]);
+  }, [dropdownIconRotationAnim, isDropdownVisible, counts]);
 
   if (!counts?.length) return null;
+  const count = counts.find(c => c.currentlyCounting);
+  if (!count?.saved) return null;
 
-  const shouldEnableDropdown = !count.id || counts.length > 1;
+  const shouldEnableDropdown = !count.saved || counts.length > 1;
 
   return (
     <View style={styles.container}>

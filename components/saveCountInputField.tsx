@@ -1,8 +1,8 @@
-import { countVar } from '../reactiveVars';
+import { countsVar } from '../reactiveVars';
+import { saveCountToDb } from '../utils';
 import Snackbar from 'react-native-snackbar';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
-import uuid from 'react-native-uuid';
 import type { SetShowSaveInputField, SetTitleToSave } from '../types';
 import { StyleSheet, TextInput } from 'react-native';
 import { useEffect, useRef } from 'react';
@@ -20,7 +20,7 @@ export const SaveCountInputField = ({
   showSaveInputField,
   titleToSave
 }: SaveCountInputFieldProps) => {
-  const count = useReactiveVar(countVar);
+  const counts = useReactiveVar(countsVar);
   const db = useSQLiteContext();
   const saveInputFieldRef = useRef<TextInput>(null);
 
@@ -29,46 +29,35 @@ export const SaveCountInputField = ({
     saveInputFieldRef.current?.focus();
   }, [showSaveInputField]);
 
+  const count = counts.find(c => c.currentlyCounting);
+  if (!count) return null;
+
   const onSubmitEditing = async () => {
     const trimmed = titleToSave.trim();
     if (!trimmed) return;
 
-    const id = uuid.v4();
     const now = new Date().toISOString();
+    const updatedCount = {
+      ...count,
+      createdAt: now,
+      lastModified: now,
+      saved: 1 as const,
+      title: trimmed
+    };
 
-    try {
-      await db.runAsync(
-        'INSERT INTO savedCounts (alerts, value, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        JSON.stringify(count.alerts),
-        count.value,
-        now,
-        true,
-        id,
-        now,
-        trimmed
-      );
+    await saveCountToDb(updatedCount, db);
 
-      Snackbar.show({
-        backgroundColor: '#758BFD',
-        duration: Snackbar.LENGTH_LONG,
-        text: 'Saved!',
-        textColor: 'black'
-      });
+    Snackbar.show({
+      backgroundColor: '#758BFD',
+      duration: Snackbar.LENGTH_LONG,
+      text: 'Saved!',
+      textColor: 'black'
+    });
 
-      setTitleToSave('');
-      countVar({
-        // dry up?
-        alerts: count.alerts,
-        createdAt: now,
-        currentlyCounting: true,
-        id,
-        lastModified: now,
-        title: trimmed,
-        value: count.value
-      });
-    } catch (e) {
-      console.error('DB error: ', e);
-    }
+    setTitleToSave('');
+    const updatedCounts = [updatedCount, ...counts.filter(c => c.id !== count.id)];
+    countsVar(updatedCounts);
+    setShowSaveInputField(false);
   };
 
   return (
