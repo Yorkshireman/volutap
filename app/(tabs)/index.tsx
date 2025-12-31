@@ -36,7 +36,7 @@ export default function Index() {
 
   const currentCount = counts.find(count => count.currentlyCounting);
 
-  if (!currentCount) return null;
+  // if (!currentCount) return null;
   console.log('========== counts ==========');
   console.log(JSON.stringify(counts, null, 2));
   console.log('========== end ===========');
@@ -70,7 +70,7 @@ export default function Index() {
           numberOfLines={1}
           style={{ ...styles.count, fontSize: isIpad ? 300 : 200 }}
         >
-          {currentCount.value}
+          {currentCount?.value}
         </Text>
         <CountToolbar
           setShowEditInputField={setShowEditInputField}
