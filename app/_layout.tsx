@@ -6,10 +6,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useFetchAndSetCountsOnMount } from '../hooks';
 import { useReactiveVar } from '@apollo/client';
 import { AlarmProvider, CountingModeProvider } from '../components';
+import { ReactNode, Suspense, useEffect } from 'react';
 import { type SQLiteDatabase, SQLiteProvider } from 'expo-sqlite';
-import { Suspense, useEffect } from 'react';
 
-const DataSetter: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const DataSetter = ({ children }: { children: ReactNode }) => {
   const counts = useReactiveVar(countsVar);
   useFetchAndSetCountsOnMount();
 

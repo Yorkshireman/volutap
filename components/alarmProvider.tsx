@@ -3,9 +3,9 @@ import { useReactiveVar } from '@apollo/client';
 import { useUpdateSavedCountOnCountChange } from '../hooks';
 import { Alert, Count } from '../types';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 
-export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AlarmProvider = ({ children }: { children: ReactNode }) => {
   // const count = useReactiveVar(countVar);
   // const countChangeViaUserInteractionHasHappened = useReactiveVar(
   //   countChangeViaUserInteractionHasHappenedVar
