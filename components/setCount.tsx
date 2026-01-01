@@ -1,20 +1,54 @@
 import * as Haptics from 'expo-haptics';
 import type { Count } from '../types';
-import { countVar } from '../reactiveVars';
+import { countsVar } from '../reactiveVars';
 import Snackbar from 'react-native-snackbar';
 import { useReactiveVar } from '@apollo/client';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
-import { useUpdateSavedCountOnCountChange } from '../hooks';
+// import { useUpdateSavedCountOnCountChange } from '../hooks';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export const SetCount = () => {
   const [newCountValue, setNewCountValue] = useState<Count['value'] | null>(null);
-  const count = useReactiveVar(countVar);
-  useUpdateSavedCountOnCountChange();
+  const counts = useReactiveVar(countsVar);
+  const db = useSQLiteContext();
+  // useUpdateSavedCountOnCountChange();
 
-  const onSubmitCount = () => {
+  const count = counts.find(c => c.currentlyCounting);
+
+  const onSubmitCount = async () => {
+    if (!count) throw new Error('SetCount onSubmitCount(): count is falsey.');
     if (!newCountValue) return;
-    countVar({ ...count, value: newCountValue });
+
+    const updatedCount: Count = {
+      ...count,
+      lastModified: new Date().toISOString(),
+      value: newCountValue
+    };
+
+    const updatedCounts = counts
+      .map(c => (c.id === count.id ? updatedCount : c))
+      .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
+
+    countsVar(updatedCounts);
+
+    if (updatedCount.saved) {
+      try {
+        await db.runAsync(`UPDATE savedCounts SET lastModified = ?, value = ? WHERE id = ?`, [
+          updatedCount.lastModified,
+          updatedCount.value,
+          updatedCount.id
+        ]);
+
+        console.log(
+          'incrementCount(): Count updated in DB: ',
+          JSON.stringify(updatedCount, null, 2)
+        );
+      } catch (error) {
+        console.error('incrementCount(): Error updating count in DB: ', error);
+      }
+    }
+
     setNewCountValue(null);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     Snackbar.show({
@@ -33,7 +67,7 @@ export const SetCount = () => {
           maxLength={7}
           onChangeText={v => setNewCountValue(!v ? null : parseInt(v, 10))}
           onSubmitEditing={onSubmitCount}
-          placeholder={`Count is currently at ${count.value}`}
+          placeholder={`Count is currently at ${count?.value}`}
           placeholderTextColor='#888'
           returnKeyType='done'
           keyboardType='numeric'
