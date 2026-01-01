@@ -46,6 +46,7 @@ export const SetCount = () => {
         );
       } catch (error) {
         console.error('incrementCount(): Error updating count in DB: ', error);
+        countsVar(counts);
       }
     }
 

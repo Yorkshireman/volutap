@@ -121,7 +121,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
             style={styles.infoWrapperIcon}
           />
           <Text style={styles.infoWrapperText}>
-            If enabled, the alert will happen every time the count reaches {alert.at}
+            If enabled, the alert will trigger every time the count reaches {alert.at}
           </Text>
         </View>
       </View>

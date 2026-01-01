@@ -15,7 +15,7 @@ export default function Settings() {
         <Text style={styles.heading}>Settings</Text>
         <Text style={styles.subHeading}>Changes here only apply to the current Count.</Text>
         <SetCount />
-        {/* <AlertSettings /> */}
+        <AlertSettings />
       </View>
     </ScrollView>
   );

@@ -1,10 +1,11 @@
 import * as Haptics from 'expo-haptics';
-import { countVar } from '../reactiveVars';
+import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SavedAlert } from './savedAlert';
 import Snackbar from 'react-native-snackbar';
+import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
-import { useUpdateSavedCountOnCountChange } from '../hooks';
+import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
 import { AlertType, type Count } from '../types';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -12,16 +13,19 @@ import { useEffect, useState } from 'react';
 
 export const AlertSettings = () => {
   const [alertAtValue, setAlertAtValue] = useState<number | null>(null);
-  const count = useReactiveVar(countVar);
+  const counts = useReactiveVar(countsVar);
+  const db = useSQLiteContext();
   const [validationErrorMessage, setValidationErrorMessage] = useState('');
-  useUpdateSavedCountOnCountChange();
+
+  const count = counts.find(c => c.currentlyCounting);
 
   useEffect(() => {
     if (!alertAtValue) setValidationErrorMessage('');
   }, [alertAtValue]);
 
-  const onSubmitCount = () => {
+  const onSubmitCount = async () => {
     if (!alertAtValue) return;
+    if (!count) throw new Error('AlertSettings, onSubmitCount(): count is falsey.');
 
     if (count.alerts.find(({ at }) => at === alertAtValue)) {
       setValidationErrorMessage(
@@ -36,14 +40,25 @@ export const AlertSettings = () => {
       ...count.alerts.filter(a => a.at !== alertAtValue),
       {
         at: alertAtValue,
-        id: id,
+        id,
         on: true,
         repeat: true,
         type: AlertType.SOUND_AND_VIBRATE
       }
     ];
 
-    countVar({ ...count, alerts: updatedAlerts });
+    const updatedCount = { ...count, alerts: updatedAlerts };
+
+    const updatedCounts = counts
+      .map(c => (c.id === count.id ? updatedCount : c))
+      .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
+
+    countsVar(updatedCounts);
+
+    if (updatedCount.saved) {
+      await updateCountInDb(updatedCount, db, () => countsVar(counts));
+    }
+
     setAlertAtValue(null);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Snackbar.show({
@@ -61,13 +76,13 @@ export const AlertSettings = () => {
         <View style={styles.alertFormFirstRow}>
           <View style={styles.alertFormFirstRowFirstColumn}>
             <TextInput
+              keyboardType='numeric'
               maxLength={7}
               onChangeText={v => setAlertAtValue(!v ? null : parseInt(v, 10))}
               onSubmitEditing={onSubmitCount}
               placeholder={'Number to alert at'}
               placeholderTextColor='#888'
               returnKeyType='done'
-              keyboardType='numeric'
               style={styles.alertAtInput}
               value={alertAtValue?.toString() || undefined}
             />
@@ -76,7 +91,7 @@ export const AlertSettings = () => {
             <Text style={styles.addButtonText}>Add</Text>
           </TouchableOpacity>
         </View>
-        {!validationErrorMessage && !count.alerts.length && (
+        {!validationErrorMessage && !count?.alerts.length && (
           <View style={styles.alertAtInputInfoWrapper}>
             <Ionicons
               color='#444'
@@ -95,7 +110,7 @@ export const AlertSettings = () => {
         )}
       </View>
       <View style={styles.savedAlerts}>
-        {count.alerts
+        {count?.alerts
           .slice()
           .sort((a, b) => a.at - b.at)
           .map(alert => (

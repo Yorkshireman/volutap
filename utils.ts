@@ -236,7 +236,11 @@ export const saveCountToDb = async (count: Count, db: SQLiteDatabase) => {
   }
 };
 
-export const updateCountInDb = async (updatedCount: Count, db: SQLiteDatabase) => {
+export const updateCountInDb = async (
+  updatedCount: Count,
+  db: SQLiteDatabase,
+  errorCallback?: Function
+) => {
   try {
     await db.runAsync(
       `UPDATE savedCounts SET
@@ -266,5 +270,6 @@ export const updateCountInDb = async (updatedCount: Count, db: SQLiteDatabase) =
     );
   } catch (e) {
     console.error('Error updating count in database: ', e);
+    errorCallback && errorCallback();
   }
 };
