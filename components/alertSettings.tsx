@@ -47,16 +47,14 @@ export const AlertSettings = () => {
       }
     ];
 
-    const updatedCount = { ...count, alerts: updatedAlerts };
+    const updatedCount: Count = { ...count, alerts: updatedAlerts };
+    const updatedCounts = counts.map(c => (c.id === count.id ? updatedCount : c));
 
-    const updatedCounts = counts
-      .map(c => (c.id === count.id ? updatedCount : c))
-      .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
-
+    const originalCounts = counts;
     countsVar(updatedCounts);
 
     if (updatedCount.saved) {
-      await updateCountInDb(updatedCount, db, () => countsVar(counts));
+      await updateCountInDb(updatedCount, db, () => countsVar(originalCounts));
     }
 
     setAlertAtValue(null);

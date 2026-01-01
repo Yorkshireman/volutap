@@ -1,8 +1,11 @@
 import * as Haptics from 'expo-haptics';
-import { countVar } from '../reactiveVars';
+import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import Snackbar from 'react-native-snackbar';
+import { updateCountInDb } from '../utils';
+import { useReactiveVar } from '@apollo/client';
+import { useSQLiteContext } from 'expo-sqlite';
 import { Alert, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { AlertType, Count } from '../types';
 import { useEffect, useState } from 'react';
@@ -10,20 +13,60 @@ import { useEffect, useState } from 'react';
 export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; count: Count }) => {
   const [alertAtValue, setAlertAtValue] = useState<number | null>(null);
   const [alertOnValue, setAlertOnValue] = useState<boolean>(alert.on);
+  const counts = useReactiveVar(countsVar);
+  const db = useSQLiteContext();
 
   useEffect(() => {
     setAlertAtValue(alert.at);
     setAlertOnValue(alert.on);
   }, [alert.at, alert.on]);
 
-  const onToggleAlert = () => {
+  const updateCounts = async (updatedCount: Count) => {
+    const updatedCounts = counts.map(c => (c.id === count.id ? updatedCount : c));
+    const originalCounts = counts;
+    countsVar(updatedCounts);
+    updatedCount.saved &&
+      (await updateCountInDb(updatedCount, db, () => countsVar(originalCounts)));
+  };
+
+  const onConfirmDeleteAlert = async () => {
+    const updatedAlerts = count.alerts.filter(a => a.id !== alert.id);
+    await updateCounts({ ...count, alerts: updatedAlerts });
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Snackbar.show({
+      backgroundColor: '#0CCE6B',
+      duration: Snackbar.LENGTH_LONG,
+      text: 'Alert Deleted',
+      textColor: 'black'
+    });
+  };
+
+  const onSubmitEditingAlertAtValue = async () => {
+    if (!alertAtValue) return;
+    if (count.alerts.find(a => a.at === alertAtValue)) {
+      console.warn(`Alert already set for ${alertAtValue}`);
+      return;
+    }
+
+    const updatedAlerts: Count['alerts'] = [
+      ...count.alerts.filter(a => a.id !== alert.id),
+      {
+        ...alert,
+        at: alertAtValue
+      }
+    ];
+
+    await updateCounts({ ...count, alerts: updatedAlerts });
+  };
+
+  const onToggleAlert = async () => {
     const newAlertOnValue = !alertOnValue;
     setAlertOnValue(newAlertOnValue);
     const updatedAlerts = count.alerts.map(a =>
       a.id === alert.id ? { ...a, on: newAlertOnValue } : a
     );
 
-    countVar({ ...count, alerts: updatedAlerts });
+    await updateCounts({ ...count, alerts: updatedAlerts });
   };
 
   return (
@@ -35,23 +78,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
             keyboardType='numeric'
             maxLength={6}
             onChangeText={v => setAlertAtValue(!v ? null : parseInt(v, 10))}
-            onSubmitEditing={() => {
-              if (!alertAtValue) return;
-              if (count.alerts.find(a => a.at === alertAtValue)) {
-                console.warn(`Alert already set for ${alertAtValue}`);
-                return;
-              }
-
-              const updatedAlerts: Count['alerts'] = [
-                ...count.alerts.filter(a => a.id !== alert.id),
-                {
-                  ...alert,
-                  at: alertAtValue
-                }
-              ];
-
-              countVar({ ...count, alerts: updatedAlerts });
-            }}
+            onSubmitEditing={onSubmitEditingAlertAtValue}
             placeholder={'Number'}
             returnKeyType='done'
             style={styles.alertAtInput}
@@ -67,17 +94,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
                   text: 'Cancel'
                 },
                 {
-                  onPress: () => {
-                    const updatedAlerts = count.alerts.filter(a => a.id !== alert.id);
-                    countVar({ ...count, alerts: updatedAlerts });
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    Snackbar.show({
-                      backgroundColor: '#0CCE6B',
-                      duration: Snackbar.LENGTH_LONG,
-                      text: 'Alert Deleted',
-                      textColor: 'black'
-                    });
-                  },
+                  onPress: onConfirmDeleteAlert,
                   style: 'destructive',
                   text: 'Delete'
                 }
@@ -103,11 +120,12 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
           <Text style={styles.alertAtText}>Repeating</Text>
           <Switch
             disabled={!alert.on}
-            onValueChange={repeat => {
+            onValueChange={async repeat => {
               const updatedAlerts = count.alerts.map(a =>
                 a.id === alert.id ? { ...a, repeat } : a
               );
-              countVar({ ...count, alerts: updatedAlerts });
+
+              await updateCounts({ ...count, alerts: updatedAlerts });
             }}
             trackColor={{ false: '#222', true: '#758BFD' }}
             value={alert.on ? alert.repeat : false}
@@ -129,13 +147,13 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
         <Text style={styles.alertAtText}>Vibrate</Text>
         <Switch
           disabled={!alert.on}
-          onValueChange={vibrateOn => {
+          onValueChange={async vibrateOn => {
             const newType = vibrateOn ? AlertType.SOUND_AND_VIBRATE : AlertType.SOUND;
             const updatedAlerts = count.alerts.map(a =>
               a.id === alert.id ? { ...a, type: newType } : a
             );
 
-            countVar({ ...count, alerts: updatedAlerts });
+            await updateCounts({ ...count, alerts: updatedAlerts });
           }}
           trackColor={{ false: '#222', true: '#758BFD' }}
           value={
@@ -149,13 +167,13 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
         <Text style={styles.alertAtText}>Play Sound</Text>
         <Switch
           disabled={!alert.on}
-          onValueChange={soundOn => {
+          onValueChange={async soundOn => {
             const newType = soundOn ? AlertType.SOUND_AND_VIBRATE : AlertType.VIBRATE;
             const updatedAlerts = count.alerts.map(a =>
               a.id === alert.id ? { ...a, type: newType } : a
             );
 
-            countVar({ ...count, alerts: updatedAlerts });
+            await updateCounts({ ...count, alerts: updatedAlerts });
           }}
           trackColor={{ false: '#222', true: '#758BFD' }}
           value={
