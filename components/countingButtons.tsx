@@ -1,9 +1,9 @@
 import * as Haptics from 'expo-haptics';
-import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
+import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export const CountingButtons = () => {
@@ -40,6 +40,8 @@ export const CountingButtons = () => {
         console.error('incrementCount(): Error updating count in DB: ', error);
       }
     }
+
+    countChangeViaUserInteractionHasHappenedVar(true);
   };
 
   return (
