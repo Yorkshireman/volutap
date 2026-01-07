@@ -5,14 +5,12 @@ import Snackbar from 'react-native-snackbar';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
-// import { useUpdateSavedCountOnCountChange } from '../hooks';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export const SetCount = () => {
   const [newCountValue, setNewCountValue] = useState<Count['value'] | null>(null);
   const counts = useReactiveVar(countsVar);
   const db = useSQLiteContext();
-  // useUpdateSavedCountOnCountChange();
 
   const count = counts.find(c => c.currentlyCounting);
 
