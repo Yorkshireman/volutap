@@ -28,7 +28,7 @@ export default function Index() {
   const [titleToSave, setTitleToSave] = useState('');
   // useFetchAndSetCountsOnMount();
   // usePersistCurrentCount();
-  // useSetCountOnVolumeChange(countingWithVolumeButtons);
+  useSetCountOnVolumeChange(countingWithVolumeButtons);
 
   useEffect(() => {
     setIsIpad(Device.deviceType === Device.DeviceType.TABLET);
@@ -37,9 +37,6 @@ export default function Index() {
   const currentCount = counts.find(count => count.currentlyCounting);
 
   // if (!currentCount) return null;
-  console.log('========== counts ==========');
-  console.log(JSON.stringify(counts, null, 2));
-  console.log('========== end ===========');
   console.log({ showSaveInputField });
   console.log({ showEditInputField });
   return (
