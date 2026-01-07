@@ -23,7 +23,7 @@ export const CountingButtons = () => {
       .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
 
     countsVar(updatedCounts);
-
+    // replace with updateCountInDb util function
     if (updatedCount.saved) {
       try {
         await db.runAsync(`UPDATE savedCounts SET lastModified = ?, value = ? WHERE id = ?`, [
