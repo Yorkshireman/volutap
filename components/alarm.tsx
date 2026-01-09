@@ -12,9 +12,9 @@ export const Alarm = ({
   triggeredAlert: Alert;
   setTriggeredAlert: React.Dispatch<React.SetStateAction<Alert | null>>;
 }) => {
-  // const { countingWithVolumeButtons } = useContext(CountingModeContext);
+  const { countingWithVolumeButtons } = useContext(CountingModeContext);
   const pulseAnim = useRef(new Animated.Value(0)).current;
-  // const { setVolumeToMid } = useSetCountOnVolumeChange(countingWithVolumeButtons);
+  const { setVolumeToMid } = useSetCountOnVolumeChange(countingWithVolumeButtons);
   usePlaySound(triggeredAlert);
   useVibrate(triggeredAlert);
 
@@ -45,9 +45,9 @@ export const Alarm = ({
     return () => {
       loop.stop();
       disableVolumeButtonCountingVar(false);
-      // setVolumeToMid();
+      setVolumeToMid();
     };
-  }, [pulseAnim, triggeredAlert]);
+  }, [pulseAnim, setVolumeToMid, triggeredAlert]);
 
   const backgroundColor = pulseAnim.interpolate({
     inputRange: [0, 1],
