@@ -48,7 +48,8 @@ export const AlarmProvider = ({ children }: { children: ReactNode }) => {
         const updatedCounts = counts.map(c => (c.id === updatedCount.id ? updatedCount : c));
         const originalCounts = counts;
         countsVar(updatedCounts);
-        updatedCount.saved && updateCountInDb(updatedCount, db, () => countsVar(originalCounts));
+        updatedCount.saved &&
+          updateCountInDb({ db, errorCallback: () => countsVar(originalCounts), updatedCount });
       }
     }
 

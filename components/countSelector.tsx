@@ -44,7 +44,9 @@ export const CountSelector = ({
   }, [dropdownIconRotationAnim, isDropdownVisible, counts]);
 
   const currentCount = counts.find(c => c.currentlyCounting);
-  if (!counts.length || !currentCount) return null;
+
+  if (!counts.length) return null;
+
   const shouldEnableDropdown = counts.length > 1;
 
   return (
@@ -60,7 +62,7 @@ export const CountSelector = ({
           }}
         >
           <View style={styles.titleWrapper}>
-            <Text style={styles.text}>{currentCount.title}</Text>
+            <Text style={styles.text}>{currentCount?.title}</Text>
           </View>
           {shouldEnableDropdown ? (
             <Animated.View
@@ -78,15 +80,14 @@ export const CountSelector = ({
         {isDropdownVisible && (
           <ScrollView indicatorStyle='white' style={styles.dropdown}>
             {counts
-              .filter(({ id }) => id !== currentCount.id)
+              .filter(({ id }) => id !== currentCount?.id)
               .map(({ createdAt, id, lastModified, title, value }, i) => {
                 const isLast = i === counts.length - 1;
                 const onPress = () =>
                   onSelectCount({
                     countsVar,
-                    currentCount,
                     db,
-                    id,
+                    selectedCountId: id,
                     setDropdownVisible,
                     setShowSaveInputField
                   });

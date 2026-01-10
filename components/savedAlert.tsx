@@ -21,23 +21,29 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
     setAlertOnValue(alert.on);
   }, [alert.at, alert.on]);
 
-  const updateCounts = async (updatedCount: Count) => {
+  const updateCounts = async (updatedCount: Count, onSuccess?: () => void) => {
     const updatedCounts = counts.map(c => (c.id === count.id ? updatedCount : c));
     const originalCounts = counts;
     countsVar(updatedCounts);
     updatedCount.saved &&
-      (await updateCountInDb(updatedCount, db, () => countsVar(originalCounts)));
+      (await updateCountInDb({
+        db,
+        errorCallback: () => countsVar(originalCounts),
+        successCallback: onSuccess,
+        updatedCount
+      }));
   };
 
   const onConfirmDeleteAlert = async () => {
     const updatedAlerts = count.alerts.filter(a => a.id !== alert.id);
-    await updateCounts({ ...count, alerts: updatedAlerts });
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Snackbar.show({
-      backgroundColor: '#0CCE6B',
-      duration: Snackbar.LENGTH_LONG,
-      text: 'Alert Deleted',
-      textColor: 'black'
+    await updateCounts({ ...count, alerts: updatedAlerts }, () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Snackbar.show({
+        backgroundColor: '#0CCE6B',
+        duration: Snackbar.LENGTH_LONG,
+        text: 'Alert Deleted',
+        textColor: 'black'
+      });
     });
   };
 

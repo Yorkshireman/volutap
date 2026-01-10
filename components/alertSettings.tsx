@@ -53,18 +53,27 @@ export const AlertSettings = () => {
     const originalCounts = counts;
     countsVar(updatedCounts);
 
-    if (updatedCount.saved) {
-      await updateCountInDb(updatedCount, db, () => countsVar(originalCounts));
-    }
+    const successCallback = () => {
+      setAlertAtValue(null);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Snackbar.show({
+        backgroundColor: '#0CCE6B',
+        duration: Snackbar.LENGTH_LONG,
+        text: 'Saved!',
+        textColor: 'black'
+      });
+    };
 
-    setAlertAtValue(null);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Snackbar.show({
-      backgroundColor: '#0CCE6B',
-      duration: Snackbar.LENGTH_LONG,
-      text: 'Saved!',
-      textColor: 'black'
-    });
+    if (updatedCount.saved) {
+      await updateCountInDb({
+        db,
+        errorCallback: () => countsVar(originalCounts),
+        successCallback,
+        updatedCount
+      });
+    } else {
+      successCallback();
+    }
   };
 
   return (

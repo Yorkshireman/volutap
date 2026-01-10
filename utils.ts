@@ -138,29 +138,29 @@ export const onPressStartNewCountButton = async (
 
 export const onSelectCount = async ({
   countsVar,
-  currentCount,
   db,
-  id,
+  selectedCountId,
   setDropdownVisible,
   setShowSaveInputField
 }: {
   countsVar: ReactiveVar<Count[]>;
-  currentCount: Count;
   db: SQLiteDatabase;
-  id: Count['id'];
+  selectedCountId: Count['id'];
   setDropdownVisible: SetDropdownVisible;
   setShowSaveInputField: SetShowSaveInputField;
 }) => {
   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  const currentCounts = countsVar();
-  const selectedCount = currentCounts.find(c => c.id === id);
+  const counts = countsVar();
+  const selectedCount = counts.find(c => c.id === selectedCountId);
 
   if (!selectedCount) {
     console.error('onSelectCount(): No count found with the selected id.');
     return;
   }
 
-  if (!currentCount.saved) {
+  const currentCount = counts.find(c => c.currentlyCounting);
+
+  if (!currentCount?.saved) {
     Alert.alert(
       'Save Current Count?',
       'You have a count in progress. Do you want to save it before switching?',
@@ -168,11 +168,11 @@ export const onSelectCount = async ({
         {
           onPress: async () => {
             const newSelectedCount = { ...selectedCount, currentlyCounting: 1 as const };
-            const newCounts = currentCounts
+            const newCounts = counts
               .map(c => (c.id === selectedCount?.id ? newSelectedCount : c))
               .filter(c => c.id !== currentCount?.id);
 
-            await updateCountInDb(newSelectedCount, db);
+            await updateCountInDb({ db, updatedCount: newSelectedCount });
             countsVar(newCounts);
             setDropdownVisible(false);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -192,29 +192,36 @@ export const onSelectCount = async ({
     return;
   }
 
-  try {
-    const newCurrentCount = { ...currentCount, currentlyCounting: 0 as const };
-    await updateCountInDb(newCurrentCount, db);
-    const newCounts = currentCounts.map(c => (c.id === currentCount.id ? newCurrentCount : c));
+  const newCurrentCount = { ...currentCount, currentlyCounting: 0 as const };
+
+  const successCallback = () => {
+    const newCounts = counts.map(c => (c.id === currentCount.id ? newCurrentCount : c));
     countsVar(newCounts);
-    setDropdownVisible(false);
-  } catch (error) {
-    console.error('onSelectCount(): ', error);
-    countsVar(currentCounts);
-    setDropdownVisible(false);
-  }
+  };
+
+  await updateCountInDb({
+    db,
+    errorCallback: () => countsVar(counts),
+    successCallback,
+    updatedCount: newCurrentCount
+  });
+
+  setDropdownVisible(false);
 
   const currentCountsAfterFirstUpdate = countsVar();
+  const newSelectedCount = { ...selectedCount, currentlyCounting: 1 as const };
 
-  try {
-    const newSelectedCount = { ...selectedCount, currentlyCounting: 1 as const };
-    await updateCountInDb(newSelectedCount, db);
+  const successCallbackSecondUpdate = () => {
     const newCounts = countsVar().map(c => (c.id === selectedCount.id ? newSelectedCount : c));
     countsVar(newCounts);
-  } catch (error) {
-    console.error('onSelectCount(): ', error);
-    countsVar(currentCountsAfterFirstUpdate);
-  }
+  };
+
+  await updateCountInDb({
+    db,
+    errorCallback: () => countsVar(currentCountsAfterFirstUpdate),
+    successCallback: successCallbackSecondUpdate,
+    updatedCount: newSelectedCount
+  });
 };
 
 export const saveCountToDb = async (count: Count, db: SQLiteDatabase) => {
@@ -236,11 +243,17 @@ export const saveCountToDb = async (count: Count, db: SQLiteDatabase) => {
   }
 };
 
-export const updateCountInDb = async (
-  updatedCount: Count,
-  db: SQLiteDatabase,
-  errorCallback?: Function
-) => {
+export const updateCountInDb = async ({
+  updatedCount,
+  db,
+  errorCallback,
+  successCallback
+}: {
+  updatedCount: Count;
+  db: SQLiteDatabase;
+  errorCallback?: () => void;
+  successCallback?: () => void;
+}) => {
   try {
     await db.runAsync(
       `UPDATE savedCounts SET
@@ -268,6 +281,8 @@ export const updateCountInDb = async (
       'updateCountInDb(): Count updated successfully:',
       JSON.stringify(updatedCount, null, 2)
     );
+
+    successCallback && successCallback();
   } catch (e) {
     console.error('Error updating count in database: ', e);
     errorCallback && errorCallback();

@@ -43,14 +43,20 @@ export const EditCountTitleInputField = ({
 
     const updatedCount = { ...count, title: trimmed };
     const updatedCounts = counts.map(c => (c.id === count.id ? updatedCount : c));
-    await updateCountInDb(updatedCount, db);
-    countsVar(updatedCounts);
-    setTitleToSave('');
-    Snackbar.show({
-      backgroundColor: '#758BFD',
-      duration: Snackbar.LENGTH_LONG,
-      text: 'Saved!',
-      textColor: 'black'
+
+    await updateCountInDb({
+      db,
+      successCallback: () => {
+        countsVar(updatedCounts);
+        setTitleToSave('');
+        Snackbar.show({
+          backgroundColor: '#758BFD',
+          duration: Snackbar.LENGTH_LONG,
+          text: 'Saved!',
+          textColor: 'black'
+        });
+      },
+      updatedCount
     });
   };
 

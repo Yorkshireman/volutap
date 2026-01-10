@@ -33,9 +33,12 @@ export default function MultiCount() {
     const originalCounts = counts;
     countsVar(updatedCounts);
     updatedCount.saved &&
-      (await updateCountInDb(updatedCount, db, () => countsVar(originalCounts)));
-    // change updateCountInDb() to accept a success callback, and pass countChangeViaUserInteractionHasHappenedVar(true) there
-    countChangeViaUserInteractionHasHappenedVar(true);
+      (await updateCountInDb({
+        db,
+        errorCallback: () => countsVar(originalCounts),
+        successCallback: () => countChangeViaUserInteractionHasHappenedVar(true),
+        updatedCount
+      }));
   };
 
   return (

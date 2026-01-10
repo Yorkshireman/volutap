@@ -80,9 +80,12 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
               const originalCounts = counts;
               countsVar(updatedCounts);
               updatedCount.saved &&
-                updateCountInDb(updatedCount, db, () => countsVar(originalCounts));
-              // change updateCountInDb() to accept a success callback, and pass countChangeViaUserInteractionHasHappenedVar(true) there
-              countChangeViaUserInteractionHasHappenedVar(true);
+                updateCountInDb({
+                  db,
+                  errorCallback: () => countsVar(originalCounts),
+                  successCallback: () => countChangeViaUserInteractionHasHappenedVar(true),
+                  updatedCount
+                });
             }
           } else if (volume < 0.5) {
             if (countValueRef.current === 0) {
@@ -106,9 +109,12 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
               const originalCounts = counts;
               countsVar(updatedCounts);
               updatedCount.saved &&
-                updateCountInDb(updatedCount, db, () => countsVar(originalCounts));
-              // change updateCountInDb() to accept a success callback, and pass countChangeViaUserInteractionHasHappenedVar(true) there
-              countChangeViaUserInteractionHasHappenedVar(true);
+                updateCountInDb({
+                  db,
+                  errorCallback: () => countsVar(originalCounts),
+                  successCallback: () => countChangeViaUserInteractionHasHappenedVar(true),
+                  updatedCount
+                });
             }
           }
         });
