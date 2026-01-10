@@ -1,11 +1,11 @@
 import * as Haptics from 'expo-haptics';
 import type { Count } from '../types';
-import { countsVar } from '../reactiveVars';
 import Snackbar from 'react-native-snackbar';
 import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
+import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export const SetCount = () => {
@@ -30,6 +30,7 @@ export const SetCount = () => {
       .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
 
     const originalCounts = counts;
+    countChangeViaUserInteractionHasHappenedVar(false);
     countsVar(updatedCounts);
     updatedCount.saved &&
       (await updateCountInDb({
