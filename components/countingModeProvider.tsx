@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CountingModeContext } from '../contexts';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
-export const CountingModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CountingModeProvider = ({ children }: { children: ReactNode }) => {
   const [countingWithVolumeButtons, setCountingWithVolumeButtonsState] = useState(false);
 
   useEffect(() => {

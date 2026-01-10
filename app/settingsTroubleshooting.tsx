@@ -15,7 +15,7 @@ export default function SettingsTroubleshooting() {
         <View style={styles.section}>
           <Text style={styles.heading}>Vibration not working?</Text>
           <Text style={styles.bodyText}>
-            Settings {'>'} Sounds & Haptics {'>'} Haptics
+            Check your iPhone Settings {'>'} Sounds & Haptics {'>'} Haptics
           </Text>
           <Text style={styles.bodyText}>
             The Vibration may not work if &quot;Don&apos;t Play in Silent Mode&quot; or &quot;Never
@@ -27,8 +27,8 @@ export default function SettingsTroubleshooting() {
           <Text style={styles.bodyText}>
             First check your volume isn&apos;t muted or too low. Then:
           </Text>
-          <Text style={styles.bodyText}>Settings {'>'} Sounds & Haptics</Text>
-          <Text style={styles.bodyText}>Ensure Silent Mode is off.</Text>
+          <Text style={styles.bodyText}>Check your iPhone Settings {'>'} Sounds & Haptics</Text>
+          <Text style={styles.bodyText}>Ensure &quot;Silent Mode&quot; is off.</Text>
         </View>
         <Button style={{ alignSelf: 'flex-end' }} onPress={navigation.goBack}>
           Okay

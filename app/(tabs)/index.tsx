@@ -1,8 +1,9 @@
 import * as Device from 'expo-device';
 import { CountingModeContext } from '../../contexts';
-import { countVar } from '../../reactiveVars';
+import { countsVar } from '../../reactiveVars';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReactiveVar } from '@apollo/client';
+import { useSetCountOnVolumeChange } from '../../hooks';
 import {
   CountingButtons,
   CountSelector,
@@ -13,26 +14,21 @@ import {
 } from '../../components';
 import { StyleSheet, Text, View } from 'react-native';
 import { useContext, useEffect, useState } from 'react';
-import {
-  useFetchAndSetCurrentCountAndIdOnMount,
-  usePersistCurrentCount,
-  useSetCountOnVolumeChange
-} from '../../hooks';
 
 export default function Index() {
-  const count = useReactiveVar(countVar);
+  const counts = useReactiveVar(countsVar);
   const { countingWithVolumeButtons } = useContext(CountingModeContext);
   const [isIpad, setIsIpad] = useState(false);
   const [showEditInputField, setShowEditInputField] = useState(false);
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, setTitleToSave] = useState('');
-  useFetchAndSetCurrentCountAndIdOnMount();
-  usePersistCurrentCount();
   useSetCountOnVolumeChange(countingWithVolumeButtons);
 
   useEffect(() => {
     setIsIpad(Device.deviceType === Device.DeviceType.TABLET);
   }, []);
+
+  const currentCount = counts.find(count => count.currentlyCounting);
 
   return (
     <SafeAreaView style={{ backgroundColor: '#27187E', flex: 1 }}>
@@ -62,10 +58,9 @@ export default function Index() {
           numberOfLines={1}
           style={{ ...styles.count, fontSize: isIpad ? 300 : 200 }}
         >
-          {count.value}
+          {currentCount?.value}
         </Text>
         <CountToolbar
-          count={count}
           setShowEditInputField={setShowEditInputField}
           setShowSaveInputField={setShowSaveInputField}
           setTitleToSave={setTitleToSave}

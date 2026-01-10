@@ -1,27 +1,25 @@
 import { Alarm } from './alarm';
+import { Alert } from '../types';
+import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
-import { useUpdateSavedCountOnCountChange } from '../hooks';
-import { Alert, Count } from '../types';
-import { countChangeViaUserInteractionHasHappenedVar, countVar } from '../reactiveVars';
-import { useEffect, useRef, useState } from 'react';
+import { useSQLiteContext } from 'expo-sqlite';
+import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 
-export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const count = useReactiveVar(countVar);
+export const AlarmProvider = ({ children }: { children: ReactNode }) => {
+  const counts = useReactiveVar(countsVar);
   const countChangeViaUserInteractionHasHappened = useReactiveVar(
     countChangeViaUserInteractionHasHappenedVar
   );
 
+  const db = useSQLiteContext();
   const prevCountValueRef = useRef<number | undefined>(undefined);
-  useUpdateSavedCountOnCountChange();
   const [triggeredAlert, setTriggeredAlert] = useState<Alert | null>(null);
-  const triggerCountValues: Count['value'][] = count.alerts
-    .filter(alert => alert.on)
-    .map(alert => alert.at);
-
-  const countTriggerReached = triggerCountValues.includes(count.value);
 
   useEffect(() => {
-    if (prevCountValueRef.current === count.value) {
+    const count = counts.find(c => c.currentlyCounting);
+
+    if (!count || prevCountValueRef.current === count.value) {
       return;
     }
 
@@ -33,21 +31,30 @@ export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
-    if (countTriggerReached) {
-      const triggeredAlert = count.alerts.find(alert => alert.at === count.value);
-      setTriggeredAlert(triggeredAlert || null);
+    const triggerCountValues = count.alerts.filter(alert => alert.on).map(alert => alert.at);
+    const countTriggerReached = triggerCountValues.includes(count.value);
 
-      if (triggeredAlert && !triggeredAlert.repeat) {
+    if (countTriggerReached) {
+      const triggeredAlert = count.alerts.find(alert => alert.at === count.value)!;
+      setTriggeredAlert(triggeredAlert);
+
+      if (!triggeredAlert.repeat) {
         const updatedAlert = { ...triggeredAlert, on: false };
-        countVar({
+        const updatedCount = {
           ...count,
           alerts: count.alerts.map(alert => (alert.id === updatedAlert.id ? updatedAlert : alert))
-        });
+        };
+
+        const updatedCounts = counts.map(c => (c.id === updatedCount.id ? updatedCount : c));
+        const originalCounts = counts;
+        countsVar(updatedCounts);
+        updatedCount.saved &&
+          updateCountInDb({ db, errorCallback: () => countsVar(originalCounts), updatedCount });
       }
     }
 
     prevCountValueRef.current = count.value;
-  }, [count, countChangeViaUserInteractionHasHappened, countTriggerReached]);
+  }, [counts, countChangeViaUserInteractionHasHappened, db]);
 
   return (
     <>

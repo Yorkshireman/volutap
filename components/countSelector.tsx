@@ -1,8 +1,8 @@
 import { CountSelectorDropdownItem } from './countSelectorDropdownItem';
-import { countVar } from '../reactiveVars';
+import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { onSelectCount } from '../utils';
-import { usePopulateCountSelector } from '../hooks';
+import type { SetShowSaveInputField } from '../types';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
@@ -14,7 +14,6 @@ import {
   useAnimatedValue,
   View
 } from 'react-native';
-import type { Count, SetShowSaveInputField } from '../types';
 import { useEffect, useState } from 'react';
 
 export const CountSelector = ({
@@ -22,12 +21,10 @@ export const CountSelector = ({
 }: {
   setShowSaveInputField: SetShowSaveInputField;
 }) => {
-  const count = useReactiveVar(countVar);
-  const [counts, setCounts] = useState<Count[]>();
+  const counts = useReactiveVar(countsVar);
   const db = useSQLiteContext();
   const dropdownIconRotationAnim = useAnimatedValue(0);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-  usePopulateCountSelector(count, db, setCounts);
 
   const rotate = dropdownIconRotationAnim.interpolate({
     inputRange: [0, 180],
@@ -44,11 +41,13 @@ export const CountSelector = ({
     };
 
     rotateDropdownIconUp();
-  }, [dropdownIconRotationAnim, isDropdownVisible, count.id]);
+  }, [dropdownIconRotationAnim, isDropdownVisible, counts]);
 
-  if (!counts?.length) return null;
+  const currentCount = counts.find(c => c.currentlyCounting);
 
-  const shouldEnableDropdown = !count.id || counts.length > 1;
+  if (!counts.length) return null;
+
+  const shouldEnableDropdown = counts.length > 1;
 
   return (
     <View style={styles.container}>
@@ -63,7 +62,7 @@ export const CountSelector = ({
           }}
         >
           <View style={styles.titleWrapper}>
-            <Text style={styles.text}>{count.title}</Text>
+            <Text style={styles.text}>{currentCount?.title}</Text>
           </View>
           {shouldEnableDropdown ? (
             <Animated.View
@@ -81,15 +80,14 @@ export const CountSelector = ({
         {isDropdownVisible && (
           <ScrollView indicatorStyle='white' style={styles.dropdown}>
             {counts
-              .filter(({ id }) => id !== count.id)
+              .filter(({ id }) => id !== currentCount?.id)
               .map(({ createdAt, id, lastModified, title, value }, i) => {
                 const isLast = i === counts.length - 1;
                 const onPress = () =>
                   onSelectCount({
-                    count,
-                    countVar,
+                    countsVar,
                     db,
-                    id,
+                    selectedCountId: id,
                     setDropdownVisible,
                     setShowSaveInputField
                   });

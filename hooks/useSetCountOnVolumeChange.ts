@@ -1,18 +1,21 @@
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
 import type { Count } from '../types';
+import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
+import { useSQLiteContext } from 'expo-sqlite';
 import { VolumeManager } from 'react-native-volume-manager';
 import {
   countChangeViaUserInteractionHasHappenedVar,
-  countVar,
+  countsVar,
   disableVolumeButtonCountingVar
 } from '../reactiveVars';
 import { useEffect, useRef } from 'react';
 
 export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) => {
-  const count = useReactiveVar(countVar);
-  const countValueRef = useRef<Count['value']>(count.value);
+  const counts = useReactiveVar(countsVar);
+  const countValueRef = useRef<Count['value']>(counts.find(c => c.currentlyCounting)?.value);
+  const db = useSQLiteContext();
   const didMount = useRef(false);
   const justSwitchedMode = useRef(false);
   const programmaticVolumeChangeRef = useRef(false);
@@ -58,12 +61,31 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
             return;
           }
 
+          const counts = countsVar();
           const disableVolumeButtonCounting = disableVolumeButtonCountingVar();
+
           if (volume > 0.5) {
-            const current = countVar();
+            const current = counts.find(c => c.currentlyCounting)!;
             if (!disableVolumeButtonCounting) {
-              countVar({ ...current, value: current.value + 1 });
+              const updatedCount: Count = {
+                ...current,
+                lastModified: new Date().toISOString(),
+                value: current!.value + 1
+              };
+
+              const updatedCounts = counts
+                .map(c => (c.id === current!.id ? updatedCount : c))
+                .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
+
+              const originalCounts = counts;
               countChangeViaUserInteractionHasHappenedVar(true);
+              countsVar(updatedCounts);
+              updatedCount.saved &&
+                updateCountInDb({
+                  db,
+                  errorCallback: () => countsVar(originalCounts),
+                  updatedCount
+                });
             }
           } else if (volume < 0.5) {
             if (countValueRef.current === 0) {
@@ -72,10 +94,27 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
               return;
             }
 
-            const current = countVar();
+            const current = counts.find(c => c.currentlyCounting)!;
             if (!disableVolumeButtonCounting) {
-              countVar({ ...current, value: current.value - 1 });
+              const updatedCount: Count = {
+                ...current,
+                lastModified: new Date().toISOString(),
+                value: current!.value - 1
+              };
+
+              const updatedCounts = counts
+                .map(c => (c.id === current!.id ? updatedCount : c))
+                .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
+
+              const originalCounts = counts;
               countChangeViaUserInteractionHasHappenedVar(true);
+              countsVar(updatedCounts);
+              updatedCount.saved &&
+                updateCountInDb({
+                  db,
+                  errorCallback: () => countsVar(originalCounts),
+                  updatedCount
+                });
             }
           }
         });
@@ -86,7 +125,7 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
       silentSoundRef.current?.unloadAsync();
       sub?.remove();
     };
-  }, [countingWithVolumeButtons]);
+  }, [countingWithVolumeButtons, db]);
 
   useEffect(() => {
     if (!didMount.current) {
@@ -101,7 +140,7 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
       return;
     }
 
-    countValueRef.current = count.value;
+    countValueRef.current = counts.find(c => c.currentlyCounting)?.value;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
     const resetVolume = async () => {
@@ -110,7 +149,7 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
     };
 
     resetVolume();
-  }, [count, countingWithVolumeButtons]);
+  }, [counts, countingWithVolumeButtons]);
 
   const setVolumeToMid = async () => {
     await VolumeManager.setVolume(0.5);

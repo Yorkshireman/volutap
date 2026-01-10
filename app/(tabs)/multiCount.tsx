@@ -1,89 +1,44 @@
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useFocusEffect } from 'expo-router';
+import { updateCountInDb } from '../../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
-import type { Count, DbCount } from '../../types';
-import { countVar, savedCountsVar } from '../../reactiveVars';
+import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../../reactiveVars';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useCallback, useRef } from 'react';
 
 export default function MultiCount() {
-  const count = useReactiveVar(countVar);
+  const counts = useReactiveVar(countsVar);
   const db = useSQLiteContext();
-  const fetchingRef = useRef(false);
-  const savedCounts = useReactiveVar(savedCountsVar);
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchSavedCounts = async () => {
-        if (fetchingRef.current) return;
-        fetchingRef.current = true;
-
-        try {
-          const savedCounts = await db.getAllAsync<DbCount>('SELECT * FROM savedCounts');
-          if (!savedCounts || !savedCounts.length) {
-            console.log('No saved counts found in the database.');
-            savedCountsVar(null);
-            return;
-          }
-
-          const counts: Count[] = savedCounts.map(c => {
-            return {
-              ...c,
-              alerts: JSON.parse(c.alerts)
-            };
-          });
-
-          savedCountsVar(counts);
-        } catch (error) {
-          console.error('Error fetching saved counts from the database: ', error);
-        } finally {
-          fetchingRef.current = false;
-        }
-      };
-
-      fetchSavedCounts();
-    }, [db])
-  );
+  const savedCounts = counts
+    .filter(c => c.saved)
+    .sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1));
 
   const Divider = () => <View style={styles.divider} />;
 
-  const incrementCount = async (id: Count['id'], newValue: number) => {
-    if (!id) {
-      console.error('No ID provided for incrementing count.');
-      return;
-    }
-
-    if (id === count.id) {
-      countVar({ ...count, value: newValue });
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      return;
-    }
-
-    const now = new Date().toISOString();
-    try {
-      await db.runAsync(`UPDATE savedCounts SET lastModified = ?, value = ? WHERE id = ?`, [
-        now,
-        newValue,
-        id
-      ]);
-
-      const updatedCounts = savedCounts?.map(savedCount =>
-        savedCount.id === id ? { ...savedCount, lastModified: now, value: newValue } : savedCount
-      );
-
-      console.log(
-        'Count updated in DB:',
-        updatedCounts?.find(c => c.id === id)
-      );
-
-      savedCountsVar(updatedCounts);
-    } catch (error) {
-      console.error('Error incrementing count:', error);
-    }
-
+  const incrementCount = async (id: string, newValue: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    const count = counts.find(c => c.id === id);
+
+    if (!count) {
+      console.warn(`MultiCount, incrementCount(): No count found with id ${id}`);
+      return;
+    }
+
+    const updatedCount = { ...count, lastModified: new Date().toISOString(), value: newValue };
+    const updatedCounts = counts
+      .map(c => (c.id === count.id ? updatedCount : c))
+      .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
+
+    const originalCounts = counts;
+    countChangeViaUserInteractionHasHappenedVar(true);
+    countsVar(updatedCounts);
+    updatedCount.saved &&
+      (await updateCountInDb({
+        db,
+        errorCallback: () => countsVar(originalCounts),
+        updatedCount
+      }));
   };
 
   return (
@@ -95,7 +50,7 @@ export default function MultiCount() {
           </Text>
         </View>
       )}
-      {savedCounts?.length && (
+      {savedCounts?.length ? (
         <View style={styles.container}>
           <FlatList
             data={savedCounts}
@@ -144,7 +99,7 @@ export default function MultiCount() {
             style={styles.list}
           />
         </View>
-      )}
+      ) : null}
     </SafeAreaView>
   );
 }

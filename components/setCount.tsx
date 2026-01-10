@@ -1,28 +1,59 @@
 import * as Haptics from 'expo-haptics';
 import type { Count } from '../types';
-import { countVar } from '../reactiveVars';
 import Snackbar from 'react-native-snackbar';
+import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
-import { useUpdateSavedCountOnCountChange } from '../hooks';
+import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export const SetCount = () => {
   const [newCountValue, setNewCountValue] = useState<Count['value'] | null>(null);
-  const count = useReactiveVar(countVar);
-  useUpdateSavedCountOnCountChange();
+  const counts = useReactiveVar(countsVar);
+  const db = useSQLiteContext();
 
-  const onSubmitCount = () => {
+  const count = counts.find(c => c.currentlyCounting);
+
+  const onSubmitCount = async () => {
+    if (!count) throw new Error('SetCount onSubmitCount(): count is falsey.');
     if (!newCountValue) return;
-    countVar({ ...count, value: newCountValue });
-    setNewCountValue(null);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    Snackbar.show({
-      backgroundColor: '#0CCE6B',
-      duration: Snackbar.LENGTH_LONG,
-      text: `Count set to ${newCountValue}`,
-      textColor: 'black'
-    });
+
+    const successCallback = () => {
+      setNewCountValue(null);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      Snackbar.show({
+        backgroundColor: '#0CCE6B',
+        duration: Snackbar.LENGTH_LONG,
+        text: `Count set to ${newCountValue}`,
+        textColor: 'black'
+      });
+    };
+
+    const updatedCount: Count = {
+      ...count,
+      lastModified: new Date().toISOString(),
+      value: newCountValue
+    };
+
+    const updatedCounts = counts
+      .map(c => (c.id === count.id ? updatedCount : c))
+      .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
+
+    const originalCounts = counts;
+    countChangeViaUserInteractionHasHappenedVar(false);
+    countsVar(updatedCounts);
+
+    if (updatedCount.saved) {
+      await updateCountInDb({
+        db,
+        errorCallback: () => countsVar(originalCounts),
+        successCallback,
+        updatedCount
+      });
+    } else {
+      successCallback();
+    }
   };
 
   return (
@@ -33,7 +64,7 @@ export const SetCount = () => {
           maxLength={7}
           onChangeText={v => setNewCountValue(!v ? null : parseInt(v, 10))}
           onSubmitEditing={onSubmitCount}
-          placeholder={`Count is currently at ${count.value}`}
+          placeholder={`Count is currently at ${count?.value}`}
           placeholderTextColor='#888'
           returnKeyType='done'
           keyboardType='numeric'
