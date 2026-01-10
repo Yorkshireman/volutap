@@ -7,7 +7,7 @@
 
 Once built (`development` build) it should install the app on the phone and start it.
 
-## Running an existing development on a physical iPhone
+## Running an existing development build on a physical iPhone
 
 - `npm run start-dev-client`
 - Scan QR code with phone
