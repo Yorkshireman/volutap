@@ -78,12 +78,12 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
                 .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
 
               const originalCounts = counts;
+              countChangeViaUserInteractionHasHappenedVar(true);
               countsVar(updatedCounts);
               updatedCount.saved &&
                 updateCountInDb({
                   db,
                   errorCallback: () => countsVar(originalCounts),
-                  successCallback: () => countChangeViaUserInteractionHasHappenedVar(true),
                   updatedCount
                 });
             }
@@ -107,12 +107,12 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
                 .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
 
               const originalCounts = counts;
+              countChangeViaUserInteractionHasHappenedVar(true);
               countsVar(updatedCounts);
               updatedCount.saved &&
                 updateCountInDb({
                   db,
                   errorCallback: () => countsVar(originalCounts),
-                  successCallback: () => countChangeViaUserInteractionHasHappenedVar(true),
                   updatedCount
                 });
             }
