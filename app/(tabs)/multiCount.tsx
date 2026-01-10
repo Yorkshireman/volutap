@@ -31,12 +31,12 @@ export default function MultiCount() {
       .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
 
     const originalCounts = counts;
+    countChangeViaUserInteractionHasHappenedVar(true);
     countsVar(updatedCounts);
     updatedCount.saved &&
       (await updateCountInDb({
         db,
         errorCallback: () => countsVar(originalCounts),
-        successCallback: () => countChangeViaUserInteractionHasHappenedVar(true),
         updatedCount
       }));
   };
@@ -50,7 +50,7 @@ export default function MultiCount() {
           </Text>
         </View>
       )}
-      {savedCounts?.length && (
+      {savedCounts?.length ? (
         <View style={styles.container}>
           <FlatList
             data={savedCounts}
@@ -99,7 +99,7 @@ export default function MultiCount() {
             style={styles.list}
           />
         </View>
-      )}
+      ) : null}
     </SafeAreaView>
   );
 }
