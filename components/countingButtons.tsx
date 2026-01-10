@@ -24,12 +24,12 @@ export const CountingButtons = () => {
       .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
 
     const originalCounts = counts;
+    countChangeViaUserInteractionHasHappenedVar(true);
     countsVar(updatedCounts);
     updatedCount.saved &&
       (await updateCountInDb({
         db,
         errorCallback: () => countsVar(originalCounts),
-        successCallback: () => countChangeViaUserInteractionHasHappenedVar(true),
         updatedCount
       }));
   };
