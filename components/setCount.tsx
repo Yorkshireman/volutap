@@ -19,6 +19,17 @@ export const SetCount = () => {
     if (!count) throw new Error('SetCount onSubmitCount(): count is falsey.');
     if (!newCountValue) return;
 
+    const successCallback = () => {
+      setNewCountValue(null);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      Snackbar.show({
+        backgroundColor: '#0CCE6B',
+        duration: Snackbar.LENGTH_LONG,
+        text: `Count set to ${newCountValue}`,
+        textColor: 'black'
+      });
+    };
+
     const updatedCount: Count = {
       ...count,
       lastModified: new Date().toISOString(),
@@ -32,22 +43,17 @@ export const SetCount = () => {
     const originalCounts = counts;
     countChangeViaUserInteractionHasHappenedVar(false);
     countsVar(updatedCounts);
-    updatedCount.saved &&
-      (await updateCountInDb({
+
+    if (updatedCount.saved) {
+      await updateCountInDb({
         db,
         errorCallback: () => countsVar(originalCounts),
-        successCallback: () => {
-          setNewCountValue(null);
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-          Snackbar.show({
-            backgroundColor: '#0CCE6B',
-            duration: Snackbar.LENGTH_LONG,
-            text: `Count set to ${newCountValue}`,
-            textColor: 'black'
-          });
-        },
+        successCallback,
         updatedCount
-      }));
+      });
+    } else {
+      successCallback();
+    }
   };
 
   return (
