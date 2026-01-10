@@ -1,16 +1,14 @@
 {
   "expo": {
-    "name": "Counter",
-    "assetBundlePatterns": [
-      "assets/*"
-    ],
-    "slug": "counter",
+    "name": "VoluTap",
+    "assetBundlePatterns": ["assets/*"],
+    "slug": "volutap",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "scheme": "counter",
+    "scheme": "volutap",
     "splash": {
       "image": "./assets/icon.png",
       "resizeMode": "contain",
@@ -18,12 +16,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.codedegen.counter",
+      "bundleIdentifier": "com.codedegen.volutap",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": [
-          "audio"
-        ]
+        "UIBackgroundModes": ["audio"]
       }
     },
     "extra": {
@@ -32,11 +28,7 @@
         "projectId": "bbe4816c-87db-40fd-b4eb-cf7274e754fb"
       }
     },
-    "plugins": [
-      "expo-router",
-      "expo-sqlite",
-      "expo-audio"
-    ],
+    "plugins": ["expo-router", "expo-sqlite", "expo-audio"],
     "updates": {
       "enabled": true
     }
