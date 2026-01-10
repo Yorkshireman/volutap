@@ -86,7 +86,7 @@ export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: 
           const updatedCounts = counts.map(c => (c.id === count.id ? updatedCount : c));
           countsVar(updatedCounts);
           if (!count.saved) return;
-          updateCountInDb(updatedCount, db);
+          updateCountInDb({ db, updatedCount });
         },
         text: 'OK'
       }
@@ -284,7 +284,7 @@ export const updateCountInDb = async ({
 
     successCallback && successCallback();
   } catch (e) {
-    console.error('Error updating count in database: ', e);
+    console.error('updateCountInDb(): Error updating count in database: ', e);
     errorCallback && errorCallback();
   }
 };

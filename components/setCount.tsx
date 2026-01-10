@@ -2,6 +2,7 @@ import * as Haptics from 'expo-haptics';
 import type { Count } from '../types';
 import { countsVar } from '../reactiveVars';
 import Snackbar from 'react-native-snackbar';
+import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
@@ -28,34 +29,24 @@ export const SetCount = () => {
       .map(c => (c.id === count.id ? updatedCount : c))
       .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
 
+    const originalCounts = counts;
     countsVar(updatedCounts);
-
-    if (updatedCount.saved) {
-      try {
-        await db.runAsync(`UPDATE savedCounts SET lastModified = ?, value = ? WHERE id = ?`, [
-          updatedCount.lastModified,
-          updatedCount.value,
-          updatedCount.id
-        ]);
-
-        console.log(
-          'incrementCount(): Count updated in DB: ',
-          JSON.stringify(updatedCount, null, 2)
-        );
-      } catch (error) {
-        console.error('incrementCount(): Error updating count in DB: ', error);
-        countsVar(counts);
-      }
-    }
-
-    setNewCountValue(null);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    Snackbar.show({
-      backgroundColor: '#0CCE6B',
-      duration: Snackbar.LENGTH_LONG,
-      text: `Count set to ${newCountValue}`,
-      textColor: 'black'
-    });
+    updatedCount.saved &&
+      (await updateCountInDb({
+        db,
+        errorCallback: () => countsVar(originalCounts),
+        successCallback: () => {
+          setNewCountValue(null);
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          Snackbar.show({
+            backgroundColor: '#0CCE6B',
+            duration: Snackbar.LENGTH_LONG,
+            text: `Count set to ${newCountValue}`,
+            textColor: 'black'
+          });
+        },
+        updatedCount
+      }));
   };
 
   return (

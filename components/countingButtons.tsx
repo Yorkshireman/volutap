@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
@@ -22,26 +23,15 @@ export const CountingButtons = () => {
       .map(c => (c.id === count.id ? updatedCount : c))
       .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
 
+    const originalCounts = counts;
     countsVar(updatedCounts);
-    // replace with updateCountInDb util function
-    if (updatedCount.saved) {
-      try {
-        await db.runAsync(`UPDATE savedCounts SET lastModified = ?, value = ? WHERE id = ?`, [
-          updatedCount.lastModified,
-          updatedCount.value,
-          updatedCount.id
-        ]);
-
-        console.log(
-          'incrementCount(): Count updated in DB: ',
-          JSON.stringify(updatedCount, null, 2)
-        );
-      } catch (error) {
-        console.error('incrementCount(): Error updating count in DB: ', error);
-      }
-    }
-
-    countChangeViaUserInteractionHasHappenedVar(true);
+    updatedCount.saved &&
+      (await updateCountInDb({
+        db,
+        errorCallback: () => countsVar(originalCounts),
+        successCallback: () => countChangeViaUserInteractionHasHappenedVar(true),
+        updatedCount
+      }));
   };
 
   return (
