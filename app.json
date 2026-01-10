@@ -25,7 +25,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "bbe4816c-87db-40fd-b4eb-cf7274e754fb"
+        "projectId": "7f1e16ef-93d6-47d4-9b0f-2f4944474cf9"
       }
     },
     "plugins": ["expo-router", "expo-sqlite", "expo-audio"],
