@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
+import { countChangeViaUserInteractionHasHappenedVar } from './reactiveVars';
 import type { ReactiveVar } from '@apollo/client';
 import { SQLiteDatabase } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
@@ -173,6 +174,7 @@ export const onSelectCount = async ({
               .filter(c => c.id !== currentCount?.id);
 
             await updateCountInDb({ db, updatedCount: newSelectedCount });
+            countChangeViaUserInteractionHasHappenedVar(false);
             countsVar(newCounts);
             setDropdownVisible(false);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -213,6 +215,7 @@ export const onSelectCount = async ({
 
   const successCallbackSecondUpdate = () => {
     const newCounts = countsVar().map(c => (c.id === selectedCount.id ? newSelectedCount : c));
+    countChangeViaUserInteractionHasHappenedVar(false);
     countsVar(newCounts);
   };
 
