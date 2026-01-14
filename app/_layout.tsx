@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 import { countsVar } from '../reactiveVars';
 import { PaperProvider } from 'react-native-paper';
 import { Stack } from 'expo-router';
@@ -6,8 +7,17 @@ import { StatusBar } from 'expo-status-bar';
 import { useFetchAndSetCountsOnMount } from '../hooks';
 import { useReactiveVar } from '@apollo/client';
 import { AlarmProvider, CountingModeProvider } from '../components';
+import { init, Types } from '@amplitude/analytics-react-native';
 import { ReactNode, Suspense, useEffect } from 'react';
 import { type SQLiteDatabase, SQLiteProvider } from 'expo-sqlite';
+
+const amplitudeApiKey = Constants.expoConfig?.extra?.AMPLITUDE_API_KEY;
+
+init(amplitudeApiKey, 'foobar', {
+  disableCookies: true,
+  logLevel: Types.LogLevel.Verbose,
+  serverZone: 'EU'
+});
 
 const DataSetter = ({ children }: { children: ReactNode }) => {
   const counts = useReactiveVar(countsVar);

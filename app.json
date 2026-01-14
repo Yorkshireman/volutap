@@ -1,7 +1,9 @@
 {
   "expo": {
     "name": "VoluTap",
-    "assetBundlePatterns": ["assets/*"],
+    "assetBundlePatterns": [
+      "assets/*"
+    ],
     "slug": "volutap",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +21,9 @@
       "bundleIdentifier": "com.codedegen.volutap",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ]
       }
     },
     "extra": {
@@ -28,7 +32,11 @@
         "projectId": "7f1e16ef-93d6-47d4-9b0f-2f4944474cf9"
       }
     },
-    "plugins": ["expo-router", "expo-sqlite", "expo-audio"],
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-audio"
+    ],
     "updates": {
       "enabled": true
     }

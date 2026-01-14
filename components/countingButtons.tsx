@@ -1,3 +1,4 @@
+import * as amplitude from '@amplitude/analytics-react-native';
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { updateCountInDb } from '../utils';
@@ -30,6 +31,7 @@ export const CountingButtons = () => {
       (await updateCountInDb({
         db,
         errorCallback: () => countsVar(originalCounts),
+        successCallback: () => amplitude.track('Count incremented'),
         updatedCount
       }));
   };
