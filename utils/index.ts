@@ -4,4 +4,5 @@ export { onPressReset } from './onPressReset';
 export { onPressStartNewCountButton } from './onPressStartNewCountButton';
 export { onSelectCount } from './onSelectCount';
 export { saveCountToDb } from './saveCountToDb';
+export { setupAnalytics } from './setupAnalytics';
 export { updateCountInDb } from './updateCountInDb';
