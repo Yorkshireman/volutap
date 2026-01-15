@@ -14,7 +14,7 @@ export const saveCountToDb = async (count: Count, db: SQLiteDatabase) => {
       count.title as DbCount['title']
     );
 
-    console.log('saveCountToDb(): Count saved successfully:', JSON.stringify(count, null, 2));
+    console.info('saveCountToDb(): Count saved successfully:', JSON.stringify(count, null, 2));
   } catch (e) {
     console.error('Error saving count to database: ', e);
   }

@@ -35,7 +35,7 @@ export const updateCountInDb = async ({
       ]
     );
 
-    console.log(
+    console.info(
       'updateCountInDb(): Count updated successfully:',
       JSON.stringify(updatedCount, null, 2)
     );

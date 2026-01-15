@@ -68,8 +68,8 @@ const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
   const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
   let currentDbVersion = row?.user_version ?? 0;
 
-  console.log('currentDbVersion: ', currentDbVersion);
-  console.log('DATABASE_VERSION: ', DATABASE_VERSION);
+  console.info('currentDbVersion: ', currentDbVersion);
+  console.info('DATABASE_VERSION: ', DATABASE_VERSION);
 
   if (currentDbVersion >= DATABASE_VERSION) {
     return;
