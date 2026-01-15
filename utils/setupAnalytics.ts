@@ -8,11 +8,15 @@ export const setupAnalytics = () => {
     console.warn('setupAnalytics(): missing amplitudeApiKey - analytics disabled.');
   }
 
-  init(amplitudeApiKey, undefined, {
-    disableCookies: true,
-    logLevel: Types.LogLevel.Verbose,
-    serverZone: 'EU'
-  });
+  try {
+    init(amplitudeApiKey, undefined, {
+      disableCookies: true,
+      logLevel: Types.LogLevel.Verbose,
+      serverZone: 'EU'
+    });
 
-  logEvent('app_open');
+    logEvent('app_open');
+  } catch (e) {
+    console.warn('setupAnalytics(): init failed', e);
+  }
 };
