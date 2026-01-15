@@ -1,12 +1,41 @@
-import * as amplitude from '@amplitude/analytics-react-native';
 import * as Haptics from 'expo-haptics';
+import type { Count } from '../types';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { track } from '@amplitude/analytics-react-native';
 import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+
+const trackIncrementCount = (originalCount: Count, updatedCount: Count) => {
+  const { title: _title, ...rest } = updatedCount;
+  try {
+    let direction: string;
+    let source: string;
+    if (originalCount.value < updatedCount.value) {
+      direction = 'up';
+      source = 'screen_up_button';
+    } else if (originalCount.value > updatedCount.value) {
+      direction = 'down';
+      source = 'screen_down_button';
+    } else {
+      return;
+    }
+
+    track('count_changed', {
+      ...rest,
+      direction,
+      newValue: updatedCount.value,
+      oldValue: originalCount.value,
+      saved: Boolean(updatedCount.saved),
+      source
+    });
+  } catch (e) {
+    console.warn('countingButtons.tsx, track failed: ', e);
+  }
+};
 
 export const CountingButtons = () => {
   const [buttonHeight, setButtonHeight] = useState(0);
@@ -20,6 +49,7 @@ export const CountingButtons = () => {
   const incrementCount = async (newValue: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     const updatedCount = { ...count, lastModified: new Date().toISOString(), value: newValue };
+    trackIncrementCount(count, updatedCount);
     const updatedCounts = counts
       .map(c => (c.id === count.id ? updatedCount : c))
       .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
@@ -31,7 +61,6 @@ export const CountingButtons = () => {
       (await updateCountInDb({
         db,
         errorCallback: () => countsVar(originalCounts),
-        successCallback: () => amplitude.track('Count incremented'),
         updatedCount
       }));
   };
