@@ -26,9 +26,9 @@ const trackIncrementCount = (originalCount: Count, updatedCount: Count) => {
 
     track('count_changed', {
       ...rest,
+      currentlyCounting: Boolean(updatedCount.currentlyCounting),
       direction,
-      newValue: updatedCount.value,
-      oldValue: originalCount.value,
+      previousValue: originalCount.value,
       saved: Boolean(updatedCount.saved),
       source
     });

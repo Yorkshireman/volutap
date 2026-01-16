@@ -3,6 +3,7 @@ import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SavedAlert } from './savedAlert';
 import Snackbar from 'react-native-snackbar';
+import { track } from '@amplitude/analytics-react-native';
 import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -35,16 +36,17 @@ export const AlertSettings = () => {
       return;
     }
 
-    const id = uuid.v4();
+    const alertToSave = {
+      at: alertAtValue,
+      id: uuid.v4(),
+      on: true,
+      repeat: true,
+      type: AlertType.SOUND_AND_VIBRATE
+    };
+
     const updatedAlerts: Count['alerts'] = [
       ...count.alerts.filter(a => a.at !== alertAtValue),
-      {
-        at: alertAtValue,
-        id,
-        on: true,
-        repeat: true,
-        type: AlertType.SOUND_AND_VIBRATE
-      }
+      alertToSave
     ];
 
     const updatedCount: Count = { ...count, alerts: updatedAlerts };
@@ -61,6 +63,16 @@ export const AlertSettings = () => {
         duration: Snackbar.LENGTH_LONG,
         text: 'Saved!',
         textColor: 'black'
+      });
+
+      const { title: _title, ...rest } = updatedCount;
+      track('alert_saved', {
+        alert: alertToSave,
+        count: {
+          ...rest,
+          currentlyCounting: Boolean(updatedCount.currentlyCounting),
+          saved: Boolean(updatedCount.saved)
+        }
       });
     };
 

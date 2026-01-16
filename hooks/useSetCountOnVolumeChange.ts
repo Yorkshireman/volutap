@@ -1,6 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
 import type { Count } from '../types';
+import { track } from '@amplitude/analytics-react-native';
 import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -86,6 +87,16 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
                   errorCallback: () => countsVar(originalCounts),
                   updatedCount
                 });
+
+              const { title: _title, ...rest } = updatedCount;
+              track('count_changed', {
+                ...rest,
+                currentlyCounting: Boolean(updatedCount.currentlyCounting),
+                direction: 'up',
+                previousValue: current.value,
+                saved: Boolean(updatedCount.saved),
+                source: 'volume_up_button'
+              });
             }
           } else if (volume < 0.5) {
             if (countValueRef.current === 0) {
@@ -115,6 +126,16 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
                   errorCallback: () => countsVar(originalCounts),
                   updatedCount
                 });
+
+              const { title: _title, ...rest } = updatedCount;
+              track('count_changed', {
+                ...rest,
+                currentlyCounting: Boolean(updatedCount.currentlyCounting),
+                direction: 'down',
+                previousValue: current.value,
+                saved: Boolean(updatedCount.saved),
+                source: 'volume_down_button'
+              });
             }
           }
         });
