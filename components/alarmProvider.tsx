@@ -1,5 +1,6 @@
 import { Alarm } from './alarm';
 import { Alert } from '../types';
+import { track } from '@amplitude/analytics-react-native';
 import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -37,6 +38,15 @@ export const AlarmProvider = ({ children }: { children: ReactNode }) => {
     if (countTriggerReached) {
       const triggeredAlert = count.alerts.find(alert => alert.at === count.value)!;
       setTriggeredAlert(triggeredAlert);
+      const { title: _title, ...rest } = count;
+      track('alert_triggered', {
+        alert: triggeredAlert,
+        count: {
+          ...rest,
+          currentlyCounting: Boolean(count.currentlyCounting),
+          saved: Boolean(count.saved)
+        }
+      });
 
       if (!triggeredAlert.repeat) {
         const updatedAlert = { ...triggeredAlert, on: false };
