@@ -2,7 +2,6 @@ import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
 import type { Count } from '../types';
 import { track } from '@amplitude/analytics-react-native';
-import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { VolumeManager } from 'react-native-volume-manager';
@@ -11,6 +10,7 @@ import {
   countsVar,
   disableVolumeButtonCountingVar
 } from '../reactiveVars';
+import { sanitiseCountForTracking, updateCountInDb } from '../utils';
 import { useEffect, useRef } from 'react';
 
 export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) => {
@@ -88,13 +88,10 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
                   updatedCount
                 });
 
-              const { title: _title, ...rest } = updatedCount;
               track('count_changed', {
-                ...rest,
-                currentlyCounting: Boolean(updatedCount.currentlyCounting),
+                ...sanitiseCountForTracking(updatedCount),
                 direction: 'up',
                 previousValue: current.value,
-                saved: Boolean(updatedCount.saved),
                 source: 'volume_up_button'
               });
             }
@@ -127,13 +124,10 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
                   updatedCount
                 });
 
-              const { title: _title, ...rest } = updatedCount;
               track('count_changed', {
-                ...rest,
-                currentlyCounting: Boolean(updatedCount.currentlyCounting),
+                ...sanitiseCountForTracking(updatedCount),
                 direction: 'down',
                 previousValue: current.value,
-                saved: Boolean(updatedCount.saved),
                 source: 'volume_down_button'
               });
             }

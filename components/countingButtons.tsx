@@ -2,15 +2,14 @@ import * as Haptics from 'expo-haptics';
 import type { Count } from '../types';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { track } from '@amplitude/analytics-react-native';
-import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
+import { sanitiseCountForTracking, updateCountInDb } from '../utils';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 const trackIncrementCount = (originalCount: Count, updatedCount: Count) => {
-  const { title: _title, ...rest } = updatedCount;
   try {
     let direction: string;
     let source: string;
@@ -25,11 +24,8 @@ const trackIncrementCount = (originalCount: Count, updatedCount: Count) => {
     }
 
     track('count_changed', {
-      ...rest,
-      currentlyCounting: Boolean(updatedCount.currentlyCounting),
+      ...sanitiseCountForTracking(updatedCount),
       direction,
-      previousValue: originalCount.value,
-      saved: Boolean(updatedCount.saved),
       source
     });
   } catch (e) {

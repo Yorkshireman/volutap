@@ -4,11 +4,11 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { SavedAlert } from './savedAlert';
 import Snackbar from 'react-native-snackbar';
 import { track } from '@amplitude/analytics-react-native';
-import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
 import { AlertType, type Count } from '../types';
+import { sanitiseCountForTracking, updateCountInDb } from '../utils';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useEffect, useState } from 'react';
 
@@ -65,14 +65,9 @@ export const AlertSettings = () => {
         textColor: 'black'
       });
 
-      const { title: _title, ...rest } = updatedCount;
       track('alert_saved', {
         alert: alertToSave,
-        count: {
-          ...rest,
-          currentlyCounting: Boolean(updatedCount.currentlyCounting),
-          saved: Boolean(updatedCount.saved)
-        }
+        count: sanitiseCountForTracking(updatedCount)
       });
     };
 
