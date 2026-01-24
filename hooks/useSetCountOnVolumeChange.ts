@@ -92,7 +92,7 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
                 ...sanitiseCountForTracking(updatedCount),
                 direction: 'up',
                 previousValue: current.value,
-                source: 'volume_up_button'
+                source: 'volume_button'
               });
             }
           } else if (volume < 0.5) {
@@ -128,7 +128,7 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
                 ...sanitiseCountForTracking(updatedCount),
                 direction: 'down',
                 previousValue: current.value,
-                source: 'volume_down_button'
+                source: 'volume_button'
               });
             }
           }

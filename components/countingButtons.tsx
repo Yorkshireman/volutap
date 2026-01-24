@@ -15,10 +15,10 @@ const trackIncrementCount = (originalCount: Count, updatedCount: Count) => {
     let source: string;
     if (originalCount.value < updatedCount.value) {
       direction = 'up';
-      source = 'screen_up_button';
+      source = 'button';
     } else if (originalCount.value > updatedCount.value) {
       direction = 'down';
-      source = 'screen_down_button';
+      source = 'button';
     } else {
       return;
     }
