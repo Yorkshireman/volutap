@@ -4,6 +4,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Menu } from 'react-native-paper';
 import { router } from 'expo-router';
 import Snackbar from 'react-native-snackbar';
+import { track } from '@amplitude/analytics-react-native';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
@@ -46,6 +47,7 @@ export const CountToolbar = ({
     if (infoSnackbarIsOpen) {
       Snackbar.dismiss();
       setInfoSnackbarIsOpen(false);
+      track('count_info_dismissed', { source: 'button' });
       return;
     }
 
@@ -54,6 +56,7 @@ export const CountToolbar = ({
         onPress: () => {
           Snackbar.dismiss();
           setInfoSnackbarIsOpen(false);
+          track('count_info_dismissed', { source: 'button' });
         },
         text: 'Dismiss',
         textColor: 'black'
@@ -83,6 +86,7 @@ export const CountToolbar = ({
     });
 
     setInfoSnackbarIsOpen(true);
+    track('count_info_opened', { source: 'button' });
   };
 
   const onPressOptionsButton = () => {
