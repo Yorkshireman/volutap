@@ -34,6 +34,12 @@ export type DbCount = {
   value: number;
 };
 
+export enum Screens {
+  MULTI = 'multi',
+  SETTINGS = 'settings',
+  SINGLE = 'single'
+}
+
 export type SetDropdownVisible = React.Dispatch<React.SetStateAction<boolean>>;
 export type SetShowEditInputField = React.Dispatch<React.SetStateAction<boolean>>;
 export type SetShowOptionsMenu = React.Dispatch<React.SetStateAction<boolean>>;

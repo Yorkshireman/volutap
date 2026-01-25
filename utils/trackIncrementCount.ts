@@ -1,8 +1,8 @@
-import type { Count } from '../types';
 import { sanitiseCountForTracking } from './santiseCountForTracking';
 import { track } from '@amplitude/analytics-react-native';
+import type { Count, Screens } from '../types';
 
-export const trackIncrementCount = (originalCount: Count, updatedCount: Count) => {
+export const trackIncrementCount = (originalCount: Count, updatedCount: Count, screen: Screens) => {
   try {
     let direction: string;
     let source: string;
@@ -19,6 +19,7 @@ export const trackIncrementCount = (originalCount: Count, updatedCount: Count) =
     track('count_changed', {
       ...sanitiseCountForTracking(updatedCount),
       direction,
+      screen,
       source
     });
   } catch (e) {

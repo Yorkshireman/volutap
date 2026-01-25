@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Screens } from '../types';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
@@ -32,11 +33,11 @@ export const CountingButtons = () => {
       await updateCountInDb({
         db,
         errorCallback: () => countsVar(originalCounts),
-        successCallback: () => trackIncrementCount(count, updatedCount),
+        successCallback: () => trackIncrementCount(count, updatedCount, Screens.SINGLE),
         updatedCount
       });
     } else {
-      trackIncrementCount(count, updatedCount);
+      trackIncrementCount(count, updatedCount, Screens.SINGLE);
     }
   };
 
