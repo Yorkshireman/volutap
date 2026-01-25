@@ -1,4 +1,4 @@
-import { sanitiseCountForTracking } from './santiseCountForTracking';
+import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { track } from '@amplitude/analytics-react-native';
 import type { Count, Screens } from '../types';
 
