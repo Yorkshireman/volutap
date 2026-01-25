@@ -1,4 +1,5 @@
 export { buildNewCount } from './buildNewCount';
+export { convertMsToSecs } from './convertMsToSecs';
 export { onPressDelete } from './onPressDelete';
 export { onPressReset } from './onPressReset';
 export { onPressStartNewCountButton } from './onPressStartNewCountButton';

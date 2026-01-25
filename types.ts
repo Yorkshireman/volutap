@@ -37,6 +37,7 @@ export type DbCount = {
 export enum Screens {
   MULTI = 'multi',
   SETTINGS = 'settings',
+  SETTINGS_TROUBLESHOOTING = 'settings_troubleshooting',
   SINGLE = 'single'
 }
 

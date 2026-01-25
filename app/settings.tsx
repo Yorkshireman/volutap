@@ -1,10 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Screens } from '../types';
 import { useRouter } from 'expo-router';
+import { useTrackScreen } from '../hooks';
 import { AlertSettings, SetCount } from '../components';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function Settings() {
   const router = useRouter();
+  useTrackScreen(Screens.SETTINGS);
 
   return (
     <ScrollView style={{ backgroundColor: '#E7E9F7' }}>
