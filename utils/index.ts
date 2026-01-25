@@ -6,4 +6,5 @@ export { onSelectCount } from './onSelectCount';
 export { sanitiseCountForTracking } from './santiseCountForTracking';
 export { saveCountToDb } from './saveCountToDb';
 export { setupAnalytics } from './setupAnalytics';
+export { trackIncrementCount } from './trackIncrementCount';
 export { updateCountInDb } from './updateCountInDb';

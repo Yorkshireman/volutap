@@ -13,6 +13,14 @@ import {
 import { sanitiseCountForTracking, updateCountInDb } from '../utils';
 import { useEffect, useRef } from 'react';
 
+const trackCountChanged = (direction: 'down' | 'up', previousValue: number, updatedCount: Count) =>
+  track('count_changed', {
+    ...sanitiseCountForTracking(updatedCount),
+    direction,
+    previousValue,
+    source: 'volume_button'
+  });
+
 export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) => {
   const counts = useReactiveVar(countsVar);
   const countValueRef = useRef<Count['value']>(counts.find(c => c.currentlyCounting)?.value);
@@ -81,19 +89,17 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
               const originalCounts = counts;
               countChangeViaUserInteractionHasHappenedVar(true);
               countsVar(updatedCounts);
-              updatedCount.saved &&
+
+              if (updatedCount.saved) {
                 updateCountInDb({
                   db,
                   errorCallback: () => countsVar(originalCounts),
+                  successCallback: () => trackCountChanged('up', current.value, updatedCount),
                   updatedCount
                 });
-
-              track('count_changed', {
-                ...sanitiseCountForTracking(updatedCount),
-                direction: 'up',
-                previousValue: current.value,
-                source: 'volume_button'
-              });
+              } else {
+                trackCountChanged('up', current.value, updatedCount);
+              }
             }
           } else if (volume < 0.5) {
             if (countValueRef.current === 0) {
@@ -117,19 +123,17 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
               const originalCounts = counts;
               countChangeViaUserInteractionHasHappenedVar(true);
               countsVar(updatedCounts);
-              updatedCount.saved &&
+
+              if (updatedCount.saved) {
                 updateCountInDb({
                   db,
                   errorCallback: () => countsVar(originalCounts),
+                  successCallback: () => trackCountChanged('down', current.value, updatedCount),
                   updatedCount
                 });
-
-              track('count_changed', {
-                ...sanitiseCountForTracking(updatedCount),
-                direction: 'down',
-                previousValue: current.value,
-                source: 'volume_button'
-              });
+              } else {
+                trackCountChanged('down', current.value, updatedCount);
+              }
             }
           }
         });

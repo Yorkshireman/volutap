@@ -1,37 +1,11 @@
 import * as Haptics from 'expo-haptics';
-import type { Count } from '../types';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { track } from '@amplitude/analytics-react-native';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
-import { sanitiseCountForTracking, updateCountInDb } from '../utils';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-
-const trackIncrementCount = (originalCount: Count, updatedCount: Count) => {
-  try {
-    let direction: string;
-    let source: string;
-    if (originalCount.value < updatedCount.value) {
-      direction = 'up';
-      source = 'button';
-    } else if (originalCount.value > updatedCount.value) {
-      direction = 'down';
-      source = 'button';
-    } else {
-      return;
-    }
-
-    track('count_changed', {
-      ...sanitiseCountForTracking(updatedCount),
-      direction,
-      source
-    });
-  } catch (e) {
-    console.warn('countingButtons.tsx, track failed: ', e);
-  }
-};
+import { trackIncrementCount, updateCountInDb } from '../utils';
 
 export const CountingButtons = () => {
   const [buttonHeight, setButtonHeight] = useState(0);
@@ -45,7 +19,7 @@ export const CountingButtons = () => {
   const incrementCount = async (newValue: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     const updatedCount = { ...count, lastModified: new Date().toISOString(), value: newValue };
-    trackIncrementCount(count, updatedCount);
+
     const updatedCounts = counts
       .map(c => (c.id === count.id ? updatedCount : c))
       .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
@@ -53,12 +27,17 @@ export const CountingButtons = () => {
     const originalCounts = counts;
     countChangeViaUserInteractionHasHappenedVar(true);
     countsVar(updatedCounts);
-    updatedCount.saved &&
-      (await updateCountInDb({
+
+    if (updatedCount.saved) {
+      await updateCountInDb({
         db,
         errorCallback: () => countsVar(originalCounts),
+        successCallback: () => trackIncrementCount(count, updatedCount),
         updatedCount
-      }));
+      });
+    } else {
+      trackIncrementCount(count, updatedCount);
+    }
   };
 
   return (
