@@ -25,6 +25,7 @@ export type Count = {
 
 export enum CountValueChangeSource {
   SCREEN_BUTTON = 'screen_button',
+  SET_COUNT = 'set_count',
   VOLUME_BUTTON = 'volume_button'
 }
 
