@@ -70,7 +70,16 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
       }
     ];
 
-    await updateCounts({ ...count, alerts: updatedAlerts });
+    await updateCounts({ ...count, alerts: updatedAlerts }, () => {
+      track(TrackingEventNames.ALERT_AT_VALUE_EDITED, {
+        alert,
+        countId: count.id,
+        newValue: alertAtValue,
+        oldValue: alert.at,
+        screen: Screens.SETTINGS,
+        source: 'savedAlert'
+      });
+    });
   };
 
   const onToggleAlert = async () => {

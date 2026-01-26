@@ -54,6 +54,7 @@ export type SetShowSaveInputField = React.Dispatch<React.SetStateAction<boolean>
 export type SetTitleToSave = React.Dispatch<React.SetStateAction<string>>;
 
 export enum TrackingEventNames {
+  ALERT_AT_VALUE_EDITED = 'alert_at_value_edited',
   ALERT_DELETED = 'alert_deleted',
   ALERT_DISMISSED = 'alert_dismissed',
   ALERT_SAVED = 'alert_saved',
