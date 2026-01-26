@@ -11,9 +11,21 @@ import { Alert, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } fr
 import { AlertType, Count, Screens, TrackingEventNames } from '../types';
 import { useEffect, useState } from 'react';
 
+const {
+  ALERT_AT_VALUE_EDITED,
+  ALERT_DELETED,
+  ALERT_REPEATING_TOGGLED_OFF,
+  ALERT_REPEATING_TOGGLED_ON,
+  ALERT_TOGGLED_OFF,
+  ALERT_TOGGLED_ON
+} = TrackingEventNames;
+const screen = Screens.SETTINGS;
+const source = 'SavedAlert';
+
 export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; count: Count }) => {
   const [alertAtValue, setAlertAtValue] = useState<number | null>(null);
   const [alertOnValue, setAlertOnValue] = useState<boolean>(alert.on);
+  const countId = count.id;
   const counts = useReactiveVar(countsVar);
   const db = useSQLiteContext();
 
@@ -46,11 +58,11 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
         textColor: 'black'
       });
 
-      track(TrackingEventNames.ALERT_DELETED, {
+      track(ALERT_DELETED, {
         alert,
-        countId: count.id,
-        screen: Screens.SETTINGS,
-        source: 'savedAlert'
+        countId,
+        screen,
+        source
       });
     });
   };
@@ -71,13 +83,13 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
     ];
 
     await updateCounts({ ...count, alerts: updatedAlerts }, () => {
-      track(TrackingEventNames.ALERT_AT_VALUE_EDITED, {
-        alert,
-        countId: count.id,
+      track(ALERT_AT_VALUE_EDITED, {
+        alert: updatedAlerts.find(a => a.id === alert.id),
+        countId,
         newValue: alertAtValue,
         oldValue: alert.at,
-        screen: Screens.SETTINGS,
-        source: 'savedAlert'
+        screen,
+        source
       });
     });
   };
@@ -89,7 +101,15 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
       a.id === alert.id ? { ...a, on: newAlertOnValue } : a
     );
 
-    await updateCounts({ ...count, alerts: updatedAlerts });
+    await updateCounts({ ...count, alerts: updatedAlerts }, () => {
+      const eventName = newAlertOnValue ? ALERT_TOGGLED_ON : ALERT_TOGGLED_OFF;
+      track(eventName, {
+        alert: updatedAlerts.find(a => a.id === alert.id),
+        countId,
+        screen,
+        source
+      });
+    });
   };
 
   return (
@@ -148,7 +168,15 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
                 a.id === alert.id ? { ...a, repeat } : a
               );
 
-              await updateCounts({ ...count, alerts: updatedAlerts });
+              await updateCounts({ ...count, alerts: updatedAlerts }, () => {
+                const eventName = repeat ? ALERT_REPEATING_TOGGLED_ON : ALERT_REPEATING_TOGGLED_OFF;
+                track(eventName, {
+                  alert: updatedAlerts.find(a => a.id === alert.id),
+                  countId,
+                  screen,
+                  source
+                });
+              });
             }}
             trackColor={{ false: '#222', true: '#758BFD' }}
             value={alert.on ? alert.repeat : false}
