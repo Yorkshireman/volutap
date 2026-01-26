@@ -3,7 +3,7 @@ import { saveCountToDb } from '../utils';
 import Snackbar from 'react-native-snackbar';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
-import type { SetShowSaveInputField, SetTitleToSave } from '../types';
+import { Screens, SetShowSaveInputField, SetTitleToSave } from '../types';
 import { StyleSheet, TextInput } from 'react-native';
 import { useEffect, useRef } from 'react';
 
@@ -45,7 +45,12 @@ export const SaveCountInputField = ({
       title: trimmed
     };
 
-    await saveCountToDb(updatedCount, db);
+    await saveCountToDb({
+      count: updatedCount,
+      db,
+      screen: Screens.SINGLE,
+      source: 'saveCountInputField'
+    });
 
     Snackbar.show({
       backgroundColor: '#758BFD',
