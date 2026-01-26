@@ -159,7 +159,16 @@ export const CountToolbar = ({
             />
             <Menu.Item
               leadingIcon={() => <Ionicons color='#fff' name='trash-outline' size={24} />}
-              onPress={() => onPressDelete(count, countsVar, db, setShowOptionsMenu)}
+              onPress={() =>
+                onPressDelete({
+                  count,
+                  countsVar,
+                  db,
+                  screen: Screens.SINGLE,
+                  setShowOptionsMenu,
+                  source: 'countToolbar'
+                })
+              }
               title='Delete'
               titleStyle={styles.menuItemTitleStyle}
             />
