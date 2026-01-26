@@ -29,15 +29,16 @@ export const CountingButtons = () => {
     countChangeViaUserInteractionHasHappenedVar(true);
     countsVar(updatedCounts);
 
+    const successCallback = () => trackIncrementCount(count, updatedCount, Screens.SINGLE);
     if (updatedCount.saved) {
       await updateCountInDb({
         db,
         errorCallback: () => countsVar(originalCounts),
-        successCallback: () => trackIncrementCount(count, updatedCount, Screens.SINGLE),
+        successCallback,
         updatedCount
       });
     } else {
-      trackIncrementCount(count, updatedCount, Screens.SINGLE);
+      successCallback();
     }
   };
 
