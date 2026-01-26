@@ -6,7 +6,7 @@ import { useTrackScreen } from '../../hooks';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../../reactiveVars';
 import { CountValueChangeSource, Screens } from '../../types';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { trackIncrementCount, updateCountInDb } from '../../utils';
+import { trackCountValueChange, updateCountInDb } from '../../utils';
 
 export default function MultiCount() {
   const counts = useReactiveVar(countsVar);
@@ -37,21 +37,23 @@ export default function MultiCount() {
     countChangeViaUserInteractionHasHappenedVar(true);
     countsVar(updatedCounts);
 
+    const successCallback = () =>
+      trackCountValueChange({
+        originalCount: count,
+        screen: Screens.MULTI,
+        source: CountValueChangeSource.SCREEN_BUTTON,
+        updatedCount
+      });
+
     if (updatedCount.saved) {
       await updateCountInDb({
         db,
         errorCallback: () => countsVar(originalCounts),
-        successCallback: () =>
-          trackIncrementCount(
-            count,
-            updatedCount,
-            Screens.MULTI,
-            CountValueChangeSource.SCREEN_BUTTON
-          ),
+        successCallback,
         updatedCount
       });
     } else {
-      trackIncrementCount(count, updatedCount, Screens.MULTI, CountValueChangeSource.SCREEN_BUTTON);
+      successCallback();
     }
   };
 

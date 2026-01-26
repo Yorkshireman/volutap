@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
 import { CountValueChangeSource, Screens } from '../types';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { trackIncrementCount, updateCountInDb } from '../utils';
+import { trackCountValueChange, updateCountInDb } from '../utils';
 
 export const CountingButtons = () => {
   const [buttonHeight, setButtonHeight] = useState(0);
@@ -30,12 +30,12 @@ export const CountingButtons = () => {
     countsVar(updatedCounts);
 
     const successCallback = () =>
-      trackIncrementCount(
-        count,
-        updatedCount,
-        Screens.SINGLE,
-        CountValueChangeSource.SCREEN_BUTTON
-      );
+      trackCountValueChange({
+        originalCount: count,
+        screen: Screens.SINGLE,
+        source: CountValueChangeSource.SCREEN_BUTTON,
+        updatedCount
+      });
 
     if (updatedCount.saved) {
       await updateCountInDb({

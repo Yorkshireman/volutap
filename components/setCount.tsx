@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Count, CountValueChangeSource, Screens } from '../types';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { trackIncrementCount, updateCountInDb } from '../utils';
+import { trackCountValueChange, updateCountInDb } from '../utils';
 
 export const SetCount = () => {
   const [newCountValue, setNewCountValue] = useState<Count['value'] | null>(null);
@@ -43,7 +43,12 @@ export const SetCount = () => {
         textColor: 'black'
       });
 
-      trackIncrementCount(count, updatedCount, Screens.SETTINGS, CountValueChangeSource.SET_COUNT);
+      trackCountValueChange({
+        originalCount: count,
+        screen: Screens.SETTINGS,
+        source: CountValueChangeSource.SET_COUNT,
+        updatedCount
+      });
     };
 
     if (updatedCount.saved) {

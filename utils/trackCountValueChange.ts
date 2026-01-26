@@ -2,12 +2,17 @@ import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { track } from '@amplitude/analytics-react-native';
 import { Count, CountValueChangeSource, Screens } from '../types';
 
-export const trackIncrementCount = (
-  originalCount: Count,
-  updatedCount: Count,
-  screen: Screens,
-  source: CountValueChangeSource
-) => {
+export const trackCountValueChange = ({
+  originalCount,
+  updatedCount,
+  screen,
+  source
+}: {
+  originalCount: Count;
+  updatedCount: Count;
+  screen: Screens;
+  source: CountValueChangeSource;
+}) => {
   try {
     let direction: string;
     if (originalCount.value < updatedCount.value) {
@@ -25,6 +30,6 @@ export const trackIncrementCount = (
       source
     });
   } catch (e) {
-    console.warn('trackIncrementCount.ts, track failed: ', e);
+    console.warn('trackCountValueChange.ts, track failed: ', e);
   }
 };
