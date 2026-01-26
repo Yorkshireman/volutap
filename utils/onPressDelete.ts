@@ -34,8 +34,14 @@ export const onPressDelete = ({
       {
         onPress: async () => {
           if (!count.id) {
-            track(TrackingEventNames.ERROR, { message: 'onPressDelete(): Count id is falsey.' });
-            throw new Error('onPressDelete(): Count id is falsey.');
+            console.warn('onPressDelete(): Count id is falsey.');
+            track(TrackingEventNames.WARNING, {
+              message: 'onPressDelete(): Count id is falsey.',
+              screen,
+              source
+            });
+
+            return;
           }
 
           try {
@@ -45,7 +51,9 @@ export const onPressDelete = ({
             Alert.alert('Error', 'Failed to delete the count. Please try again later.');
             track(TrackingEventNames.ERROR, {
               error,
-              message: 'onPressDelete(): Error deleting count from database.'
+              message: 'onPressDelete(): Error deleting count from database.',
+              screen,
+              source
             });
 
             return;

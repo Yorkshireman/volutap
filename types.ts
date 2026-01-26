@@ -80,5 +80,6 @@ export enum TrackingEventNames {
   NEW_COUNT_STARTED = 'new_count_started',
   SCREEN_HIDDEN = 'screen_hidden',
   SCREEN_VIEWED = 'screen_viewed',
-  SWITCHED_COUNT = 'switched_count'
+  SWITCHED_COUNT = 'switched_count',
+  WARNING = 'warning'
 }
