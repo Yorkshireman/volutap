@@ -130,7 +130,7 @@ export const CountToolbar = ({
                 countsVar,
                 db,
                 screen: Screens.SINGLE,
-                source: 'button'
+                source: 'countToolbar'
               })
             }
             style={styles.icon}
