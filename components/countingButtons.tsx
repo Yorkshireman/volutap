@@ -1,10 +1,10 @@
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Screens } from '../types';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
+import { CountValueChangeSource, Screens } from '../types';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { trackIncrementCount, updateCountInDb } from '../utils';
 
@@ -29,7 +29,14 @@ export const CountingButtons = () => {
     countChangeViaUserInteractionHasHappenedVar(true);
     countsVar(updatedCounts);
 
-    const successCallback = () => trackIncrementCount(count, updatedCount, Screens.SINGLE);
+    const successCallback = () =>
+      trackIncrementCount(
+        count,
+        updatedCount,
+        Screens.SINGLE,
+        CountValueChangeSource.SCREEN_BUTTON
+      );
+
     if (updatedCount.saved) {
       await updateCountInDb({
         db,

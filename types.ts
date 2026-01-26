@@ -23,6 +23,11 @@ export type Count = {
   value: number;
 };
 
+export enum CountValueChangeSource {
+  SCREEN_BUTTON = 'screen_button',
+  VOLUME_BUTTON = 'volume_button'
+}
+
 export type DbCount = {
   alerts: string; // JSON stringified array of alerts
   createdAt: string;

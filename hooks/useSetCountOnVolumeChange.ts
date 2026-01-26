@@ -1,10 +1,10 @@
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
-import type { Count } from '../types';
 import { track } from '@amplitude/analytics-react-native';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { VolumeManager } from 'react-native-volume-manager';
+import { Count, CountValueChangeSource, Screens } from '../types';
 import {
   countChangeViaUserInteractionHasHappenedVar,
   countsVar,
@@ -14,10 +14,11 @@ import { sanitiseCountForTracking, updateCountInDb } from '../utils';
 import { useEffect, useRef } from 'react';
 
 const trackCountChanged = (direction: 'down' | 'up', previousValue: number, updatedCount: Count) =>
-  track('count_changed', {
+  track('count_value_changed', {
     count: { ...sanitiseCountForTracking(updatedCount), previousValue },
     direction,
-    source: 'volume_button'
+    screen: Screens.SINGLE,
+    source: CountValueChangeSource.VOLUME_BUTTON
   });
 
 export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) => {
