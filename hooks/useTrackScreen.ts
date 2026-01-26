@@ -1,7 +1,7 @@
 import { convertMsToSecs } from '../utils';
-import { Screens } from '../types';
 import { track } from '@amplitude/analytics-react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { Screens, TrackingEventNames } from '../types';
 import { useCallback, useRef } from 'react';
 
 export const useTrackScreen = (screenName: Screens) => {
@@ -10,14 +10,18 @@ export const useTrackScreen = (screenName: Screens) => {
   useFocusEffect(
     useCallback(() => {
       startedAt.current = Date.now();
-      track('screen_view', { screen_name: screenName });
+      track(TrackingEventNames.SCREEN_VIEWED, { screen_name: screenName });
 
       return () => {
         const duration: number | undefined = startedAt.current
           ? convertMsToSecs(Date.now() - startedAt.current)
           : undefined;
 
-        track('screen_hide', { duration_seconds: duration, screen_name: screenName });
+        track(TrackingEventNames.SCREEN_HIDDEN, {
+          duration_seconds: duration,
+          screen_name: screenName
+        });
+
         startedAt.current = null;
       };
     }, [screenName])

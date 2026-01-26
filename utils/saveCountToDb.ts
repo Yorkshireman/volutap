@@ -1,7 +1,7 @@
 import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { track } from '@amplitude/analytics-react-native';
-import { Count, DbCount, Screens } from '../types';
+import { Count, DbCount, Screens, TrackingEventNames } from '../types';
 
 export const saveCountToDb = async ({
   count,
@@ -27,10 +27,14 @@ export const saveCountToDb = async ({
     );
 
     console.info('saveCountToDb(): Count saved successfully:', JSON.stringify(count, null, 2));
-    track('count_saved', { count: sanitiseCountForTracking(count), screen, source });
+    track(TrackingEventNames.COUNT_SAVED, {
+      count: sanitiseCountForTracking(count),
+      screen,
+      source
+    });
   } catch (error) {
     console.error('Error saving count to database: ', error);
-    track('error', {
+    track(TrackingEventNames.ERROR, {
       count: sanitiseCountForTracking(count),
       error,
       message: 'Error saving count to database.',

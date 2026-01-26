@@ -6,7 +6,7 @@ import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { track } from '@amplitude/analytics-react-native';
 import { updateCountInDb } from './updateCountInDb';
-import { Count, Screens } from '../types';
+import { Count, Screens, TrackingEventNames } from '../types';
 
 export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: SQLiteDatabase) => {
   if (count.value === 0) return;
@@ -41,7 +41,7 @@ export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: 
               errorCallback: () => countsVar(originalCounts),
               successCallback: () => {
                 try {
-                  track('count_reset', {
+                  track(TrackingEventNames.COUNT_RESET, {
                     count: sanitiseCountForTracking(updatedCount),
                     screen: Screens.SINGLE,
                     source: 'button'
@@ -53,7 +53,7 @@ export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: 
               updatedCount
             });
           } else {
-            track('count_reset', {
+            track(TrackingEventNames.COUNT_RESET, {
               count: sanitiseCountForTracking(updatedCount),
               screen: Screens.SINGLE,
               source: 'button'

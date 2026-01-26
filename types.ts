@@ -52,3 +52,22 @@ export type SetShowEditInputField = React.Dispatch<React.SetStateAction<boolean>
 export type SetShowOptionsMenu = React.Dispatch<React.SetStateAction<boolean>>;
 export type SetShowSaveInputField = React.Dispatch<React.SetStateAction<boolean>>;
 export type SetTitleToSave = React.Dispatch<React.SetStateAction<string>>;
+
+export enum TrackingEventNames {
+  ALERT_DISMISSED = 'alert_dismissed',
+  ALERT_SAVED = 'alert_saved',
+  ALERT_TRIGGERED = 'alert_triggered',
+  COUNT_DELETED = 'count_deleted',
+  COUNT_INFO_DISMISSED = 'count_info_dismissed',
+  COUNT_INFO_OPENED = 'count_info_opened',
+  COUNT_RESET = 'count_reset',
+  COUNT_SAVED = 'count_saved',
+  COUNT_TITLE_UPDATED = 'count_title_updated',
+  COUNT_VALUE_CHANGED = 'count_value_changed',
+  COUNTING_MODE_CHANGED = 'counting_mode_changed',
+  ERROR = 'error',
+  NEW_COUNT_STARTED = 'new_count_started',
+  SCREEN_HIDDEN = 'screen_hidden',
+  SCREEN_VIEWED = 'screen_viewed',
+  SWITCHED_COUNT = 'switched_count'
+}

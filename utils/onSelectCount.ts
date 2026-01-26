@@ -6,7 +6,13 @@ import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { track } from '@amplitude/analytics-react-native';
 import { updateCountInDb } from './updateCountInDb';
-import { Count, Screens, SetDropdownVisible, SetShowSaveInputField } from '../types';
+import {
+  Count,
+  Screens,
+  SetDropdownVisible,
+  SetShowSaveInputField,
+  TrackingEventNames
+} from '../types';
 
 export const onSelectCount = async ({
   countsVar,
@@ -49,7 +55,7 @@ export const onSelectCount = async ({
             countsVar(newCounts);
             setDropdownVisible(false);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            track('switched_count', {
+            track(TrackingEventNames.SWITCHED_COUNT, {
               oldCount: currentCount ? sanitiseCountForTracking(currentCount) : undefined,
               screen: Screens.SINGLE,
               selectedCount: sanitiseCountForTracking(newSelectedCount)
@@ -93,7 +99,7 @@ export const onSelectCount = async ({
     const newCounts = countsVar().map(c => (c.id === selectedCount.id ? newSelectedCount : c));
     countChangeViaUserInteractionHasHappenedVar(false);
     countsVar(newCounts);
-    track('switched_count', {
+    track(TrackingEventNames.SWITCHED_COUNT, {
       oldCount: currentCount ? sanitiseCountForTracking(currentCount) : undefined,
       screen: Screens.SINGLE,
       selectedCount: sanitiseCountForTracking(newSelectedCount)

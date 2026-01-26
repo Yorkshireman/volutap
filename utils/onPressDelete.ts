@@ -5,7 +5,7 @@ import type { ReactiveVar } from '@apollo/client';
 import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { track } from '@amplitude/analytics-react-native';
-import { Count, Screens, SetShowOptionsMenu } from '../types';
+import { Count, Screens, SetShowOptionsMenu, TrackingEventNames } from '../types';
 
 export const onPressDelete = ({
   count,
@@ -34,7 +34,7 @@ export const onPressDelete = ({
       {
         onPress: async () => {
           if (!count.id) {
-            track('error', { message: 'onPressDelete(): Count id is falsey.' });
+            track(TrackingEventNames.ERROR, { message: 'onPressDelete(): Count id is falsey.' });
             throw new Error('onPressDelete(): Count id is falsey.');
           }
 
@@ -43,7 +43,7 @@ export const onPressDelete = ({
           } catch (error) {
             console.error('Error deleting count from database: ', error);
             Alert.alert('Error', 'Failed to delete the count. Please try again later.');
-            track('error', {
+            track(TrackingEventNames.ERROR, {
               error,
               message: 'onPressDelete(): Error deleting count from database.'
             });
@@ -54,7 +54,11 @@ export const onPressDelete = ({
           const updatedCounts = [buildNewCount(), ...countsVar().filter(c => c.id !== count.id)];
           countsVar(updatedCounts);
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          track('count_deleted', { count: sanitiseCountForTracking(count), screen, source });
+          track(TrackingEventNames.COUNT_DELETED, {
+            count: sanitiseCountForTracking(count),
+            screen,
+            source
+          });
         },
         style: 'destructive',
         text: 'Delete'

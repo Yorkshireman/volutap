@@ -10,7 +10,13 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { onPressDelete, onPressReset, onPressStartNewCountButton } from '../utils';
-import { Screens, SetShowEditInputField, SetShowSaveInputField, SetTitleToSave } from '../types';
+import {
+  Screens,
+  SetShowEditInputField,
+  SetShowSaveInputField,
+  SetTitleToSave,
+  TrackingEventNames
+} from '../types';
 
 const screenWidth = Dimensions.get('window').width;
 const TOOLBAR_ICON_SIZE = screenWidth < 400 ? 48 : screenWidth < 430 ? 54 : 64;
@@ -47,7 +53,7 @@ export const CountToolbar = ({
     if (infoSnackbarIsOpen) {
       Snackbar.dismiss();
       setInfoSnackbarIsOpen(false);
-      track('count_info_dismissed', { source: 'button' });
+      track(TrackingEventNames.COUNT_INFO_DISMISSED, { source: 'button' });
       return;
     }
 
@@ -56,7 +62,7 @@ export const CountToolbar = ({
         onPress: () => {
           Snackbar.dismiss();
           setInfoSnackbarIsOpen(false);
-          track('count_info_dismissed', { source: 'button' });
+          track(TrackingEventNames.COUNT_INFO_DISMISSED, { source: 'button' });
         },
         text: 'Dismiss',
         textColor: 'black'
@@ -86,7 +92,7 @@ export const CountToolbar = ({
     });
 
     setInfoSnackbarIsOpen(true);
-    track('count_info_opened', { source: 'button' });
+    track(TrackingEventNames.COUNT_INFO_OPENED, { source: 'button' });
   };
 
   const onPressOptionsButton = () => {

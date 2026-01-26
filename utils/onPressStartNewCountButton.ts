@@ -5,7 +5,7 @@ import type { ReactiveVar } from '@apollo/client';
 import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { track } from '@amplitude/analytics-react-native';
-import { Count, Screens } from '../types';
+import { Count, Screens, TrackingEventNames } from '../types';
 
 export const onPressStartNewCountButton = ({
   count,
@@ -47,7 +47,7 @@ export const onPressStartNewCountButton = ({
             ]);
 
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            track('new_count_started', {
+            track(TrackingEventNames.NEW_COUNT_STARTED, {
               count: sanitiseCountForTracking(newCount),
               oldCount: sanitiseCountForTracking(count),
               screen,
@@ -56,7 +56,7 @@ export const onPressStartNewCountButton = ({
           } catch (error) {
             console.error('Error updating currentlyCounting in database: ', error);
             countsVar(originalCounts);
-            track('error', {
+            track(TrackingEventNames.ERROR, {
               count,
               error,
               message:

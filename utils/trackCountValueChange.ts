@@ -1,6 +1,6 @@
 import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { track } from '@amplitude/analytics-react-native';
-import { Count, CountValueChangeSource, Screens } from '../types';
+import { Count, CountValueChangeSource, Screens, TrackingEventNames } from '../types';
 
 export const trackCountValueChange = ({
   originalCount,
@@ -23,7 +23,7 @@ export const trackCountValueChange = ({
       return;
     }
 
-    track('count_value_changed', {
+    track(TrackingEventNames.COUNT_VALUE_CHANGED, {
       count: { ...sanitiseCountForTracking(updatedCount), previousValue: originalCount.value },
       direction,
       screen,

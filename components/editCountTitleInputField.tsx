@@ -4,7 +4,7 @@ import { track } from '@amplitude/analytics-react-native';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { sanitiseCountForTracking, updateCountInDb } from '../utils';
-import { Screens, SetShowEditInputField } from '../types';
+import { Screens, SetShowEditInputField, TrackingEventNames } from '../types';
 import { StyleSheet, TextInput } from 'react-native';
 import { useEffect, useRef } from 'react';
 
@@ -58,7 +58,7 @@ export const EditCountTitleInputField = ({
           textColor: 'black'
         });
 
-        track('count_title_updated', {
+        track(TrackingEventNames.COUNT_TITLE_UPDATED, {
           count: sanitiseCountForTracking(updatedCount),
           screen: Screens.SINGLE,
           source: 'editCountTitleInputField'
