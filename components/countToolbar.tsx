@@ -53,7 +53,7 @@ export const CountToolbar = ({
     if (infoSnackbarIsOpen) {
       Snackbar.dismiss();
       setInfoSnackbarIsOpen(false);
-      track(TrackingEventNames.COUNT_INFO_DISMISSED, { source: 'button' });
+      track(TrackingEventNames.COUNT_INFO_DISMISSED, { source: 'count_info_button' });
       return;
     }
 
@@ -62,7 +62,9 @@ export const CountToolbar = ({
         onPress: () => {
           Snackbar.dismiss();
           setInfoSnackbarIsOpen(false);
-          track(TrackingEventNames.COUNT_INFO_DISMISSED, { source: 'button' });
+          track(TrackingEventNames.COUNT_INFO_DISMISSED, {
+            source: 'count_info_snackbar_dismiss_button'
+          });
         },
         text: 'Dismiss',
         textColor: 'black'
@@ -92,7 +94,7 @@ export const CountToolbar = ({
     });
 
     setInfoSnackbarIsOpen(true);
-    track(TrackingEventNames.COUNT_INFO_OPENED, { source: 'button' });
+    track(TrackingEventNames.COUNT_INFO_OPENED, { source: 'count_info_button' });
   };
 
   const onPressOptionsButton = () => {
