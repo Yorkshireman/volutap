@@ -9,7 +9,12 @@ import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { onPressDelete, onPressReset, onPressStartNewCountButton } from '../utils';
+import {
+  onPressDelete,
+  onPressReset,
+  onPressStartNewCountButton,
+  sanitiseCountForTracking
+} from '../utils';
 import {
   Screens,
   SetShowEditInputField,
@@ -45,6 +50,11 @@ export const CountToolbar = ({
     setShowEditInputField(true);
     setShowOptionsMenu(false);
     setTitleToSave(count.title || 'Name');
+    track(TrackingEventNames.EDIT_COUNT_NAME_SELECTED, {
+      count: sanitiseCountForTracking(count),
+      screen: Screens.SINGLE,
+      source: 'count_menu_edit_name_button'
+    });
   };
 
   const onPressInfo = async () => {
@@ -53,7 +63,12 @@ export const CountToolbar = ({
     if (infoSnackbarIsOpen) {
       Snackbar.dismiss();
       setInfoSnackbarIsOpen(false);
-      track(TrackingEventNames.COUNT_INFO_DISMISSED, { source: 'count_info_button' });
+      track(TrackingEventNames.COUNT_INFO_DISMISSED, {
+        count: sanitiseCountForTracking(count),
+        screen: Screens.SINGLE,
+        source: 'count_info_button'
+      });
+
       return;
     }
 
@@ -63,6 +78,8 @@ export const CountToolbar = ({
           Snackbar.dismiss();
           setInfoSnackbarIsOpen(false);
           track(TrackingEventNames.COUNT_INFO_DISMISSED, {
+            count: sanitiseCountForTracking(count),
+            screen: Screens.SINGLE,
             source: 'count_info_snackbar_dismiss_button'
           });
         },
@@ -94,7 +111,11 @@ export const CountToolbar = ({
     });
 
     setInfoSnackbarIsOpen(true);
-    track(TrackingEventNames.COUNT_INFO_OPENED, { source: 'count_info_button' });
+    track(TrackingEventNames.COUNT_INFO_OPENED, {
+      count: sanitiseCountForTracking(count),
+      screen: Screens.SINGLE,
+      source: 'count_info_button'
+    });
   };
 
   const onPressOptionsButton = () => {
@@ -138,7 +159,7 @@ export const CountToolbar = ({
                 countsVar,
                 db,
                 screen: Screens.SINGLE,
-                source: 'countToolbar'
+                source: 'start_new_count_button'
               })
             }
             style={styles.icon}
@@ -174,7 +195,7 @@ export const CountToolbar = ({
                   db,
                   screen: Screens.SINGLE,
                   setShowOptionsMenu,
-                  source: 'countToolbar'
+                  source: 'count_menu_delete_button'
                 })
               }
               title='Delete'

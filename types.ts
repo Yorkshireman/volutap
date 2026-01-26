@@ -75,6 +75,7 @@ export enum TrackingEventNames {
   COUNT_TITLE_UPDATED = 'count_title_updated',
   COUNT_VALUE_CHANGED = 'count_value_changed',
   COUNTING_MODE_CHANGED = 'counting_mode_changed',
+  EDIT_COUNT_NAME_SELECTED = 'edit_count_name_selected',
   ERROR = 'error',
   NEW_COUNT_STARTED = 'new_count_started',
   SCREEN_HIDDEN = 'screen_hidden',
