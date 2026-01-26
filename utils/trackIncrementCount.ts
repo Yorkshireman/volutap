@@ -23,6 +23,6 @@ export const trackIncrementCount = (originalCount: Count, updatedCount: Count, s
       source
     });
   } catch (e) {
-    console.warn('countingButtons.tsx, track failed: ', e);
+    console.warn('trackIncrementCount.ts, track failed: ', e);
   }
 };

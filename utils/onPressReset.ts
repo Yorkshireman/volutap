@@ -1,9 +1,12 @@
 import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
-import type { Count } from '../types';
+import { countChangeViaUserInteractionHasHappenedVar } from '../reactiveVars';
 import type { ReactiveVar } from '@apollo/client';
+import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
+import { track } from '@amplitude/analytics-react-native';
 import { updateCountInDb } from './updateCountInDb';
+import { Count, Screens } from '../types';
 
 export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: SQLiteDatabase) => {
   if (count.value === 0) return;
@@ -27,9 +30,35 @@ export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: 
           };
 
           const updatedCounts = counts.map(c => (c.id === count.id ? updatedCount : c));
+
+          const originalCounts = counts;
+          countChangeViaUserInteractionHasHappenedVar(true);
           countsVar(updatedCounts);
-          if (!count.saved) return;
-          updateCountInDb({ db, updatedCount });
+
+          if (count.saved) {
+            updateCountInDb({
+              db,
+              errorCallback: () => countsVar(originalCounts),
+              successCallback: () => {
+                try {
+                  track('count_reset', {
+                    ...sanitiseCountForTracking(updatedCount),
+                    screen: Screens.SINGLE,
+                    source: 'button'
+                  });
+                } catch (e) {
+                  console.warn('onPressReset.ts, track failed: ', e);
+                }
+              },
+              updatedCount
+            });
+          } else {
+            track('count_reset', {
+              ...sanitiseCountForTracking(updatedCount),
+              screen: Screens.SINGLE,
+              source: 'button'
+            });
+          }
         },
         text: 'OK'
       }
