@@ -18,8 +18,8 @@ export const useTrackScreen = (screenName: Screens) => {
           : undefined;
 
         track(TrackingEventNames.SCREEN_HIDDEN, {
-          duration_seconds: duration,
-          screen_name: screenName
+          screen_name: screenName,
+          viewed_for_duration_seconds: duration
         });
 
         startedAt.current = null;
