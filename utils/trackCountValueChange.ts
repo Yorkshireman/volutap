@@ -10,7 +10,7 @@ export const trackCountValueChange = ({
 }: {
   originalCount: Count;
   updatedCount: Count;
-  screen: Screens;
+  screen?: Screens;
   source: CountValueChangeSource;
 }) => {
   try {

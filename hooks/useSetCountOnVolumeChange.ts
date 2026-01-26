@@ -3,7 +3,7 @@ import { Audio } from 'expo-av';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { VolumeManager } from 'react-native-volume-manager';
-import { Count, CountValueChangeSource, Screens } from '../types';
+import { Count, CountValueChangeSource } from '../types';
 import {
   countChangeViaUserInteractionHasHappenedVar,
   countsVar,
@@ -84,7 +84,6 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
               const successCallback = () =>
                 trackCountValueChange({
                   originalCount: current,
-                  screen: Screens.SINGLE,
                   source: CountValueChangeSource.VOLUME_BUTTON,
                   updatedCount
                 });
@@ -126,7 +125,6 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
               const successCallback = () =>
                 trackCountValueChange({
                   originalCount: current,
-                  screen: Screens.SINGLE,
                   source: CountValueChangeSource.VOLUME_BUTTON,
                   updatedCount
                 });
