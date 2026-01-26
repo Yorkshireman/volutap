@@ -30,6 +30,12 @@ export const saveCountToDb = async ({
     track('count_saved', { count: sanitiseCountForTracking(count), screen, source });
   } catch (error) {
     console.error('Error saving count to database: ', error);
-    track('error', { error, message: 'Error saving count to database.', screen, source });
+    track('error', {
+      count: sanitiseCountForTracking(count),
+      error,
+      message: 'Error saving count to database.',
+      screen,
+      source
+    });
   }
 };

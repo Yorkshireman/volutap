@@ -15,9 +15,8 @@ import { useEffect, useRef } from 'react';
 
 const trackCountChanged = (direction: 'down' | 'up', previousValue: number, updatedCount: Count) =>
   track('count_changed', {
-    ...sanitiseCountForTracking(updatedCount),
+    count: { ...sanitiseCountForTracking(updatedCount), previousValue },
     direction,
-    previousValue,
     source: 'volume_button'
   });
 

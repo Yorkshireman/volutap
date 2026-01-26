@@ -42,7 +42,7 @@ export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: 
               successCallback: () => {
                 try {
                   track('count_reset', {
-                    ...sanitiseCountForTracking(updatedCount),
+                    count: sanitiseCountForTracking(updatedCount),
                     screen: Screens.SINGLE,
                     source: 'button'
                   });
@@ -54,7 +54,7 @@ export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: 
             });
           } else {
             track('count_reset', {
-              ...sanitiseCountForTracking(updatedCount),
+              count: sanitiseCountForTracking(updatedCount),
               screen: Screens.SINGLE,
               source: 'button'
             });

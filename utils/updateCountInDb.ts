@@ -1,3 +1,4 @@
+import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { track } from '@amplitude/analytics-react-native';
 import type { Count, DbCount } from '../types';
@@ -44,7 +45,11 @@ export const updateCountInDb = async ({
     successCallback && successCallback();
   } catch (error) {
     console.error('updateCountInDb(): Error updating count in database: ', error);
-    track('error', { error, message: 'updateCountInDb(): Error updating count in database.' });
+    track('error', {
+      error,
+      message: 'updateCountInDb(): Error updating count in database.',
+      updatedCount: sanitiseCountForTracking(updatedCount)
+    });
     errorCallback && errorCallback();
   }
 };

@@ -17,7 +17,7 @@ export const trackIncrementCount = (originalCount: Count, updatedCount: Count, s
     }
 
     track('count_changed', {
-      ...sanitiseCountForTracking(updatedCount),
+      count: sanitiseCountForTracking(updatedCount),
       direction,
       screen,
       source
