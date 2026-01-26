@@ -10,7 +10,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { onPressDelete, onPressReset, onPressStartNewCountButton } from '../utils';
-import type { SetShowEditInputField, SetShowSaveInputField, SetTitleToSave } from '../types';
+import { Screens, SetShowEditInputField, SetShowSaveInputField, SetTitleToSave } from '../types';
 
 const screenWidth = Dimensions.get('window').width;
 const TOOLBAR_ICON_SIZE = screenWidth < 400 ? 48 : screenWidth < 430 ? 54 : 64;
@@ -124,7 +124,15 @@ export const CountToolbar = ({
       {Boolean(count.saved) && (
         <>
           <TouchableOpacity
-            onPress={() => onPressStartNewCountButton(count, countsVar, db)}
+            onPress={() =>
+              onPressStartNewCountButton({
+                count,
+                countsVar,
+                db,
+                screen: Screens.SINGLE,
+                source: 'button'
+              })
+            }
             style={styles.icon}
           >
             <Ionicons color={'#fff'} name='create-outline' size={TOOLBAR_ICON_SIZE} />
