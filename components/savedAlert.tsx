@@ -3,11 +3,12 @@ import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import Snackbar from 'react-native-snackbar';
+import { track } from '@amplitude/analytics-react-native';
 import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Alert, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { AlertType, Count } from '../types';
+import { AlertType, Count, Screens, TrackingEventNames } from '../types';
 import { useEffect, useState } from 'react';
 
 export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; count: Count }) => {
@@ -43,6 +44,13 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
         duration: Snackbar.LENGTH_LONG,
         text: 'Alert Deleted',
         textColor: 'black'
+      });
+
+      track(TrackingEventNames.ALERT_DELETED, {
+        alert,
+        countId: count.id,
+        screen: Screens.SETTINGS,
+        source: 'savedAlert'
       });
     });
   };

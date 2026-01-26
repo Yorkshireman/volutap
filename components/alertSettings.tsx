@@ -7,7 +7,7 @@ import { track } from '@amplitude/analytics-react-native';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
-import { AlertType, type Count, TrackingEventNames } from '../types';
+import { AlertType, type Count, Screens, TrackingEventNames } from '../types';
 import { sanitiseCountForTracking, updateCountInDb } from '../utils';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useEffect, useState } from 'react';
@@ -67,7 +67,9 @@ export const AlertSettings = () => {
 
       track(TrackingEventNames.ALERT_SAVED, {
         alert: alertToSave,
-        count: sanitiseCountForTracking(updatedCount)
+        countId: updatedCount.id,
+        screen: Screens.SETTINGS,
+        source: 'alertSettings'
       });
     };
 
