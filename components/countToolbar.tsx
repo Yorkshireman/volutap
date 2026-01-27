@@ -4,7 +4,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Menu } from 'react-native-paper';
 import { router } from 'expo-router';
 import Snackbar from 'react-native-snackbar';
-import { track } from '@amplitude/analytics-react-native';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
@@ -13,7 +12,8 @@ import {
   onPressDelete,
   onPressReset,
   onPressStartNewCountButton,
-  sanitiseCountForTracking
+  sanitiseCountForTracking,
+  track
 } from '../utils';
 import {
   Screens,
@@ -50,11 +50,15 @@ export const CountToolbar = ({
     setShowEditInputField(true);
     setShowOptionsMenu(false);
     setTitleToSave(count.title || 'Name');
-    track(TrackingEventNames.EDIT_COUNT_NAME_SELECTED, {
-      count: sanitiseCountForTracking(count),
-      screen: Screens.SINGLE,
-      source: 'count_menu_edit_name_button'
-    });
+    track(
+      TrackingEventNames.EDIT_COUNT_NAME_SELECTED,
+      {
+        count: sanitiseCountForTracking(count),
+        screen: Screens.SINGLE,
+        source: 'count_menu_edit_name_button'
+      },
+      'CountToolbar.tsx onPressEditButton()'
+    );
   };
 
   const onPressInfo = async () => {
@@ -63,11 +67,15 @@ export const CountToolbar = ({
     if (infoSnackbarIsOpen) {
       Snackbar.dismiss();
       setInfoSnackbarIsOpen(false);
-      track(TrackingEventNames.COUNT_INFO_DISMISSED, {
-        count: sanitiseCountForTracking(count),
-        screen: Screens.SINGLE,
-        source: 'count_info_button'
-      });
+      track(
+        TrackingEventNames.COUNT_INFO_DISMISSED,
+        {
+          count: sanitiseCountForTracking(count),
+          screen: Screens.SINGLE,
+          source: 'count_info_button'
+        },
+        'CountToolbar.tsx onPressInfo()'
+      );
 
       return;
     }
@@ -77,11 +85,15 @@ export const CountToolbar = ({
         onPress: () => {
           Snackbar.dismiss();
           setInfoSnackbarIsOpen(false);
-          track(TrackingEventNames.COUNT_INFO_DISMISSED, {
-            count: sanitiseCountForTracking(count),
-            screen: Screens.SINGLE,
-            source: 'count_info_snackbar_dismiss_button'
-          });
+          track(
+            TrackingEventNames.COUNT_INFO_DISMISSED,
+            {
+              count: sanitiseCountForTracking(count),
+              screen: Screens.SINGLE,
+              source: 'count_info_snackbar_dismiss_button'
+            },
+            'CountToolbar.tsx onPressInfo()'
+          );
         },
         text: 'Dismiss',
         textColor: 'black'
@@ -111,11 +123,15 @@ export const CountToolbar = ({
     });
 
     setInfoSnackbarIsOpen(true);
-    track(TrackingEventNames.COUNT_INFO_OPENED, {
-      count: sanitiseCountForTracking(count),
-      screen: Screens.SINGLE,
-      source: 'count_info_button'
-    });
+    track(
+      TrackingEventNames.COUNT_INFO_OPENED,
+      {
+        count: sanitiseCountForTracking(count),
+        screen: Screens.SINGLE,
+        source: 'count_info_button'
+      },
+      'CountToolbar.tsx onPressInfo()'
+    );
   };
 
   const onPressOptionsButton = () => {

@@ -1,5 +1,5 @@
 import { sanitiseCountForTracking } from './sanitiseCountForTracking';
-import { track } from '@amplitude/analytics-react-native';
+import { track } from './track';
 import { Count, CountValueChangeSource, Screens, TrackingEventNames } from '../types';
 
 export const trackCountValueChange = ({
@@ -13,23 +13,23 @@ export const trackCountValueChange = ({
   screen?: Screens;
   source: CountValueChangeSource;
 }) => {
-  try {
-    let direction: string;
-    if (originalCount.value < updatedCount.value) {
-      direction = 'up';
-    } else if (originalCount.value > updatedCount.value) {
-      direction = 'down';
-    } else {
-      return;
-    }
+  let direction: string;
+  if (originalCount.value < updatedCount.value) {
+    direction = 'up';
+  } else if (originalCount.value > updatedCount.value) {
+    direction = 'down';
+  } else {
+    return;
+  }
 
-    track(TrackingEventNames.COUNT_VALUE_CHANGED, {
+  track(
+    TrackingEventNames.COUNT_VALUE_CHANGED,
+    {
       count: { ...sanitiseCountForTracking(updatedCount), previousValue: originalCount.value },
       direction,
       screen,
       source
-    });
-  } catch (e) {
-    console.warn('trackCountValueChange.ts, track failed: ', e);
-  }
+    },
+    'trackCountValueChange.ts'
+  );
 };

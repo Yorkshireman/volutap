@@ -3,13 +3,12 @@ import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SavedAlert } from './savedAlert';
 import Snackbar from 'react-native-snackbar';
-import { track } from '@amplitude/analytics-react-native';
-import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
 import { AlertType, type Count, Screens, TrackingEventNames } from '../types';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { track, updateCountInDb } from '../utils';
 import { useEffect, useState } from 'react';
 
 export const AlertSettings = () => {
@@ -65,12 +64,16 @@ export const AlertSettings = () => {
         textColor: 'black'
       });
 
-      track(TrackingEventNames.ALERT_SAVED, {
-        alert: alertToSave,
-        countId: updatedCount.id,
-        screen: Screens.SETTINGS,
-        source: 'alert_settings_input_field'
-      });
+      track(
+        TrackingEventNames.ALERT_SAVED,
+        {
+          alert: alertToSave,
+          countId: updatedCount.id,
+          screen: Screens.SETTINGS,
+          source: 'alert_settings_input_field'
+        },
+        'AlertSettings.tsx'
+      );
     };
 
     if (updatedCount.saved) {

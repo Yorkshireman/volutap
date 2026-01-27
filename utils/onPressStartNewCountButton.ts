@@ -4,7 +4,7 @@ import { buildNewCount } from './buildNewCount';
 import type { ReactiveVar } from '@apollo/client';
 import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
-import { track } from '@amplitude/analytics-react-native';
+import { track } from '../utils';
 import { Count, Screens, TrackingEventNames } from '../types';
 
 export const onPressStartNewCountButton = ({
@@ -47,23 +47,31 @@ export const onPressStartNewCountButton = ({
             ]);
 
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            track(TrackingEventNames.NEW_COUNT_STARTED, {
-              count: sanitiseCountForTracking(newCount),
-              oldCount: sanitiseCountForTracking(count),
-              screen,
-              source
-            });
+            track(
+              TrackingEventNames.NEW_COUNT_STARTED,
+              {
+                count: sanitiseCountForTracking(newCount),
+                oldCount: sanitiseCountForTracking(count),
+                screen,
+                source
+              },
+              'onPressStartNewCountButton.ts'
+            );
           } catch (error) {
             console.error('Error updating currentlyCounting in database: ', error);
             countsVar(originalCounts);
-            track(TrackingEventNames.ERROR, {
-              count,
-              error,
-              message:
-                'onPressStartNewCountButton(): Error updating currentlyCounting in database.',
-              screen,
-              source
-            });
+            track(
+              TrackingEventNames.ERROR,
+              {
+                count,
+                error,
+                message:
+                  'onPressStartNewCountButton(): Error updating currentlyCounting in database.',
+                screen,
+                source
+              },
+              'onPressStartNewCountButton.ts'
+            );
           }
         },
         text: 'OK'

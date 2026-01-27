@@ -1,6 +1,6 @@
 import { CountingModeContext } from '../contexts';
 import { disableVolumeButtonCountingVar } from '../reactiveVars';
-import { track } from '@amplitude/analytics-react-native';
+import { track } from '../utils';
 import { Alert, TrackingEventNames } from '../types';
 import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useContext, useEffect, useRef } from 'react';
@@ -57,7 +57,7 @@ export const Alarm = ({
 
   const onDismiss = () => {
     setTriggeredAlert(null);
-    track(TrackingEventNames.ALERT_DISMISSED, { alert: triggeredAlert });
+    track(TrackingEventNames.ALERT_DISMISSED, { alert: triggeredAlert }, 'alert.tsx onDismiss()');
   };
 
   return (

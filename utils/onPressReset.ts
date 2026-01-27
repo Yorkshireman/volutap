@@ -4,7 +4,7 @@ import { countChangeViaUserInteractionHasHappenedVar } from '../reactiveVars';
 import type { ReactiveVar } from '@apollo/client';
 import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
-import { track } from '@amplitude/analytics-react-native';
+import { track } from '../utils';
 import { updateCountInDb } from './updateCountInDb';
 import { Count, Screens, TrackingEventNames } from '../types';
 
@@ -41,11 +41,15 @@ export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: 
               errorCallback: () => countsVar(originalCounts),
               successCallback: () => {
                 try {
-                  track(TrackingEventNames.COUNT_RESET, {
-                    count: sanitiseCountForTracking(updatedCount),
-                    screen: Screens.SINGLE,
-                    source: 'button'
-                  });
+                  track(
+                    TrackingEventNames.COUNT_RESET,
+                    {
+                      count: sanitiseCountForTracking(updatedCount),
+                      screen: Screens.SINGLE,
+                      source: 'button'
+                    },
+                    'onPressReset.ts'
+                  );
                 } catch (e) {
                   console.warn('onPressReset.ts, track failed: ', e);
                 }
@@ -53,11 +57,15 @@ export const onPressReset = (count: Count, countsVar: ReactiveVar<Count[]>, db: 
               updatedCount
             });
           } else {
-            track(TrackingEventNames.COUNT_RESET, {
-              count: sanitiseCountForTracking(updatedCount),
-              screen: Screens.SINGLE,
-              source: 'button'
-            });
+            track(
+              TrackingEventNames.COUNT_RESET,
+              {
+                count: sanitiseCountForTracking(updatedCount),
+                screen: Screens.SINGLE,
+                source: 'button'
+              },
+              'onPressReset.ts'
+            );
           }
         },
         text: 'OK'

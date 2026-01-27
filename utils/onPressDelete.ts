@@ -4,7 +4,7 @@ import { buildNewCount } from './buildNewCount';
 import type { ReactiveVar } from '@apollo/client';
 import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
-import { track } from '@amplitude/analytics-react-native';
+import { track } from '../utils';
 import { Count, Screens, SetShowOptionsMenu, TrackingEventNames } from '../types';
 
 export const onPressDelete = ({
@@ -35,11 +35,15 @@ export const onPressDelete = ({
         onPress: async () => {
           if (!count.id) {
             console.warn('onPressDelete(): Count id is falsey.');
-            track(TrackingEventNames.WARNING, {
-              message: 'onPressDelete(): Count id is falsey.',
-              screen,
-              source
-            });
+            track(
+              TrackingEventNames.WARNING,
+              {
+                message: 'onPressDelete(): Count id is falsey.',
+                screen,
+                source
+              },
+              'onPressDelete.ts'
+            );
 
             return;
           }
@@ -49,12 +53,16 @@ export const onPressDelete = ({
           } catch (error) {
             console.error('Error deleting count from database: ', error);
             Alert.alert('Error', 'Failed to delete the count. Please try again later.');
-            track(TrackingEventNames.ERROR, {
-              error,
-              message: 'onPressDelete(): Error deleting count from database.',
-              screen,
-              source
-            });
+            track(
+              TrackingEventNames.ERROR,
+              {
+                error,
+                message: 'onPressDelete(): Error deleting count from database.',
+                screen,
+                source
+              },
+              'onPressDelete.ts'
+            );
 
             return;
           }
@@ -62,11 +70,15 @@ export const onPressDelete = ({
           const updatedCounts = [buildNewCount(), ...countsVar().filter(c => c.id !== count.id)];
           countsVar(updatedCounts);
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          track(TrackingEventNames.COUNT_DELETED, {
-            count: sanitiseCountForTracking(count),
-            screen,
-            source
-          });
+          track(
+            TrackingEventNames.COUNT_DELETED,
+            {
+              count: sanitiseCountForTracking(count),
+              screen,
+              source
+            },
+            'onPressDelete.ts'
+          );
         },
         style: 'destructive',
         text: 'Delete'

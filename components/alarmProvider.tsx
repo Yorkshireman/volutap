@@ -1,11 +1,10 @@
 import { Alarm } from './alarm';
-import { track } from '@amplitude/analytics-react-native';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Alert, TrackingEventNames } from '../types';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { sanitiseCountForTracking, updateCountInDb } from '../utils';
+import { sanitiseCountForTracking, track, updateCountInDb } from '../utils';
 
 export const AlarmProvider = ({ children }: { children: ReactNode }) => {
   const counts = useReactiveVar(countsVar);
@@ -38,10 +37,14 @@ export const AlarmProvider = ({ children }: { children: ReactNode }) => {
     if (countTriggerReached) {
       const triggeredAlert = count.alerts.find(alert => alert.at === count.value)!;
       setTriggeredAlert(triggeredAlert);
-      track(TrackingEventNames.ALERT_TRIGGERED, {
-        alert: triggeredAlert,
-        count: sanitiseCountForTracking(count)
-      });
+      track(
+        TrackingEventNames.ALERT_TRIGGERED,
+        {
+          alert: triggeredAlert,
+          count: sanitiseCountForTracking(count)
+        },
+        'AlarmProvider.tsx'
+      );
 
       if (!triggeredAlert.repeat) {
         const updatedAlert = { ...triggeredAlert, on: false };

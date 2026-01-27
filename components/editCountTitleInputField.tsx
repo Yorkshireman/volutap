@@ -1,9 +1,8 @@
 import { countsVar } from '../reactiveVars';
 import Snackbar from 'react-native-snackbar';
-import { track } from '@amplitude/analytics-react-native';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
-import { sanitiseCountForTracking, updateCountInDb } from '../utils';
+import { sanitiseCountForTracking, track, updateCountInDb } from '../utils';
 import { Screens, SetShowEditInputField, TrackingEventNames } from '../types';
 import { StyleSheet, TextInput } from 'react-native';
 import { useEffect, useRef } from 'react';
@@ -58,11 +57,15 @@ export const EditCountTitleInputField = ({
           textColor: 'black'
         });
 
-        track(TrackingEventNames.COUNT_TITLE_UPDATED, {
-          count: sanitiseCountForTracking(updatedCount),
-          screen: Screens.SINGLE,
-          source: 'editCountTitleInputField'
-        });
+        track(
+          TrackingEventNames.COUNT_TITLE_UPDATED,
+          {
+            count: sanitiseCountForTracking(updatedCount),
+            screen: Screens.SINGLE,
+            source: 'editCountTitleInputField'
+          },
+          'EditCountTitleInputField.tsx'
+        );
       },
       updatedCount
     });
