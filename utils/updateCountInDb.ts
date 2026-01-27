@@ -46,10 +46,11 @@ export const updateCountInDb = async ({
   } catch (error) {
     console.error('updateCountInDb(): Error updating count in database: ', error);
     track(TrackingEventNames.ERROR, {
+      attemptedUpdatedCount: sanitiseCountForTracking(updatedCount),
       error,
-      message: 'updateCountInDb(): Error updating count in database.',
-      updatedCount: sanitiseCountForTracking(updatedCount)
+      message: 'updateCountInDb(): Error updating count in database.'
     });
+
     errorCallback && errorCallback();
   }
 };
