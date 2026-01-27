@@ -25,3 +25,7 @@ VPNs can interfere; VPNs need to be configured to allow LAN Traffic and may need
 Code changes will be reflected on device but dependency changes will not be - those need fresh builds.
 
 NB not possible to run in Expo Go due to `react-native-volume-manager` dependency
+
+## Releasing
+
+When bumping the app version, make sure the `appVersion` in `setupAnalytics.ts` is also updated.

@@ -10,9 +10,12 @@ export const setupAnalytics = () => {
 
   try {
     init(amplitudeApiKey, undefined, {
+      appVersion: '1.0.0',
       disableCookies: true,
       logLevel: Types.LogLevel.Verbose,
-      serverZone: 'EU'
+      serverZone: 'EU',
+      sessionTimeout: 10 * 60 * 1000, // 10 minutes,
+      trackingSessionEvents: true
     });
 
     logEvent('app_open');
