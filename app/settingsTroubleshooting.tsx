@@ -1,9 +1,12 @@
 import { Button } from '@react-navigation/elements';
+import { Screens } from '../types';
 import { useNavigation } from '@react-navigation/native';
+import { useTrackScreen } from '../hooks';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function SettingsTroubleshooting() {
   const navigation = useNavigation();
+  useTrackScreen(Screens.SETTINGS_TROUBLESHOOTING);
 
   return (
     <View style={styles.container}>

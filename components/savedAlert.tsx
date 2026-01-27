@@ -3,16 +3,32 @@ import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import Snackbar from 'react-native-snackbar';
-import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Alert, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { AlertType, Count } from '../types';
+import { AlertType, Count, Screens, TrackingEventNames } from '../types';
+import { track, updateCountInDb } from '../utils';
 import { useEffect, useState } from 'react';
+
+const {
+  ALERT_AT_VALUE_EDITED,
+  ALERT_DELETED,
+  ALERT_PLAY_SOUND_TOGGLED_OFF,
+  ALERT_PLAY_SOUND_TOGGLED_ON,
+  ALERT_REPEATING_TOGGLED_OFF,
+  ALERT_REPEATING_TOGGLED_ON,
+  ALERT_VIBRATE_TOGGLED_OFF,
+  ALERT_VIBRATE_TOGGLED_ON,
+  ALERT_TOGGLED_OFF,
+  ALERT_TOGGLED_ON
+} = TrackingEventNames;
+
+const screen = Screens.SETTINGS;
 
 export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; count: Count }) => {
   const [alertAtValue, setAlertAtValue] = useState<number | null>(null);
   const [alertOnValue, setAlertOnValue] = useState<boolean>(alert.on);
+  const countId = count.id;
   const counts = useReactiveVar(countsVar);
   const db = useSQLiteContext();
 
@@ -44,6 +60,17 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
         text: 'Alert Deleted',
         textColor: 'black'
       });
+
+      track(
+        ALERT_DELETED,
+        {
+          alert,
+          countId,
+          screen,
+          source: 'alert_settings_delete_icon'
+        },
+        'savedAlert.tsx onConfirmDeleteAlert()'
+      );
     });
   };
 
@@ -62,7 +89,20 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
       }
     ];
 
-    await updateCounts({ ...count, alerts: updatedAlerts });
+    await updateCounts({ ...count, alerts: updatedAlerts }, () => {
+      track(
+        ALERT_AT_VALUE_EDITED,
+        {
+          alert: updatedAlerts.find(a => a.id === alert.id),
+          countId,
+          newValue: alertAtValue,
+          oldValue: alert.at,
+          screen,
+          source: 'alert_settings_alert_at_input_field'
+        },
+        'savedAlert.tsx onSubmitEditingAlertAtValue()'
+      );
+    });
   };
 
   const onToggleAlert = async () => {
@@ -72,7 +112,19 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
       a.id === alert.id ? { ...a, on: newAlertOnValue } : a
     );
 
-    await updateCounts({ ...count, alerts: updatedAlerts });
+    await updateCounts({ ...count, alerts: updatedAlerts }, () => {
+      const eventName = newAlertOnValue ? ALERT_TOGGLED_ON : ALERT_TOGGLED_OFF;
+      track(
+        eventName,
+        {
+          alert: updatedAlerts.find(a => a.id === alert.id),
+          countId,
+          screen,
+          source: 'alert_settings_alert_at_toggle'
+        },
+        'savedAlert.tsx onToggleAlert()'
+      );
+    });
   };
 
   return (
@@ -131,7 +183,19 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
                 a.id === alert.id ? { ...a, repeat } : a
               );
 
-              await updateCounts({ ...count, alerts: updatedAlerts });
+              await updateCounts({ ...count, alerts: updatedAlerts }, () => {
+                const eventName = repeat ? ALERT_REPEATING_TOGGLED_ON : ALERT_REPEATING_TOGGLED_OFF;
+                track(
+                  eventName,
+                  {
+                    alert: updatedAlerts.find(a => a.id === alert.id),
+                    countId,
+                    screen,
+                    source: 'alert_settings_repeating_toggle'
+                  },
+                  'savedAlert.tsx Repeating Switch'
+                );
+              });
             }}
             trackColor={{ false: '#222', true: '#758BFD' }}
             value={alert.on ? alert.repeat : false}
@@ -159,7 +223,19 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
               a.id === alert.id ? { ...a, type: newType } : a
             );
 
-            await updateCounts({ ...count, alerts: updatedAlerts });
+            await updateCounts({ ...count, alerts: updatedAlerts }, () => {
+              const eventName = vibrateOn ? ALERT_VIBRATE_TOGGLED_ON : ALERT_VIBRATE_TOGGLED_OFF;
+              track(
+                eventName,
+                {
+                  alert: updatedAlerts.find(a => a.id === alert.id),
+                  countId,
+                  screen,
+                  source: 'alert_settings_vibrate_toggle'
+                },
+                'savedAlert.tsx Vibrate Switch'
+              );
+            });
           }}
           trackColor={{ false: '#222', true: '#758BFD' }}
           value={
@@ -179,7 +255,22 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
               a.id === alert.id ? { ...a, type: newType } : a
             );
 
-            await updateCounts({ ...count, alerts: updatedAlerts });
+            await updateCounts({ ...count, alerts: updatedAlerts }, () => {
+              const eventName = soundOn
+                ? ALERT_PLAY_SOUND_TOGGLED_ON
+                : ALERT_PLAY_SOUND_TOGGLED_OFF;
+
+              track(
+                eventName,
+                {
+                  alert: updatedAlerts.find(a => a.id === alert.id),
+                  countId,
+                  screen,
+                  source: 'alert_settings_play_sound_toggle'
+                },
+                'savedAlert.tsx Play Sound Switch'
+              );
+            });
           }}
           trackColor={{ false: '#222', true: '#758BFD' }}
           value={

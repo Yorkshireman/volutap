@@ -1,15 +1,15 @@
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
-import type { Count } from '../types';
-import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { VolumeManager } from 'react-native-volume-manager';
+import { Count, CountValueChangeSource } from '../types';
 import {
   countChangeViaUserInteractionHasHappenedVar,
   countsVar,
   disableVolumeButtonCountingVar
 } from '../reactiveVars';
+import { trackCountValueChange, updateCountInDb } from '../utils';
 import { useEffect, useRef } from 'react';
 
 export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) => {
@@ -80,12 +80,24 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
               const originalCounts = counts;
               countChangeViaUserInteractionHasHappenedVar(true);
               countsVar(updatedCounts);
-              updatedCount.saved &&
+
+              const successCallback = () =>
+                trackCountValueChange({
+                  originalCount: current,
+                  source: CountValueChangeSource.VOLUME_BUTTON,
+                  updatedCount
+                });
+
+              if (updatedCount.saved) {
                 updateCountInDb({
                   db,
                   errorCallback: () => countsVar(originalCounts),
+                  successCallback,
                   updatedCount
                 });
+              } else {
+                successCallback();
+              }
             }
           } else if (volume < 0.5) {
             if (countValueRef.current === 0) {
@@ -109,12 +121,24 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
               const originalCounts = counts;
               countChangeViaUserInteractionHasHappenedVar(true);
               countsVar(updatedCounts);
-              updatedCount.saved &&
+
+              const successCallback = () =>
+                trackCountValueChange({
+                  originalCount: current,
+                  source: CountValueChangeSource.VOLUME_BUTTON,
+                  updatedCount
+                });
+
+              if (updatedCount.saved) {
                 updateCountInDb({
                   db,
                   errorCallback: () => countsVar(originalCounts),
+                  successCallback,
                   updatedCount
                 });
+              } else {
+                successCallback();
+              }
             }
           }
         });

@@ -1,6 +1,7 @@
-import type { Alert } from '../types';
 import { CountingModeContext } from '../contexts';
 import { disableVolumeButtonCountingVar } from '../reactiveVars';
+import { track } from '../utils';
+import { Alert, TrackingEventNames } from '../types';
 import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useContext, useEffect, useRef } from 'react';
 import { usePlaySound, useSetCountOnVolumeChange, useVibrate } from '../hooks';
@@ -56,6 +57,7 @@ export const Alarm = ({
 
   const onDismiss = () => {
     setTriggeredAlert(null);
+    track(TrackingEventNames.ALERT_DISMISSED, { alert: triggeredAlert }, 'alarm.tsx onDismiss()');
   };
 
   return (

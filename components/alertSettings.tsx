@@ -3,12 +3,12 @@ import { countsVar } from '../reactiveVars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SavedAlert } from './savedAlert';
 import Snackbar from 'react-native-snackbar';
-import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import uuid from 'react-native-uuid';
-import { AlertType, type Count } from '../types';
+import { AlertType, type Count, Screens, TrackingEventNames } from '../types';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { track, updateCountInDb } from '../utils';
 import { useEffect, useState } from 'react';
 
 export const AlertSettings = () => {
@@ -35,16 +35,17 @@ export const AlertSettings = () => {
       return;
     }
 
-    const id = uuid.v4();
+    const alertToSave = {
+      at: alertAtValue,
+      id: uuid.v4(),
+      on: true,
+      repeat: true,
+      type: AlertType.SOUND_AND_VIBRATE
+    };
+
     const updatedAlerts: Count['alerts'] = [
       ...count.alerts.filter(a => a.at !== alertAtValue),
-      {
-        at: alertAtValue,
-        id,
-        on: true,
-        repeat: true,
-        type: AlertType.SOUND_AND_VIBRATE
-      }
+      alertToSave
     ];
 
     const updatedCount: Count = { ...count, alerts: updatedAlerts };
@@ -62,6 +63,17 @@ export const AlertSettings = () => {
         text: 'Saved!',
         textColor: 'black'
       });
+
+      track(
+        TrackingEventNames.ALERT_SAVED,
+        {
+          alert: alertToSave,
+          countId: updatedCount.id,
+          screen: Screens.SETTINGS,
+          source: 'alert_settings_input_field'
+        },
+        'alertSettings.tsx'
+      );
     };
 
     if (updatedCount.saved) {

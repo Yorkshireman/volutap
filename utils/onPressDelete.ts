@@ -2,15 +2,26 @@ import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
 import { buildNewCount } from './buildNewCount';
 import type { ReactiveVar } from '@apollo/client';
+import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
-import { Count, SetShowOptionsMenu } from '../types';
+import { track } from '../utils';
+import { Count, Screens, SetShowOptionsMenu, TrackingEventNames } from '../types';
 
-export const onPressDelete = (
-  count: Count,
-  countsVar: ReactiveVar<Count[]>,
-  db: SQLiteDatabase,
-  setShowOptionsMenu: SetShowOptionsMenu
-) => {
+export const onPressDelete = ({
+  count,
+  countsVar,
+  db,
+  screen,
+  setShowOptionsMenu,
+  source
+}: {
+  count: Count;
+  countsVar: ReactiveVar<Count[]>;
+  db: SQLiteDatabase;
+  screen: Screens;
+  setShowOptionsMenu: SetShowOptionsMenu;
+  source: string;
+}) => {
   setShowOptionsMenu(false);
   Alert.alert(
     `Delete ${count.title}`,
@@ -23,20 +34,51 @@ export const onPressDelete = (
       {
         onPress: async () => {
           if (!count.id) {
-            throw new Error('onPressDelete(): Count id is falsey.');
+            console.warn('onPressDelete(): Count id is falsey.');
+            track(
+              TrackingEventNames.WARNING,
+              {
+                message: 'onPressDelete(): Count id is falsey.',
+                screen,
+                source
+              },
+              'onPressDelete.ts'
+            );
+
+            return;
           }
 
           try {
             await db.runAsync('DELETE FROM savedCounts WHERE id = ?', [count.id]);
-          } catch (e) {
-            console.error('Error deleting count from database: ', e);
+          } catch (error) {
+            console.error('Error deleting count from database: ', error);
             Alert.alert('Error', 'Failed to delete the count. Please try again later.');
+            track(
+              TrackingEventNames.ERROR,
+              {
+                error,
+                message: 'onPressDelete(): Error deleting count from database.',
+                screen,
+                source
+              },
+              'onPressDelete.ts'
+            );
+
             return;
           }
 
           const updatedCounts = [buildNewCount(), ...countsVar().filter(c => c.id !== count.id)];
           countsVar(updatedCounts);
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          track(
+            TrackingEventNames.COUNT_DELETED,
+            {
+              count: sanitiseCountForTracking(count),
+              screen,
+              source
+            },
+            'onPressDelete.ts'
+          );
         },
         style: 'destructive',
         text: 'Delete'

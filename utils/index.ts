@@ -1,7 +1,12 @@
 export { buildNewCount } from './buildNewCount';
+export { convertMsToSecs } from './convertMsToSecs';
 export { onPressDelete } from './onPressDelete';
 export { onPressReset } from './onPressReset';
 export { onPressStartNewCountButton } from './onPressStartNewCountButton';
 export { onSelectCount } from './onSelectCount';
+export { sanitiseCountForTracking } from './sanitiseCountForTracking';
 export { saveCountToDb } from './saveCountToDb';
+export { setupAnalytics } from './setupAnalytics';
+export { track } from './track';
+export { trackCountValueChange } from './trackCountValueChange';
 export { updateCountInDb } from './updateCountInDb';

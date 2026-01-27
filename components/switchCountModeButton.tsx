@@ -1,6 +1,8 @@
 import * as Haptics from 'expo-haptics';
 import { CountingModeContext } from '../contexts';
+import { track } from '../utils';
 import { useContext } from 'react';
+import { Screens, TrackingEventNames } from '../types';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export const SwitchCountModeButton = () => {
@@ -9,6 +11,17 @@ export const SwitchCountModeButton = () => {
 
   const onPressSwitchCountModeButton = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const selectedMode = countingWithVolumeButtons ? 'screen_buttons' : 'volume_buttons';
+    track(
+      TrackingEventNames.COUNTING_MODE_CHANGED,
+      {
+        screen: Screens.SINGLE,
+        selectedMode,
+        source: 'switch_count_mode_button'
+      },
+      'switchCountModeButton.tsx onPressSwitchCountModeButton()'
+    );
+
     setCountingWithVolumeButtons(!countingWithVolumeButtons);
   };
 

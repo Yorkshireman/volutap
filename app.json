@@ -15,12 +15,15 @@
       "backgroundColor": "#27187E"
     },
     "ios": {
-      "supportsTablet": true,
       "bundleIdentifier": "com.codedegen.volutap",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": ["audio"]
-      }
+      },
+      "supportsTablet": true
     },
     "extra": {
       "router": {},

@@ -1,11 +1,12 @@
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
+import { CountValueChangeSource, Screens } from '../types';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { trackCountValueChange, updateCountInDb } from '../utils';
 
 export const CountingButtons = () => {
   const [buttonHeight, setButtonHeight] = useState(0);
@@ -19,6 +20,7 @@ export const CountingButtons = () => {
   const incrementCount = async (newValue: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     const updatedCount = { ...count, lastModified: new Date().toISOString(), value: newValue };
+
     const updatedCounts = counts
       .map(c => (c.id === count.id ? updatedCount : c))
       .sort((a, b) => (a.lastModified > b.lastModified ? -1 : 1));
@@ -26,12 +28,25 @@ export const CountingButtons = () => {
     const originalCounts = counts;
     countChangeViaUserInteractionHasHappenedVar(true);
     countsVar(updatedCounts);
-    updatedCount.saved &&
-      (await updateCountInDb({
+
+    const successCallback = () =>
+      trackCountValueChange({
+        originalCount: count,
+        screen: Screens.SINGLE,
+        source: CountValueChangeSource.SCREEN_BUTTON,
+        updatedCount
+      });
+
+    if (updatedCount.saved) {
+      await updateCountInDb({
         db,
         errorCallback: () => countsVar(originalCounts),
+        successCallback,
         updatedCount
-      }));
+      });
+    } else {
+      successCallback();
+    }
   };
 
   return (

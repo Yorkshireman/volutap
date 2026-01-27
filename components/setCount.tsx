@@ -1,12 +1,12 @@
 import * as Haptics from 'expo-haptics';
-import type { Count } from '../types';
 import Snackbar from 'react-native-snackbar';
-import { updateCountInDb } from '../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
+import { Count, CountValueChangeSource, Screens } from '../types';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../reactiveVars';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { trackCountValueChange, updateCountInDb } from '../utils';
 
 export const SetCount = () => {
   const [newCountValue, setNewCountValue] = useState<Count['value'] | null>(null);
@@ -18,17 +18,6 @@ export const SetCount = () => {
   const onSubmitCount = async () => {
     if (!count) throw new Error('SetCount onSubmitCount(): count is falsey.');
     if (!newCountValue) return;
-
-    const successCallback = () => {
-      setNewCountValue(null);
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      Snackbar.show({
-        backgroundColor: '#0CCE6B',
-        duration: Snackbar.LENGTH_LONG,
-        text: `Count set to ${newCountValue}`,
-        textColor: 'black'
-      });
-    };
 
     const updatedCount: Count = {
       ...count,
@@ -43,6 +32,24 @@ export const SetCount = () => {
     const originalCounts = counts;
     countChangeViaUserInteractionHasHappenedVar(false);
     countsVar(updatedCounts);
+
+    const successCallback = () => {
+      setNewCountValue(null);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      Snackbar.show({
+        backgroundColor: '#0CCE6B',
+        duration: Snackbar.LENGTH_LONG,
+        text: `Count set to ${newCountValue}`,
+        textColor: 'black'
+      });
+
+      trackCountValueChange({
+        originalCount: count,
+        screen: Screens.SETTINGS,
+        source: CountValueChangeSource.SET_COUNT,
+        updatedCount
+      });
+    };
 
     if (updatedCount.saved) {
       await updateCountInDb({

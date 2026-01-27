@@ -2,9 +2,17 @@ import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
 import { countChangeViaUserInteractionHasHappenedVar } from '../reactiveVars';
 import type { ReactiveVar } from '@apollo/client';
+import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
+import { track } from '../utils';
 import { updateCountInDb } from './updateCountInDb';
-import type { Count, SetDropdownVisible, SetShowSaveInputField } from '../types';
+import {
+  Count,
+  Screens,
+  SetDropdownVisible,
+  SetShowSaveInputField,
+  TrackingEventNames
+} from '../types';
 
 export const onSelectCount = async ({
   countsVar,
@@ -47,6 +55,15 @@ export const onSelectCount = async ({
             countsVar(newCounts);
             setDropdownVisible(false);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            track(
+              TrackingEventNames.SWITCHED_COUNT,
+              {
+                oldCount: currentCount ? sanitiseCountForTracking(currentCount) : undefined,
+                screen: Screens.SINGLE,
+                selectedCount: sanitiseCountForTracking(newSelectedCount)
+              },
+              'onSelectCount.ts'
+            );
           },
           text: 'Proceed Without Saving'
         },
@@ -86,6 +103,15 @@ export const onSelectCount = async ({
     const newCounts = countsVar().map(c => (c.id === selectedCount.id ? newSelectedCount : c));
     countChangeViaUserInteractionHasHappenedVar(false);
     countsVar(newCounts);
+    track(
+      TrackingEventNames.SWITCHED_COUNT,
+      {
+        oldCount: currentCount ? sanitiseCountForTracking(currentCount) : undefined,
+        screen: Screens.SINGLE,
+        selectedCount: sanitiseCountForTracking(newSelectedCount)
+      },
+      'onSelectCount.ts'
+    );
   };
 
   await updateCountInDb({

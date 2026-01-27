@@ -8,8 +8,20 @@ import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { onPressDelete, onPressReset, onPressStartNewCountButton } from '../utils';
-import type { SetShowEditInputField, SetShowSaveInputField, SetTitleToSave } from '../types';
+import {
+  onPressDelete,
+  onPressReset,
+  onPressStartNewCountButton,
+  sanitiseCountForTracking,
+  track
+} from '../utils';
+import {
+  Screens,
+  SetShowEditInputField,
+  SetShowSaveInputField,
+  SetTitleToSave,
+  TrackingEventNames
+} from '../types';
 
 const screenWidth = Dimensions.get('window').width;
 const TOOLBAR_ICON_SIZE = screenWidth < 400 ? 48 : screenWidth < 430 ? 54 : 64;
@@ -38,6 +50,15 @@ export const CountToolbar = ({
     setShowEditInputField(true);
     setShowOptionsMenu(false);
     setTitleToSave(count.title || 'Name');
+    track(
+      TrackingEventNames.EDIT_COUNT_NAME_SELECTED,
+      {
+        count: sanitiseCountForTracking(count),
+        screen: Screens.SINGLE,
+        source: 'count_menu_edit_name_button'
+      },
+      'countToolbar.tsx onPressEditButton()'
+    );
   };
 
   const onPressInfo = async () => {
@@ -46,6 +67,16 @@ export const CountToolbar = ({
     if (infoSnackbarIsOpen) {
       Snackbar.dismiss();
       setInfoSnackbarIsOpen(false);
+      track(
+        TrackingEventNames.COUNT_INFO_DISMISSED,
+        {
+          count: sanitiseCountForTracking(count),
+          screen: Screens.SINGLE,
+          source: 'count_info_button'
+        },
+        'countToolbar.tsx onPressInfo()'
+      );
+
       return;
     }
 
@@ -54,6 +85,15 @@ export const CountToolbar = ({
         onPress: () => {
           Snackbar.dismiss();
           setInfoSnackbarIsOpen(false);
+          track(
+            TrackingEventNames.COUNT_INFO_DISMISSED,
+            {
+              count: sanitiseCountForTracking(count),
+              screen: Screens.SINGLE,
+              source: 'count_info_snackbar_dismiss_button'
+            },
+            'countToolbar.tsx onPressInfo()'
+          );
         },
         text: 'Dismiss',
         textColor: 'black'
@@ -83,6 +123,15 @@ export const CountToolbar = ({
     });
 
     setInfoSnackbarIsOpen(true);
+    track(
+      TrackingEventNames.COUNT_INFO_OPENED,
+      {
+        count: sanitiseCountForTracking(count),
+        screen: Screens.SINGLE,
+        source: 'count_info_button'
+      },
+      'countToolbar.tsx onPressInfo()'
+    );
   };
 
   const onPressOptionsButton = () => {
@@ -120,7 +169,15 @@ export const CountToolbar = ({
       {Boolean(count.saved) && (
         <>
           <TouchableOpacity
-            onPress={() => onPressStartNewCountButton(count, countsVar, db)}
+            onPress={() =>
+              onPressStartNewCountButton({
+                count,
+                countsVar,
+                db,
+                screen: Screens.SINGLE,
+                source: 'start_new_count_button'
+              })
+            }
             style={styles.icon}
           >
             <Ionicons color={'#fff'} name='create-outline' size={TOOLBAR_ICON_SIZE} />
@@ -147,7 +204,16 @@ export const CountToolbar = ({
             />
             <Menu.Item
               leadingIcon={() => <Ionicons color='#fff' name='trash-outline' size={24} />}
-              onPress={() => onPressDelete(count, countsVar, db, setShowOptionsMenu)}
+              onPress={() =>
+                onPressDelete({
+                  count,
+                  countsVar,
+                  db,
+                  screen: Screens.SINGLE,
+                  setShowOptionsMenu,
+                  source: 'count_menu_delete_button'
+                })
+              }
               title='Delete'
               titleStyle={styles.menuItemTitleStyle}
             />

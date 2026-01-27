@@ -1,5 +1,7 @@
+import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
-import type { Count, DbCount } from '../types';
+import { track } from './track';
+import { Count, DbCount, TrackingEventNames } from '../types';
 
 export const updateCountInDb = async ({
   updatedCount,
@@ -35,14 +37,24 @@ export const updateCountInDb = async ({
       ]
     );
 
-    console.log(
+    console.info(
       'updateCountInDb(): Count updated successfully:',
       JSON.stringify(updatedCount, null, 2)
     );
 
     successCallback && successCallback();
-  } catch (e) {
-    console.error('updateCountInDb(): Error updating count in database: ', e);
+  } catch (error) {
+    console.error('updateCountInDb(): Error updating count in database: ', error);
+    track(
+      TrackingEventNames.ERROR,
+      {
+        attemptedUpdatedCount: sanitiseCountForTracking(updatedCount),
+        error,
+        message: 'Error updating count in database.'
+      },
+      'updateCountInDb()'
+    );
+
     errorCallback && errorCallback();
   }
 };

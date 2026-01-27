@@ -1,7 +1,19 @@
+import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
-import type { Count, DbCount } from '../types';
+import { track } from '../utils';
+import { Count, DbCount, Screens, TrackingEventNames } from '../types';
 
-export const saveCountToDb = async (count: Count, db: SQLiteDatabase) => {
+export const saveCountToDb = async ({
+  count,
+  db,
+  screen,
+  source
+}: {
+  count: Count;
+  db: SQLiteDatabase;
+  screen?: Screens;
+  source?: string;
+}) => {
   try {
     await db.runAsync(
       'INSERT INTO savedCounts (alerts, value, createdAt, currentlyCounting, id, lastModified, title) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -14,8 +26,28 @@ export const saveCountToDb = async (count: Count, db: SQLiteDatabase) => {
       count.title as DbCount['title']
     );
 
-    console.log('saveCountToDb(): Count saved successfully:', JSON.stringify(count, null, 2));
-  } catch (e) {
-    console.error('Error saving count to database: ', e);
+    console.info('saveCountToDb(): Count saved successfully:', JSON.stringify(count, null, 2));
+    track(
+      TrackingEventNames.COUNT_SAVED,
+      {
+        count: sanitiseCountForTracking(count),
+        screen,
+        source
+      },
+      'saveCountToDb.ts'
+    );
+  } catch (error) {
+    console.error('Error saving count to database: ', error);
+    track(
+      TrackingEventNames.ERROR,
+      {
+        count: sanitiseCountForTracking(count),
+        error,
+        message: 'Error saving count to database.',
+        screen,
+        source
+      },
+      'saveCountToDb.ts'
+    );
   }
 };

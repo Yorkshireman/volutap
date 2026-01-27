@@ -2,8 +2,8 @@ import * as Device from 'expo-device';
 import { CountingModeContext } from '../../contexts';
 import { countsVar } from '../../reactiveVars';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Screens } from '../../types';
 import { useReactiveVar } from '@apollo/client';
-import { useSetCountOnVolumeChange } from '../../hooks';
 import {
   CountingButtons,
   CountSelector,
@@ -14,6 +14,7 @@ import {
 } from '../../components';
 import { StyleSheet, Text, View } from 'react-native';
 import { useContext, useEffect, useState } from 'react';
+import { useSetCountOnVolumeChange, useTrackScreen } from '../../hooks';
 
 export default function Index() {
   const counts = useReactiveVar(countsVar);
@@ -23,6 +24,7 @@ export default function Index() {
   const [showSaveInputField, setShowSaveInputField] = useState(false);
   const [titleToSave, setTitleToSave] = useState('');
   useSetCountOnVolumeChange(countingWithVolumeButtons);
+  useTrackScreen(Screens.SINGLE);
 
   useEffect(() => {
     setIsIpad(Device.deviceType === Device.DeviceType.TABLET);

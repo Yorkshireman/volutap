@@ -1,14 +1,17 @@
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { updateCountInDb } from '../../utils';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useTrackScreen } from '../../hooks';
 import { countChangeViaUserInteractionHasHappenedVar, countsVar } from '../../reactiveVars';
+import { CountValueChangeSource, Screens } from '../../types';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { trackCountValueChange, updateCountInDb } from '../../utils';
 
 export default function MultiCount() {
   const counts = useReactiveVar(countsVar);
   const db = useSQLiteContext();
+  useTrackScreen(Screens.MULTI);
 
   const savedCounts = counts
     .filter(c => c.saved)
@@ -33,12 +36,25 @@ export default function MultiCount() {
     const originalCounts = counts;
     countChangeViaUserInteractionHasHappenedVar(true);
     countsVar(updatedCounts);
-    updatedCount.saved &&
-      (await updateCountInDb({
+
+    const successCallback = () =>
+      trackCountValueChange({
+        originalCount: count,
+        screen: Screens.MULTI,
+        source: CountValueChangeSource.SCREEN_BUTTON,
+        updatedCount
+      });
+
+    if (updatedCount.saved) {
+      await updateCountInDb({
         db,
         errorCallback: () => countsVar(originalCounts),
+        successCallback,
         updatedCount
-      }));
+      });
+    } else {
+      successCallback();
+    }
   };
 
   return (
