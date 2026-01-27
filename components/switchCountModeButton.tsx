@@ -19,7 +19,7 @@ export const SwitchCountModeButton = () => {
         selectedMode,
         source: 'switch_count_mode_button'
       },
-      'SwitchCountModeButton.tsx onPressSwitchCountModeButton()'
+      'switchCountModeButton.tsx onPressSwitchCountModeButton()'
     );
 
     setCountingWithVolumeButtons(!countingWithVolumeButtons);

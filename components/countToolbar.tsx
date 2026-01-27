@@ -57,7 +57,7 @@ export const CountToolbar = ({
         screen: Screens.SINGLE,
         source: 'count_menu_edit_name_button'
       },
-      'CountToolbar.tsx onPressEditButton()'
+      'countToolbar.tsx onPressEditButton()'
     );
   };
 
@@ -74,7 +74,7 @@ export const CountToolbar = ({
           screen: Screens.SINGLE,
           source: 'count_info_button'
         },
-        'CountToolbar.tsx onPressInfo()'
+        'countToolbar.tsx onPressInfo()'
       );
 
       return;
@@ -92,7 +92,7 @@ export const CountToolbar = ({
               screen: Screens.SINGLE,
               source: 'count_info_snackbar_dismiss_button'
             },
-            'CountToolbar.tsx onPressInfo()'
+            'countToolbar.tsx onPressInfo()'
           );
         },
         text: 'Dismiss',
@@ -130,7 +130,7 @@ export const CountToolbar = ({
         screen: Screens.SINGLE,
         source: 'count_info_button'
       },
-      'CountToolbar.tsx onPressInfo()'
+      'countToolbar.tsx onPressInfo()'
     );
   };
 

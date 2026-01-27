@@ -69,7 +69,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
           screen,
           source: 'alert_settings_delete_icon'
         },
-        'SavedAlert.tsx onConfirmDeleteAlert()'
+        'savedAlert.tsx onConfirmDeleteAlert()'
       );
     });
   };
@@ -100,7 +100,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
           screen,
           source: 'alert_settings_alert_at_input_field'
         },
-        'SavedAlert.tsx onSubmitEditingAlertAtValue()'
+        'savedAlert.tsx onSubmitEditingAlertAtValue()'
       );
     });
   };
@@ -122,7 +122,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
           screen,
           source: 'alert_settings_alert_at_toggle'
         },
-        'SavedAlert.tsx onToggleAlert()'
+        'savedAlert.tsx onToggleAlert()'
       );
     });
   };
@@ -193,7 +193,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
                     screen,
                     source: 'alert_settings_repeating_toggle'
                   },
-                  'SavedAlert.tsx Repeating Switch'
+                  'savedAlert.tsx Repeating Switch'
                 );
               });
             }}
@@ -233,7 +233,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
                   screen,
                   source: 'alert_settings_vibrate_toggle'
                 },
-                'SavedAlert.tsx Vibrate Switch'
+                'savedAlert.tsx Vibrate Switch'
               );
             });
           }}
@@ -268,7 +268,7 @@ export const SavedAlert = ({ alert, count }: { alert: Count['alerts'][number]; c
                   screen,
                   source: 'alert_settings_play_sound_toggle'
                 },
-                'SavedAlert.tsx Play Sound Switch'
+                'savedAlert.tsx Play Sound Switch'
               );
             });
           }}

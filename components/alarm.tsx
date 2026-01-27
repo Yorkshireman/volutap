@@ -57,7 +57,7 @@ export const Alarm = ({
 
   const onDismiss = () => {
     setTriggeredAlert(null);
-    track(TrackingEventNames.ALERT_DISMISSED, { alert: triggeredAlert }, 'alert.tsx onDismiss()');
+    track(TrackingEventNames.ALERT_DISMISSED, { alert: triggeredAlert }, 'alarm.tsx onDismiss()');
   };
 
   return (

@@ -43,7 +43,7 @@ export const AlarmProvider = ({ children }: { children: ReactNode }) => {
           alert: triggeredAlert,
           count: sanitiseCountForTracking(count)
         },
-        'AlarmProvider.tsx'
+        'alarmProvider.tsx'
       );
 
       if (!triggeredAlert.repeat) {

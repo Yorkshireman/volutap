@@ -64,7 +64,7 @@ export const EditCountTitleInputField = ({
             screen: Screens.SINGLE,
             source: 'editCountTitleInputField'
           },
-          'EditCountTitleInputField.tsx'
+          'editCountTitleInputField.tsx'
         );
       },
       updatedCount

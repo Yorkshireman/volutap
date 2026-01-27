@@ -72,7 +72,7 @@ export const AlertSettings = () => {
           screen: Screens.SETTINGS,
           source: 'alert_settings_input_field'
         },
-        'AlertSettings.tsx'
+        'alertSettings.tsx'
       );
     };
 
