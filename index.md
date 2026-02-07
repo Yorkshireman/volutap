@@ -10,4 +10,4 @@ Most interactions in the app are tracked for analytics, purely to get insights i
 
 ## Report a Bug or Request a Feature
 
-Please open a new Issue here: https://github.com/Yorkshireman/volutap/issues/new
+Please open a new Issue here: <https://github.com/Yorkshireman/volutap/issues/new>
