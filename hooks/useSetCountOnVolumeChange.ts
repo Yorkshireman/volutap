@@ -1,5 +1,4 @@
 import * as Haptics from 'expo-haptics';
-import { Audio } from 'expo-av';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { VolumeManager } from 'react-native-volume-manager';
@@ -27,12 +26,6 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
       justSwitchedMode.current = true;
 
       (async () => {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: false
-        });
-
         VolumeManager.showNativeVolumeUI({ enabled: false });
 
         // Set volume so it's not at 0 (so can be changed up or down)

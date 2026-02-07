@@ -20,8 +20,7 @@
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["audio"]
+        "ITSAppUsesNonExemptEncryption": false
       },
       "supportsTablet": true
     },
