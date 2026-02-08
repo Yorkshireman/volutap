@@ -2,6 +2,7 @@ import { CountingModeContext } from '../contexts';
 import { countsVar } from '../reactiveVars';
 import { useAudioPlayer } from 'expo-audio';
 import { useReactiveVar } from '@apollo/client';
+import { useSetCountOnVolumeChange } from './useSetCountOnVolumeChange';
 import { type Alert, AlertType } from '../types';
 import { useContext, useEffect } from 'react';
 
@@ -10,6 +11,7 @@ const audioSource = require('../assets/beep-alarm-366507.mp3');
 export const usePlaySound = (triggeredAlert: Alert | null) => {
   const counts = useReactiveVar(countsVar);
   const { countingWithVolumeButtons } = useContext(CountingModeContext);
+  const { restartSilentSound } = useSetCountOnVolumeChange(countingWithVolumeButtons);
 
   const count = counts.find(c => c.currentlyCounting);
   const player = useAudioPlayer(audioSource);
@@ -24,8 +26,13 @@ export const usePlaySound = (triggeredAlert: Alert | null) => {
     ) {
       player.seekTo(0);
       player.play();
+      player.addListener('playbackStatusUpdate', status => {
+        if (status.isLoaded && status.didJustFinish) {
+          countingWithVolumeButtons && restartSilentSound();
+        }
+      });
 
       return;
     }
-  }, [count, countingWithVolumeButtons, player, triggeredAlert]);
+  }, [count, countingWithVolumeButtons, restartSilentSound, triggeredAlert, player]);
 };
