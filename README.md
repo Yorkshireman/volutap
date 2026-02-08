@@ -30,3 +30,8 @@ NB not possible to run in Expo Go due to `react-native-volume-manager` dependenc
 ## Releasing
 
 When bumping the app version, make sure the `appVersion` in `setupAnalytics.ts` is also updated.
+
+- `eas build --profile production --platform ios`
+- `eas submit --platform ios`
+- Test through Testflight
+- Submit build for review at https://appstoreconnect.apple.com when ready
