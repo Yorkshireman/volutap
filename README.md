@@ -3,6 +3,7 @@
 ## Creating and installing a development build on a physical iPhone
 
 - `eas env:pull --environment development` - this should create a `.env.local` file and populate it with the `AMPLITUDE_API_KEY` key/value pair that is hosted at https://expo.dev/accounts/codedegen/projects/volutap/environment-variables
+- If the app's dependencies have been changed, run `npx expo prebuild -p ios`
 - `npx expo run:ios -d`
 - Choose physical iPhone (should show up if usb connected or on same network with no VPNs on)
 
