@@ -4,6 +4,7 @@ export { onPressDelete } from './onPressDelete';
 export { onPressReset } from './onPressReset';
 export { onPressStartNewCountButton } from './onPressStartNewCountButton';
 export { onSelectCount } from './onSelectCount';
+export { promptForRating } from './promptForRating';
 export { sanitiseCountForTracking } from './sanitiseCountForTracking';
 export { saveCountToDb } from './saveCountToDb';
 export { setupAnalytics } from './setupAnalytics';

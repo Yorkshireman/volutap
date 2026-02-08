@@ -1,7 +1,7 @@
 import { sanitiseCountForTracking } from './sanitiseCountForTracking';
 import { SQLiteDatabase } from 'expo-sqlite';
-import { track } from '../utils';
 import { Count, DbCount, Screens, TrackingEventNames } from '../types';
+import { promptForRating, track } from '../utils';
 
 export const saveCountToDb = async ({
   count,
@@ -36,6 +36,8 @@ export const saveCountToDb = async ({
       },
       'saveCountToDb.ts'
     );
+
+    await promptForRating({ consumer: 'saveCountToDb.ts', source });
   } catch (error) {
     console.error('Error saving count to database: ', error);
     track(
