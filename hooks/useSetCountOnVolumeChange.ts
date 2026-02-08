@@ -1,4 +1,5 @@
 import * as Haptics from 'expo-haptics';
+import { Audio } from 'expo-av';
 import { useReactiveVar } from '@apollo/client';
 import { useSQLiteContext } from 'expo-sqlite';
 import { VolumeManager } from 'react-native-volume-manager';
@@ -18,6 +19,21 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
   const didMount = useRef(false);
   const justSwitchedMode = useRef(false);
   const programmaticVolumeChangeRef = useRef(false);
+  const silentSoundRef = useRef<Audio.Sound | null>(null);
+
+  const startSilentSound = async () => {
+    if (silentSoundRef.current) {
+      await silentSoundRef.current.unloadAsync();
+    }
+
+    const { sound } = await Audio.Sound.createAsync(require('../assets/silent.mp3'), {
+      isLooping: true,
+      shouldPlay: true,
+      volume: 0
+    });
+
+    silentSoundRef.current = sound;
+  };
 
   useEffect(() => {
     let sub: { remove: () => void } | null = null;
@@ -26,6 +42,14 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
       justSwitchedMode.current = true;
 
       (async () => {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false
+        });
+
+        await startSilentSound();
+
         VolumeManager.showNativeVolumeUI({ enabled: false });
 
         // Set volume so it's not at 0 (so can be changed up or down)
@@ -122,6 +146,7 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
     }
 
     return () => {
+      silentSoundRef.current?.unloadAsync();
       sub?.remove();
     };
   }, [countingWithVolumeButtons, db]);
@@ -154,5 +179,5 @@ export const useSetCountOnVolumeChange = (countingWithVolumeButtons: boolean) =>
     await VolumeManager.setVolume(0.5);
   };
 
-  return { setVolumeToMid };
+  return { restartSilentSound: startSilentSound, setVolumeToMid };
 };
