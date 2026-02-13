@@ -67,6 +67,7 @@ export enum TrackingEventNames {
   ALERT_TRIGGERED = 'alert_triggered',
   ALERT_VIBRATE_TOGGLED_OFF = 'alert_vibrate_toggled_off',
   ALERT_VIBRATE_TOGGLED_ON = 'alert_vibrate_toggled_on',
+  APP_STORE_REVIEW_PROMPT_NOT_AVAILABLE = 'app_store_review_prompt_not_available',
   COUNT_DELETED = 'count_deleted',
   COUNT_INFO_DISMISSED = 'count_info_dismissed',
   COUNT_INFO_OPENED = 'count_info_opened',
