@@ -37,7 +37,7 @@ export const saveCountToDb = async ({
       'saveCountToDb.ts'
     );
 
-    await promptForRating({ consumer: 'saveCountToDb.ts', source });
+    await promptForRating({ consumer: 'saveCountToDb.ts', screen });
   } catch (error) {
     console.error('Error saving count to database: ', error);
     track(
