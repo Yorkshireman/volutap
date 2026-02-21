@@ -10,7 +10,7 @@ export const setupAnalytics = () => {
 
   try {
     init(amplitudeApiKey, undefined, {
-      appVersion: '1.0.0',
+      appVersion: '1.0.1',
       disableCookies: true,
       logLevel: Types.LogLevel.Verbose,
       serverZone: 'EU',
