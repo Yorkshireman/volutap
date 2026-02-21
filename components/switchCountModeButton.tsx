@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     borderRadius: 20,
     borderWidth: 1,
+    minHeight: 60,
     padding: 18
   },
   switchCountModeButtonText: {
