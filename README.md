@@ -1,4 +1,4 @@
-# Counter
+# VoluTap
 
 ## Creating and installing a development build on a physical iPhone
 
